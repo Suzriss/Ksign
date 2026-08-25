@@ -92,16 +92,27 @@ extension Storage {
 	}
 
 
+	/// The only source shipped with the app: Ceresify's CheckOver catalog.
+	/// Everything the store lists comes from here, so this stays a single entry.
+	static let builtInSourceURLs = [
+		"https://dev.ceresify.com/api/check0ver-repo/repo.json"
+	]
+
 	func addBuiltInSources() {
-		let builtInSourceURLs = [
-            "https://raw.githubusercontent.com/Nyasami/Ksign/refs/heads/main/repo.json",
-            "https://community-apps.sidestore.io/sidecommunity.json",
-            "https://github.com/LiveContainer/LiveContainer/releases/download/1.0/apps.json",
-            "https://alt.crystall1ne.dev"
-		]
-		
-		for urlString in builtInSourceURLs {
-			FR.handleSource(urlString) { }
+		for urlString in Self.builtInSourceURLs {
+			FR.handleSource(urlString, silent: true) { }
+		}
+	}
+
+	/// Drops every stored source. Used by the one-time migration that moves
+	/// existing installs off the sources older builds seeded.
+	func removeAllSources() {
+		for source in getSources() {
+			context.delete(source)
+		}
+
+		if context.hasChanges {
+			try? context.save()
 		}
 	}
 

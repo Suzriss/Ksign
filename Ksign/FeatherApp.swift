@@ -84,10 +84,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         _createPipeline()
         _createSourcesDirectory()
-        if !UserDefaults.standard.bool(forKey: "hasInitializedBuiltInSources") {
-            _initializeBuiltInSources()
-            UserDefaults.standard.set(true, forKey: "hasInitializedBuiltInSources")
-        }
+        _migrateSourcesIfNeeded()
         
         _clean()
         
@@ -101,8 +98,23 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
     
-    private func _initializeBuiltInSources() { 
+    /// Bumped whenever the shipped source list changes, so existing installs
+    /// re-seed instead of keeping whatever the previous build stored.
+    private static let _sourcesMigrationKey = "ceresify.sourcesMigration.v1"
+
+    /// Clears every stored source and seeds the CheckOver catalog. Older builds
+    /// seeded four third-party sources (Nyasami, SideStore, LiveContainer,
+    /// crystall1ne) which stay in Core Data forever otherwise, so the wipe is
+    /// what actually moves upgraders onto the single Ceresify catalog.
+    private func _migrateSourcesIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: Self._sourcesMigrationKey) else { return }
+
+        Storage.shared.removeAllSources()
         Storage.shared.addBuiltInSources()
+
+        defaults.set(true, forKey: Self._sourcesMigrationKey)
+        defaults.set(true, forKey: "hasInitializedBuiltInSources")
     }
     
     private func _createPipeline() {

@@ -34,6 +34,8 @@ struct SourceAppsView: View {
     
     @State private var _sortOption: SortOption = .default
     @State private var _selectedRoute: SourceAppRoute?
+    @State private var _selectedCategory: String?
+    @State private var _categories: [SourceAppsCategoryStrip.Category] = []
     
     @State var isLoading = true
     @State var hasLoadedOnce = false
@@ -67,14 +69,25 @@ struct SourceAppsView: View {
                 let _sources,
                 !_sources.isEmpty
             {
-                SourceAppsTableRepresentableView(
-                    sources: _sources,
-                    searchText: $_searchText,
-                    sortOption: $_sortOption,
-                    sortAscending: $_sortAscending,
-                    onSelect: {self._selectedRoute = $0}
-                )
-                .ignoresSafeArea()
+                VStack(spacing: 0) {
+                    if !_categories.isEmpty {
+                        SourceAppsCategoryStrip(
+                            categories: _categories,
+                            selection: $_selectedCategory
+                        )
+                        Divider()
+                    }
+                    
+                    SourceAppsTableRepresentableView(
+                        sources: _sources,
+                        searchText: $_searchText,
+                        sortOption: $_sortOption,
+                        sortAscending: $_sortAscending,
+                        selectedCategory: $_selectedCategory,
+                        onSelect: {self._selectedRoute = $0}
+                    )
+                    .ignoresSafeArea(edges: .bottom)
+                }
             } else {
                 if #available(iOS 17, *) {
                     ContentUnavailableView {
@@ -169,7 +182,20 @@ struct SourceAppsView: View {
         
         Task {
             let loadedSources = object.compactMap { viewModel.sources[$0] }
+            let loadedCategories = SourceAppsCategoryStrip.categories(from: loadedSources)
+            
             _sources = loadedSources
+            _categories = loadedCategories
+            
+            // A refresh can drop the category the filter was pinned to, which
+            // would otherwise leave the list permanently empty.
+            if
+                let selected = _selectedCategory,
+                !loadedCategories.contains(where: { $0.name == selected })
+            {
+                _selectedCategory = nil
+            }
+            
             withAnimation(.easeIn(duration: 0.2)) {
                 isLoading = false
             }

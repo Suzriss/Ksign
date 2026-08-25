@@ -169,6 +169,9 @@ extension ResetView {
 	
 	static func resetSources() {
 		Storage.shared.clearContext(request: AltSource.fetchRequest())
+		// The store has a single shipped source, so a reset that left the list
+		// empty would leave the user with nothing to browse.
+		Storage.shared.addBuiltInSources()
 	}
 	
 	static func deleteSignedApps() {

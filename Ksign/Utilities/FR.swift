@@ -11,6 +11,7 @@ import Zsign
 import NimbleJSON
 import AltSourceKit
 import IDeviceSwift
+import OSLog
 
 enum FR {
 	static func handlePackageFile(
@@ -189,8 +190,11 @@ enum FR {
 	}
 	#endif
 	
+	/// - Parameter silent: suppresses the alerts, for the built-in sources seeded
+	///   at launch where there is no user action to report back to.
 	static func handleSource(
 		_ urlString: String,
+		silent: Bool = false,
 		competion: @escaping () -> Void
 	) {
 		guard let url = URL(string: urlString) else { return }
@@ -204,12 +208,16 @@ enum FR {
 					Storage.shared.addSource(url, repository: data, id: id) { _ in
 						competion()
 					}
-				} else {
+				} else if !silent {
 					DispatchQueue.main.async {
 						UIAlertController.showAlertWithOk(title: "Error", message: "Repository already added.")
 					}
 				}
 			case .failure(let error):
+				guard !silent else {
+					Logger.misc.error("Failed to fetch source \(urlString): \(error)")
+					return
+				}
 				DispatchQueue.main.async {
 					UIAlertController.showAlertWithOk(title: "Error", message: error.localizedDescription)
 				}
