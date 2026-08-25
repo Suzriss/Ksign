@@ -201,19 +201,6 @@ struct SourceAppsDetailView: View {
 					UINotificationFeedbackGenerator().notificationOccurred(.success)
 				}
 			}
-			
-			NBToolbarButton(
-				systemImage: "square.and.arrow.up",
-				placement: .topBarTrailing
-			) {
-				let sharedString = """
-				\(app.currentName) - \(app.currentVersion ?? "0")
-				\(app.currentDescription ?? .localized("An awesome application"))
-				---
-				\(source.website?.absoluteString ?? source.name ?? "")
-				"""
-				UIActivityViewController.show(activityItems: [sharedString])
-			}
 		}
 		.fullScreenCover(isPresented: $_isScreenshotPreviewPresented) {
 			if !_screenshotURLs.isEmpty {

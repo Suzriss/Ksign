@@ -44,7 +44,7 @@ struct SourceAppsView: View {
     
     private var _navigationTitle: String {
         if fromAppStore {
-            return .localized("App Store")
+            return .localized("Apps")
         } else if object.count == 1 {
             return object[0].name ?? .localized("Unknown")
         } else {

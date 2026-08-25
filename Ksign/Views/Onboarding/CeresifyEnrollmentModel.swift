@@ -13,9 +13,11 @@ import NimbleExtensions
 ///
 /// Apple only hands a device's UDID to a Profile Service, and only Safari can
 /// install one, so the profile is opened outside the app and the result is
-/// waited on here: the server writes the UDID when the profile phones home,
-/// and `/poll` reports it back. Once the UDID lands, the account's certificate
-/// is fetched and imported, which is what the user would otherwise be doing by
+/// waited on here. This walks the same path the website's start page does:
+/// `/api/device/nekoo-enroll?token=` opens the session and redirects to the
+/// nekoo profile, and `/api/device/resolve?token=` reports the UDID back once
+/// the profile phones home. Once the UDID lands, the account's certificate is
+/// fetched and imported, which is what the user would otherwise be doing by
 /// hand with two files and a password.
 ///
 /// Every endpoint it touches already existed for the website — nothing here
@@ -41,9 +43,12 @@ final class CeresifyEnrollmentModel: ObservableObject {
     private enum _Keys {
         static let udid = "Ceresify.udid"
         static let deviceName = "Ceresify.deviceName"
+        /// The website keeps the same token around so a user who wanders off
+        /// mid-install can come back to a screen that still resolves.
+        static let enrollToken = "Ceresify.enrollToken"
     }
     
-    private var _enrollId: String?
+    private var _enrollToken: String?
     private var _pollTask: Task<Void, Never>?
     
     private static let _pollInterval: Duration = .seconds(3)
@@ -67,23 +72,43 @@ final class CeresifyEnrollmentModel: ObservableObject {
     
     /// Hands the profile to Safari and starts waiting for the device to report.
     func register() {
-        let enrollId = Self._makeEnrollId()
-        _enrollId = enrollId
+        let token = Self._makeEnrollToken()
+        _enrollToken = token
+        UserDefaults.standard.set(token, forKey: _Keys.enrollToken)
         
         var components = URLComponents(
-            url: CeresifyAPI.baseURL.appendingPathComponent("api/device/enroll"),
+            url: CeresifyAPI.baseURL.appendingPathComponent("api/device/nekoo-enroll"),
             resolvingAgainstBaseURL: false
         )
-        components?.queryItems = [URLQueryItem(name: "id", value: enrollId)]
+        components?.queryItems = [URLQueryItem(name: "token", value: token)]
         
         guard let url = components?.url else {
             step = .failed(.localized("Couldn't reach the server."))
             return
         }
         
+        // The server answers with a redirect to the nekoo profile, which only
+        // Safari can install.
         UIApplication.open(url)
         step = .waiting
-        _startPolling(enrollId: enrollId)
+        _startPolling(token: token)
+    }
+    
+    /// Called when the app comes back to the front: the user may have installed
+    /// the profile while this screen sat in the background.
+    func resumeIfPending() {
+        guard step == .waiting || step == .intro else { return }
+        
+        guard
+            storedUdid == nil,
+            let token = _enrollToken ?? UserDefaults.standard.string(forKey: _Keys.enrollToken)?.nilIfEmpty
+        else {
+            return
+        }
+        
+        _enrollToken = token
+        step = .waiting
+        _startPolling(token: token)
     }
     
     /// Picks up where a previous launch left off: the device is known, so only
@@ -104,7 +129,7 @@ final class CeresifyEnrollmentModel: ObservableObject {
     
     // MARK: Polling
     
-    private func _startPolling(enrollId: String) {
+    private func _startPolling(token: String) {
         _pollTask?.cancel()
         
         _pollTask = Task { [weak self] in
@@ -115,7 +140,7 @@ final class CeresifyEnrollmentModel: ObservableObject {
                 
                 if Task.isCancelled { return }
                 
-                guard let result = await Self._poll(enrollId: enrollId) else { continue }
+                guard let result = await Self._resolve(token: token) else { continue }
                 
                 await self?._deviceDidRegister(udid: result.udid, deviceName: result.deviceName)
                 return
@@ -132,6 +157,7 @@ final class CeresifyEnrollmentModel: ObservableObject {
     }
     
     private func _deviceDidRegister(udid: String, deviceName: String?) async {
+        UserDefaults.standard.removeObject(forKey: _Keys.enrollToken)
         UserDefaults.standard.set(udid, forKey: _Keys.udid)
         UserDefaults.standard.set(deviceName ?? "", forKey: _Keys.deviceName)
         await _fetchCertificate(udid: udid)
@@ -190,8 +216,8 @@ final class CeresifyEnrollmentModel: ObservableObject {
         let deviceName: String?
     }
     
-    private struct _PollResponse: Decodable {
-        let ready: Bool?
+    private struct _ResolveResponse: Decodable {
+        let ok: Bool?
         let udid: String?
         let deviceName: String?
     }
@@ -213,15 +239,24 @@ final class CeresifyEnrollmentModel: ObservableObject {
         }
     }
     
-    private static func _poll(enrollId: String) async -> _PollResult? {
-        let url = CeresifyAPI.baseURL
-            .appendingPathComponent("api/device/poll")
-            .appendingPathComponent(enrollId)
+    private static func _resolve(token: String) async -> _PollResult? {
+        var components = URLComponents(
+            url: CeresifyAPI.baseURL.appendingPathComponent("api/device/resolve"),
+            resolvingAgainstBaseURL: false
+        )
+        components?.queryItems = [URLQueryItem(name: "token", value: token)]
+        
+        guard let url = components?.url else { return nil }
+        
+        // The answer flips from `{"ok":false}` to the UDID the moment the
+        // profile reports in, so a plain miss is not an error.
+        var request = URLRequest(url: url)
+        request.cachePolicy = .reloadIgnoringLocalCacheData
         
         guard
-            let (data, _) = try? await URLSession.shared.data(from: url),
-            let response = try? JSONDecoder().decode(_PollResponse.self, from: data),
-            response.ready == true,
+            let (data, _) = try? await URLSession.shared.data(for: request),
+            let response = try? JSONDecoder().decode(_ResolveResponse.self, from: data),
+            response.ok == true,
             let udid = response.udid,
             !udid.isEmpty
         else {
@@ -279,9 +314,10 @@ final class CeresifyEnrollmentModel: ObservableObject {
         return file
     }
     
-    /// The server only accepts an id shaped like a Mongo object id.
-    private static func _makeEnrollId() -> String {
-        (0..<12)
+    /// The website hands nekoo a 32-character hex token; the server matches on
+    /// exactly that shape when the profile comes back.
+    private static func _makeEnrollToken() -> String {
+        (0..<16)
             .map { _ in String(format: "%02x", UInt8.random(in: 0...255)) }
             .joined()
     }

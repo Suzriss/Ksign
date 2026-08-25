@@ -11,6 +11,8 @@ import NimbleViews
 struct CeresifyEnrollmentView: View {
     @StateObject private var _model = CeresifyEnrollmentModel()
     
+    @Environment(\.scenePhase) private var _scenePhase
+    
     /// Set once the user has been through here, so a launch without a
     /// certificate doesn't corner them every time.
     @AppStorage("Ceresify.hasSeenEnrollment") private var _hasSeenEnrollment: Bool = false
@@ -51,6 +53,13 @@ struct CeresifyEnrollmentView: View {
             // certificate, so skip straight past the profile step.
             if _model.storedUdid != nil, _model.step == .intro {
                 _model.fetchCertificateForStoredDevice()
+            }
+        }
+        .onChange(of: _scenePhase) { phase in
+            // Installing the profile means leaving for Settings, so coming back
+            // is the moment the UDID is most likely to be waiting.
+            if phase == .active {
+                _model.resumeIfPending()
             }
         }
         .onChange(of: _model.step) { step in

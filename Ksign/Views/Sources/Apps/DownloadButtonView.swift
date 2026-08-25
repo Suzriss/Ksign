@@ -21,6 +21,9 @@ struct DownloadButtonView: View {
 	@ObservedObject private var downloadManager = DownloadManager.shared
 
 	@State private var downloadProgress: Double = 0
+	@State private var _isExtracting = false
+	@State private var _bytesDownloaded: Int64 = 0
+	@State private var _totalBytes: Int64 = 0
 	@State private var cancellable: AnyCancellable?
 	@State private var _signingApp: AnyApp?
 	@State private var _installingApp: AnyApp?
@@ -73,7 +76,7 @@ struct DownloadButtonView: View {
 			if let cloudSource = _cloudSource {
 				_cloudPill(for: cloudSource)
 			} else if let currentDownload = downloadManager.getDownload(by: app.currentUniqueId) {
-				_progressRing(for: currentDownload)
+				_progressPill(for: currentDownload)
 			} else if let signed = _signed.first {
 				_pill(.localized("Install")) {
 					_installingApp = AnyApp(base: signed)
@@ -170,43 +173,117 @@ struct DownloadButtonView: View {
 		.compatTransition()
 	}
 	
+	/// What the tap turns into: the pill stays where it was and fills up, so the
+	/// app being fetched keeps its place in the row and the wait has a visible
+	/// end to it.
+	///
+	/// The number matters more than the ring did — "how much is left" is the
+	/// question being asked — so the percentage is spelled out, and the bar
+	/// behind it moves with `.smooth` rather than jumping between updates.
 	@ViewBuilder
-	private func _progressRing(for currentDownload: Download) -> some View {
+	private func _progressPill(for currentDownload: Download) -> some View {
+		let percent = Int((downloadProgress * 100).rounded())
+		
 		ZStack {
-			Circle()
-				.trim(from: 0, to: downloadProgress)
-				.stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.3, lineCap: .round))
-				.rotationEffect(.degrees(-90))
-				.frame(width: 31, height: 31)
-				.animation(.smooth, value: downloadProgress)
-
-			Image(systemName: downloadProgress >= 0.75 ? "archivebox" : "square.fill")
-				.foregroundStyle(.tint)
-				.font(.footnote).bold()
+			Capsule()
+				.fill(Color(uiColor: .quaternarySystemFill))
+			
+			// The fill is clipped to the capsule so it reads as one control
+			// filling up rather than a bar drawn inside a pill.
+			GeometryReader { proxy in
+				Capsule()
+					.fill(Color.accentColor.opacity(0.28))
+					.frame(width: max(0, min(1, downloadProgress)) * proxy.size.width)
+					.animation(.smooth, value: downloadProgress)
+			}
+			
+			HStack(spacing: 4) {
+				if _isExtracting {
+					_extractingIcon
+					
+					Text(.localized("Extracting"))
+						.font(.caption.bold())
+						.lineLimit(1)
+						.minimumScaleFactor(0.8)
+				} else {
+					Image(systemName: "stop.fill")
+						.font(.system(size: 9, weight: .bold))
+					
+					Text(verbatim: "\(percent)%")
+						.font(.subheadline.bold())
+						.monospacedDigit()
+						.contentTransition(.numericText())
+						.animation(.smooth, value: percent)
+				}
+			}
+			.foregroundStyle(Color.accentColor)
+			.padding(.horizontal, 10)
 		}
+		.frame(width: 92, height: 31)
+		.clipShape(Capsule())
+		.contentShape(Capsule())
 		.onTapGesture {
-			if downloadProgress <= 0.75 {
+			// Once the file is down and being unpacked there is nothing left to
+			// call off, so the tap stops meaning "cancel".
+			if !_isExtracting {
 				downloadManager.cancelDownload(currentDownload)
 			}
 		}
+		.accessibilityLabel(Text(verbatim: .localized("Downloading")))
+		.accessibilityValue(Text(verbatim: _accessibilityValue(percent: percent)))
 		.compatTransition()
 	}
-
+	
+	@ViewBuilder
+	private var _extractingIcon: some View {
+		let icon = Image(systemName: "archivebox.fill")
+			.font(.system(size: 11, weight: .bold))
+		
+		if #available(iOS 17, *) {
+			icon.symbolEffect(.pulse)
+		} else {
+			icon
+		}
+	}
+	
+	private func _accessibilityValue(percent: Int) -> String {
+		guard !_isExtracting else {
+			return .localized("Extracting")
+		}
+		
+		guard _totalBytes > 0 else {
+			return "\(percent)%"
+		}
+		
+		return "\(percent)% — \(_bytesDownloaded.formattedByteCount) / \(_totalBytes.formattedByteCount)"
+	}
+	
 	private func setupObserver() {
 		cancellable?.cancel()
 		guard let download = downloadManager.getDownload(by: app.currentUniqueId) else {
 			downloadProgress = 0
+			_isExtracting = false
+			_bytesDownloaded = 0
+			_totalBytes = 0
 			return
 		}
-		downloadProgress = download.overallProgress
+		_update(from: download)
 
-		let publisher = Publishers.CombineLatest(
+		let publisher = Publishers.CombineLatest3(
 			download.$progress,
-			download.$unpackageProgress
+			download.$unpackageProgress,
+			download.$bytesDownloaded
 		)
 
-		cancellable = publisher.sink { _, _ in
-			downloadProgress = download.overallProgress
+		cancellable = publisher.sink { _, _, _ in
+			self._update(from: download)
 		}
+	}
+	
+	private func _update(from download: Download) {
+		downloadProgress = download.overallProgress
+		_isExtracting = download.unpackageProgress > 0
+		_bytesDownloaded = download.bytesDownloaded
+		_totalBytes = download.totalBytes
 	}
 }

@@ -650,6 +650,17 @@
         }
       }
     },
+    "Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فعّال"
+          }
+        }
+      }
+    },
     "Add": {
       "extractionState": "manual",
       "localizations": {
@@ -785,6 +796,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thêm nguồn"
+          }
+        }
+      }
+    },
+    "Add an IPA from a link or from your files, and sign it right here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضف ملف IPA من رابط أو من ملفاتك، ووقّعه من هنا مباشرة."
           }
         }
       }
@@ -1491,6 +1513,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Giao diện"
+          }
+        }
+      }
+    },
+    "Apps": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التطبيقات"
           }
         }
       }
@@ -2780,6 +2813,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Details"
+          }
+        }
+      }
+    },
+    "Device": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الجهاز"
           }
         }
       }
@@ -4250,6 +4294,17 @@
         }
       }
     },
+    "Expires %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ينتهي %@"
+          }
+        }
+      }
+    },
     "Export": {
       "comment": "Export repositories",
       "extractionState": "manual",
@@ -4350,6 +4405,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Giải nén"
+          }
+        }
+      }
+    },
+    "Extracting": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري فك الضغط"
           }
         }
       }
@@ -5078,6 +5144,28 @@
         }
       }
     },
+    "From a file": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "من ملف"
+          }
+        }
+      }
+    },
+    "From a link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "من رابط"
+          }
+        }
+      }
+    },
     "Fully Local": {
       "extractionState": "manual",
       "localizations": {
@@ -5143,7 +5231,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "عام"
+            "value": "عامة"
           }
         },
         "cs": {
@@ -6643,6 +6731,17 @@
         }
       }
     },
+    "Invalid URL format": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "صيغة الرابط غير صحيحة"
+          }
+        }
+      }
+    },
     "Keep app running in background": {
       "extractionState": "manual",
       "localizations": {
@@ -7627,6 +7726,39 @@
         }
       }
     },
+    "No products yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا توجد منتجات حالياً."
+          }
+        }
+      }
+    },
+    "Not registered": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "غير مسجّل"
+          }
+        }
+      }
+    },
+    "Not subscribed": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "غير مشترك"
+          }
+        }
+      }
+    },
     "Nothing featured yet.": {
       "localizations": {
         "ar": {
@@ -7639,6 +7771,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nothing featured yet."
+          }
+        }
+      }
+    },
+    "Nothing to sign yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يوجد شيء للتوقيع"
           }
         }
       }
@@ -8117,6 +8260,17 @@
         }
       }
     },
+    "Order now": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اشترِ الآن"
+          }
+        }
+      }
+    },
     "PPQ Protection": {
       "extractionState": "manual",
       "localizations": {
@@ -8335,6 +8489,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mật khẩu (để trống nếu không có)"
+          }
+        }
+      }
+    },
+    "Paste a link to an IPA, or to a page that holds one. It's downloaded onto this device and signed here — nothing is uploaded anywhere.\n- https://example.com/app.ipa\n- itms-services://?url=https://example.com\n- https://example.com": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصق رابط ملف IPA، أو رابط صفحة تحتوي عليه. يُنزَّل على هذا الجهاز ويُوقَّع هنا — لا يُرفع أي شيء إلى أي مكان.\n- https://example.com/app.ipa\n- itms-services://?url=https://example.com\n- https://example.com"
+          }
+        }
+      }
+    },
+    "Paste an IPA URL": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصق رابط ملف IPA"
+          }
+        }
+      }
+    },
+    "Pick an IPA on this device": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر ملف IPA من الجهاز"
           }
         }
       }
@@ -8727,6 +8914,17 @@
         }
       }
     },
+    "Products": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المنتجات"
+          }
+        }
+      }
+    },
     "Properties": {
       "comment": "Select custom properties for the app",
       "extractionState": "manual",
@@ -9019,6 +9217,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ký lại"
+          }
+        }
+      }
+    },
+    "Ready to sign": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاهز للتوقيع"
           }
         }
       }
@@ -11202,6 +11411,17 @@
         }
       }
     },
+    "Sign from a link": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التوقيع من رابط"
+          }
+        }
+      }
+    },
     "Signed": {
       "extractionState": "manual",
       "localizations": {
@@ -11280,6 +11500,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ứng dụng đã ký"
+          }
+        }
+      }
+    },
+    "Signer": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التوقيع"
           }
         }
       }
@@ -11987,6 +12218,17 @@
         }
       }
     },
+    "Subscription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاشتراك"
+          }
+        }
+      }
+    },
     "Success": {
       "extractionState": "manual",
       "localizations": {
@@ -12457,6 +12699,17 @@
         }
       }
     },
+    "This device isn't registered yet. Register it to get a certificate and a subscription.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الجهاز غير مسجّل بعد. سجّله للحصول على شهادة واشتراك."
+          }
+        }
+      }
+    },
     "This device isn't subscribed yet. Once a subscription is active, come back and the certificate lands here.": {
       "localizations": {
         "ar": {
@@ -12877,6 +13130,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Loại"
+          }
+        }
+      }
+    },
+    "UDID": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المعرّف UDID"
           }
         }
       }
@@ -13570,6 +13834,17 @@
         }
       }
     },
+    "Your device": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جهازك"
+          }
+        }
+      }
+    },
     "Your device is registered. Bringing over the certificate.": {
       "localizations": {
         "ar": {
@@ -13598,6 +13873,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your subscription is active but no certificate has been issued yet. Contact support and try again."
+          }
+        }
+      }
+    },
+    "https://example.com/app.ipa": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://example.com/app.ipa"
           }
         }
       }

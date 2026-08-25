@@ -12,12 +12,21 @@ import UIKit
 /// supported way to put it back, so the bar is drawn here instead of handed to
 /// the system.
 ///
+/// Drawn to UIKit's own measurements — a 49pt row over the home indicator, a
+/// hairline separator, `.bar` material behind it, 25pt symbols above 10pt
+/// labels — so it reads as the system bar rather than a lookalike, down to the
+/// symbol bouncing as a tab is picked.
+///
 /// Tabs are all kept alive behind one another rather than swapped in and out,
 /// which is what a real tab bar does: leaving a tab and coming back keeps its
 /// scroll position and its navigation stack.
 struct BottomTabbarView: View {
-	@AppStorage("Feather.selectedTab") private var _selectedTabRawValue: String = TabEnum.appstore.rawValue
-	@State private var _selectedTab: TabEnum = .appstore
+	@AppStorage("Feather.selectedTab") private var _selectedTabRawValue: String = TabEnum.home.rawValue
+	@State private var _selectedTab: TabEnum = .home
+	
+	/// UIKit's compact tab bar height, which is what everything else on screen
+	/// is spaced against.
+	private let _barHeight: CGFloat = 49
 	
 	var body: some View {
 		ZStack {
@@ -45,14 +54,20 @@ struct BottomTabbarView: View {
 	}
 	
 	private var _bar: some View {
-		HStack(alignment: .top, spacing: 0) {
+		HStack(spacing: 0) {
 			ForEach(TabEnum.defaultTabs, id: \.hashValue) { tab in
 				_item(for: tab)
 			}
 		}
-		.padding(.top, 8)
-		.padding(.horizontal, 8)
-		.background(.bar)
+		.frame(height: _barHeight)
+		.frame(maxWidth: .infinity)
+		// The material has to reach past the inset and under the home
+		// indicator, or content scrolls through a clear strip below the bar.
+		.background {
+			Rectangle()
+				.fill(.bar)
+				.ignoresSafeArea(edges: .bottom)
+		}
 		.overlay(alignment: .top) {
 			Divider()
 		}
@@ -66,21 +81,43 @@ struct BottomTabbarView: View {
 			UISelectionFeedbackGenerator().selectionChanged()
 			_selectedTab = tab
 		} label: {
-			VStack(spacing: 3) {
-				Image(systemName: tab.icon)
-					.font(.system(size: 19, weight: .regular))
-					.frame(height: 22)
+			VStack(spacing: 2) {
+				_icon(for: tab, isSelected: isSelected)
 				
-				Text(tab.title)
+				Text(verbatim: tab.title)
 					.font(.system(size: 10, weight: .medium))
 					.lineLimit(1)
+					.minimumScaleFactor(0.85)
 			}
 			.foregroundStyle(isSelected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(Color.secondary))
-			.frame(maxWidth: .infinity)
+			.frame(maxWidth: .infinity, maxHeight: .infinity)
 			.contentShape(Rectangle())
 		}
-		.buttonStyle(.plain)
+		.buttonStyle(TabbarItemButtonStyle())
 		.accessibilityLabel(Text(verbatim: tab.title))
 		.accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
+	}
+	
+	@ViewBuilder
+	private func _icon(for tab: TabEnum, isSelected: Bool) -> some View {
+		let image = Image(systemName: tab.icon)
+			.font(.system(size: 22, weight: .regular))
+			.frame(height: 25)
+		
+		if #available(iOS 17, *) {
+			image.symbolEffect(.bounce, value: isSelected)
+		} else {
+			image
+		}
+	}
+}
+
+/// The system bar dims a tab on touch-down rather than tinting it, so the
+/// press reads the same way here.
+private struct TabbarItemButtonStyle: ButtonStyle {
+	func makeBody(configuration: Configuration) -> some View {
+		configuration.label
+			.opacity(configuration.isPressed ? 0.45 : 1)
+			.animation(.easeOut(duration: 0.12), value: configuration.isPressed)
 	}
 }
