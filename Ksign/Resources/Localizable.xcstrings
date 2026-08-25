@@ -1777,6 +1777,22 @@
         }
       }
     },
+    "Ceresify needs your device's UDID to issue a signing certificate. Tap below — Safari opens, downloads a profile, and you install it from Settings.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سيريسفاي يحتاج UDID مال جهازك حتى يصدر شهادة توقيع. اضغط تحت — يفتح سفاري وينزّل ملف تعريف، وتثبّته من الإعدادات."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceresify needs your device's UDID to issue a signing certificate. Tap below — Safari opens, downloads a profile, and you install it from Settings."
+          }
+        }
+      }
+    },
     "Certificate": {
       "extractionState": "manual",
       "localizations": {
@@ -1951,6 +1967,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thay đổi"
+          }
+        }
+      }
+    },
+    "Check again": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحقق مرة ثانية"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check again"
           }
         }
       }
@@ -4548,6 +4580,22 @@
         }
       }
     },
+    "Fetching your certificate": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نجيب شهادتك"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fetching your certificate"
+          }
+        }
+      }
+    },
     "Fetching...": {
       "extractionState": "manual",
       "localizations": {
@@ -6634,6 +6682,22 @@
         }
       }
     },
+    "Later": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لاحقاً"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        }
+      }
+    },
     "Library": {
       "comment": "Library tab",
       "extractionState": "manual",
@@ -7442,6 +7506,22 @@
         }
       }
     },
+    "No certificate on this account": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ماكو شهادة على هذا الحساب"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No certificate on this account"
+          }
+        }
+      }
+    },
     "No downloaded IPAs": {
       "extractionState": "manual",
       "localizations": {
@@ -7958,6 +8038,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mở tài liệu"
+          }
+        }
+      }
+    },
+    "Open Settings, tap the downloaded profile, and install it. This screen carries on by itself once your device reports in.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افتح الإعدادات، اضغط على ملف التعريف المنزّل وثبّته. هذه الشاشة تكمّل لحالها أول ما يوصل جهازك."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings, tap the downloaded profile, and install it. This screen carries on by itself once your device reports in."
           }
         }
       }
@@ -8923,6 +9019,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ký lại"
+          }
+        }
+      }
+    },
+    "Register this device": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل هذا الجهاز"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register this device"
+          }
+        }
+      }
+    },
+    "Register your device": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل جهازك"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register your device"
+          }
+        }
+      }
+    },
+    "Registration failed": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فشل التسجيل"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registration failed"
+          }
+        }
+      }
+    },
+    "Registration timed out. Try again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "انتهت مهلة التسجيل. جرّب مرة ثانية."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registration timed out. Try again."
           }
         }
       }
@@ -12115,6 +12275,38 @@
         }
       }
     },
+    "The certificate is installed and picked as your signing certificate. You can sign apps right away.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الشهادة انثبتت وصارت شهادة التوقيع مالتك. تگدر توقّع التطبيقات هسه."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The certificate is installed and picked as your signing certificate. You can sign apps right away."
+          }
+        }
+      }
+    },
+    "The certificate's password was rejected.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كلمة سر الشهادة مرفوضة."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The certificate's password was rejected."
+          }
+        }
+      }
+    },
     "The heartbeat is activated in the background, it will restart when the app is re-opened or prompted. If the status below is pulsing, that means its healthy.": {
       "extractionState": "manual",
       "localizations": {
@@ -12229,6 +12421,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bạn cần khởi động lại ứng dụng sau khi thực hiện những thay đổi này"
+          }
+        }
+      }
+    },
+    "This device isn't subscribed yet. Once a subscription is active, come back and the certificate lands here.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الجهاز ما عليه اشتراك. أول ما يفعّل الاشتراك، ارجع لهنا وتوصلك الشهادة."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device isn't subscribed yet. Once a subscription is active, come back and the certificate lands here."
           }
         }
       }
@@ -12471,6 +12679,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Việc bật hiển thị bảng sẽ hiện một bảng chia sẻ sau khi xuất tệp của bạn."
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جرّب مرة ثانية"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
           }
         }
       }
@@ -13192,6 +13416,22 @@
         }
       }
     },
+    "Waiting for your device": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بانتظار جهازك"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for your device"
+          }
+        }
+      }
+    },
     "Web Browser": {
       "localizations": {
         "ar": {
@@ -13278,6 +13518,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bạn có thay đổi chưa lưu, bạn có muốn lưu trước khi đóng không?"
+          }
+        }
+      }
+    },
+    "Your certificate is ready": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهادتك جاهزة"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your certificate is ready"
+          }
+        }
+      }
+    },
+    "Your device is registered. Bringing over the certificate.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جهازك انسجّل. نجيب الشهادة هسه."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your device is registered. Bringing over the certificate."
+          }
+        }
+      }
+    },
+    "Your subscription is active but no certificate has been issued yet. Contact support and try again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اشتراكك فعّال بس ما انصدرت شهادة بعد. تواصل مع الدعم وجرّب مرة ثانية."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your subscription is active but no certificate has been issued yet. Contact support and try again."
           }
         }
       }

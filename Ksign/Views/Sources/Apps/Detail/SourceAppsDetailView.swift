@@ -192,6 +192,17 @@ struct SourceAppsDetailView: View {
 		.shouldSetInset()
 		.toolbar {
 			NBToolbarButton(
+				systemImage: "link",
+				placement: .topBarTrailing,
+				isDisabled: app.currentDownloadUrl == nil
+			) {
+				if let url = app.currentDownloadUrl {
+					UIPasteboard.general.string = url.absoluteString
+					UINotificationFeedbackGenerator().notificationOccurred(.success)
+				}
+			}
+			
+			NBToolbarButton(
 				systemImage: "square.and.arrow.up",
 				placement: .topBarTrailing
 			) {
@@ -250,14 +261,30 @@ struct SourceAppsDetailView: View {
 extension SourceAppsDetailView {
 	@available(iOS 18.0, *)
 	@ViewBuilder
+	/// The app's own artwork backs the header, falling back to the source's
+	/// icon. Sources whose icon is a plain favicon left every app behind the
+	/// same blank wash, which is what this replaces.
+	private var _headerArtworkURL: URL? {
+		app.iconURL ?? source.currentIconURL
+	}
+	
+	private var _headerIsAppArtwork: Bool {
+		app.iconURL != nil
+	}
+	
 	private func _header() -> some View {
 		ZStack {
-			if let iconURL = source.currentIconURL {
-				LazyImage(url: iconURL) { state in
+			if let artworkURL = _headerArtworkURL {
+				LazyImage(url: artworkURL) { state in
 					if let image = state.image {
 						image.resizable()
 							.aspectRatio(contentMode: .fill)
 							.frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+							// An icon blown up to header width is all pixels, so
+							// it is blurred into a backdrop for the crisp icon
+							// that sits over it.
+							.blur(radius: _headerIsAppArtwork ? 24 : 0)
+							.scaleEffect(_headerIsAppArtwork ? 1.3 : 1)
 							.clipped()
 					} else {
 						standardHeader

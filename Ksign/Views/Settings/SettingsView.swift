@@ -11,6 +11,7 @@ import NimbleViews
 // MARK: - View
 struct SettingsView: View {
     @AppStorage("feather.selectedCert") private var _storedSelectedCert: Int = 0
+    @State private var _isEnrollmentPresenting = false
     @FetchRequest(
         entity: CertificatePair.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \CertificatePair.date, ascending: false)],
@@ -62,6 +63,12 @@ struct SettingsView: View {
                     NavigationLink(destination: CertificatesView()) {
                         Label(.localized("Certificates"), systemImage: "signature")
                     }
+                    
+                    Button {
+                        _isEnrollmentPresenting = true
+                    } label: {
+                        Label(.localized("Register your device"), systemImage: "iphone.badge.checkmark")
+                    }
                  
                 } footer: {
                     Text(.localized("Add and manage certificates used for signing applications."))
@@ -95,6 +102,9 @@ struct SettingsView: View {
                     Text("Reset the applications sources, certificates, apps, and general contents.")
                 }
 
+            }
+            .sheet(isPresented: $_isEnrollmentPresenting) {
+                CeresifyEnrollmentView()
             }
         }
     }
