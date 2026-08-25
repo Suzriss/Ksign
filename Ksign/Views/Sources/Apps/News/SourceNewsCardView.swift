@@ -11,6 +11,9 @@ import NukeUI
 
 struct SourceNewsCardView: View {
 	var new: ASRepository.News
+	var width: CGFloat = 250
+	var height: CGFloat = 150
+	var cornerRadius: CGFloat = 12
 	
 	var body: some View {
 		ZStack(alignment: .bottomLeading) {
@@ -24,7 +27,7 @@ struct SourceNewsCardView: View {
 						image
 							.resizable()
 							.aspectRatio(contentMode: .fill)
-							.frame(width: 250, height: 150)
+							.frame(width: width, height: height)
 							.clipped()
 					} else {
 						placeholderView
@@ -41,7 +44,7 @@ struct SourceNewsCardView: View {
 			)
 			.frame(height: 70)
 			.frame(maxWidth: .infinity, alignment: .bottom)
-			.clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+			.clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
 			
 			Text(new.title)
 				.font(.headline)
@@ -49,11 +52,11 @@ struct SourceNewsCardView: View {
 				.lineLimit(2)
 				.padding()
 		}
-		.frame(width: 250, height: 150)
+		.frame(width: width, height: height)
 		.background(new.tintColor ?? Color.secondary)
-		.clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+		.clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
 		.overlay(
-			RoundedRectangle(cornerRadius: 12, style: .continuous)
+			RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 				.strokeBorder(Color.gray.opacity(0.2), lineWidth: 1)
 		)
 	}

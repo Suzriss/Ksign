@@ -8,17 +8,46 @@
 import SwiftUI
 import AltSourceKit
 
+// MARK: - Table
+/// Reports its own layout passes so the header can be resized against the
+/// table's real width — on rotation as well as first layout.
+final class SourceAppsTableView: UITableView {
+    var onLayout: ((UITableView) -> Void)?
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        onLayout?(self)
+    }
+}
+
 // MARK: - Representable
 struct SourceAppsTableRepresentableView: UIViewRepresentable {
     var sources: [ASRepository]
+    var categories: [SourceAppsCategoryStrip.Category]
     @Binding var searchText: String
     @Binding var sortOption: SourceAppsView.SortOption
     @Binding var sortAscending: Bool
     @Binding var selectedCategory: String?
     var onSelect: (SourceAppsView.SourceAppRoute) -> Void
     
+    /// News only makes sense when a single source is on screen — merged sources
+    /// have no one banner to show.
+    private var _news: [ASRepository.News]? {
+        sources.count == 1 ? sources.first?.news : nil
+    }
+    
+    private func _header(width: CGFloat) -> SourceAppsListHeaderView {
+        SourceAppsListHeaderView(
+            news: _news,
+            categories: categories,
+            width: width,
+            selection: selectedCategory,
+            onSelectCategory: { selectedCategory = $0 }
+        )
+    }
+    
     func makeUIView(context: Context) -> UITableView {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = SourceAppsTableView(frame: .zero, style: .plain)
         tableView.delegate = context.coordinator
         tableView.dataSource = context.coordinator
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "AppCell")
@@ -30,22 +59,16 @@ struct SourceAppsTableRepresentableView: UIViewRepresentable {
             tableView.allowsSelection = false
         }
         
-        if
-            let firstSource = sources.first,
-            sources.count == 1,
-            let news = firstSource.news,
-            !news.isEmpty
-        {
-            let header = UIHostingController(rootView: SourceNewsView(news: news))
-            header.view.translatesAutoresizingMaskIntoConstraints = true
-            header.view.backgroundColor = .clear
-            let fixedHeight: CGFloat = 161
-            let width = tableView.bounds.width
-            header.view.frame = CGRect(origin: .zero, size: CGSize(width: width, height: fixedHeight))
-
-            DispatchQueue.main.async {
-                tableView.tableHeaderView = header.view
-            }
+        let header = UIHostingController(rootView: _header(width: tableView.bounds.width))
+        header.view.translatesAutoresizingMaskIntoConstraints = true
+        header.view.backgroundColor = .clear
+        // Held by the coordinator: the table only retains the view, and a
+        // released controller stops driving its SwiftUI updates.
+        context.coordinator.headerController = header
+        context.coordinator.makeHeader = { self._header(width: $0) }
+        
+        tableView.onLayout = { [weak coordinator = context.coordinator] table in
+            coordinator?.layoutHeader(in: table)
         }
         
         tableView.alpha = 0
@@ -59,6 +82,9 @@ struct SourceAppsTableRepresentableView: UIViewRepresentable {
     
     func updateUIView(_ tableView: UITableView, context: Context) {
         context.coordinator.uiTableView = tableView
+        
+        context.coordinator.makeHeader = { self._header(width: $0) }
+        context.coordinator.layoutHeader(in: tableView, force: true)
         
         let sourcesChanged = context.coordinator.sources != sources
         let searchChanged = context.coordinator.searchText != searchText
@@ -104,6 +130,62 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
     
     private var _cachedSortedApps: [(source: ASRepository, app: ASRepository.App)] = []
     weak var uiTableView: UITableView?
+    var headerController: UIHostingController<SourceAppsListHeaderView>?
+    var makeHeader: ((CGFloat) -> SourceAppsListHeaderView)?
+    private var _headerWidth: CGFloat = 0
+    private var _headerHeight: CGFloat = 0
+    
+    /// Rebuilds the header for the table's current width and sizes it to the
+    /// height its content asks for, dropping it when there is nothing to show.
+    ///
+    /// A table lays out on every scroll tick, so this only does the work when
+    /// the width actually moved or the content behind it changed — reassigning
+    /// the header on each pass would both cost a measure and loop.
+    func layoutHeader(in tableView: UITableView, force: Bool = false) {
+        guard
+            let headerController,
+            let makeHeader
+        else {
+            return
+        }
+        
+        let width = tableView.bounds.width
+        let widthChanged = width != _headerWidth
+        
+        guard
+            width > 0,
+            force || widthChanged
+        else {
+            return
+        }
+        
+        _headerWidth = width
+        headerController.rootView = makeHeader(width)
+        
+        let height = headerController.sizeThatFits(
+            in: CGSize(width: width, height: .greatestFiniteMagnitude)
+        ).height
+        
+        guard height > 0 else {
+            _headerHeight = 0
+            tableView.tableHeaderView = nil
+            return
+        }
+        
+        // Only hand the table a new header once its box has actually moved:
+        // every assignment costs a layout pass.
+        guard
+            widthChanged ||
+            height != _headerHeight ||
+            tableView.tableHeaderView !== headerController.view
+        else {
+            return
+        }
+        
+        _headerHeight = height
+        headerController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        tableView.tableHeaderView = headerController.view
+    }
     
     private var _allAppsWithSource: [(source: ASRepository, app: ASRepository.App)] {
         sources.flatMap { source in source.apps.map { (source: source, app: $0) } }

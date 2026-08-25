@@ -13,6 +13,9 @@ struct SourceNewsView: View {
 	@State var hasLoadedInitialData = false
 	
 	var news: [ASRepository.News]?
+	var cardWidth: CGFloat = 250
+	var cardHeight: CGFloat = 150
+	var cornerRadius: CGFloat = 12
 	
 	var body: some View {
 		VStack {
@@ -23,17 +26,22 @@ struct SourceNewsView: View {
 				ScrollView(.horizontal, showsIndicators: false) {
 					LazyHStack(spacing: 10) {
 						ForEach(news.reversed(), id: \.id) { new in
-							SourceNewsCardView(new: new)
+							SourceNewsCardView(
+								new: new,
+								width: cardWidth,
+								height: cardHeight,
+								cornerRadius: cornerRadius
+							)
 						}
 					}
 					.padding(.horizontal, 21)
 				}
-				.frame(height: 150)
+				.frame(height: cardHeight)
 				.opacity(isLoading ? 0 : 1)
 				.transition(.opacity)
 			}
 		}
-		.frame(height: (news?.isEmpty == false) ? 150 : 0)
+		.frame(height: (news?.isEmpty == false) ? cardHeight : 0)
 		.onAppear {
 			if !hasLoadedInitialData && news?.isEmpty == false {
 				_load()

@@ -69,25 +69,19 @@ struct SourceAppsView: View {
                 let _sources,
                 !_sources.isEmpty
             {
-                VStack(spacing: 0) {
-                    if !_categories.isEmpty {
-                        SourceAppsCategoryStrip(
-                            categories: _categories,
-                            selection: $_selectedCategory
-                        )
-                        Divider()
-                    }
-                    
-                    SourceAppsTableRepresentableView(
-                        sources: _sources,
-                        searchText: $_searchText,
-                        sortOption: $_sortOption,
-                        sortAscending: $_sortAscending,
-                        selectedCategory: $_selectedCategory,
-                        onSelect: {self._selectedRoute = $0}
-                    )
-                    .ignoresSafeArea(edges: .bottom)
-                }
+                // The banner and the category strip ride inside the list's
+                // header, so the page reads banner → categories → apps and
+                // scrolls as one piece.
+                SourceAppsTableRepresentableView(
+                    sources: _sources,
+                    categories: _categories,
+                    searchText: $_searchText,
+                    sortOption: $_sortOption,
+                    sortAscending: $_sortAscending,
+                    selectedCategory: $_selectedCategory,
+                    onSelect: {self._selectedRoute = $0}
+                )
+                .ignoresSafeArea(edges: .bottom)
             } else {
                 if #available(iOS 17, *) {
                     ContentUnavailableView {
@@ -101,9 +95,6 @@ struct SourceAppsView: View {
             }
         }
         .navigationTitle(_navigationTitle)
-        // Inline keeps the large title from eating the space above the category
-        // strip, which is what the list is actually driven from.
-        .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $_searchText, placement: .platform())
         .toolbarTitleMenu {
             if

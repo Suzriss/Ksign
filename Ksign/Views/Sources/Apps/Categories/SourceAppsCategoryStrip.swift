@@ -22,17 +22,12 @@ struct SourceAppsCategoryStrip: View {
 	let categories: [Category]
 	@Binding var selection: String?
 	
-	private var _totalCount: Int {
-		categories.reduce(0) { $0 + $1.count }
-	}
-	
 	var body: some View {
 		ScrollViewReader { proxy in
 			ScrollView(.horizontal, showsIndicators: false) {
 				HStack(spacing: 8) {
 					_chip(
 						title: .localized("All"),
-						count: _totalCount,
 						isSelected: selection == nil
 					) {
 						selection = nil
@@ -42,7 +37,6 @@ struct SourceAppsCategoryStrip: View {
 					ForEach(categories) { category in
 						_chip(
 							title: category.name,
-							count: category.count,
 							isSelected: selection == category.name
 						) {
 							selection = category.name
@@ -50,8 +44,8 @@ struct SourceAppsCategoryStrip: View {
 						.id(category.name)
 					}
 				}
-				.padding(.horizontal, 16)
-				.padding(.vertical, 8)
+				.padding(.horizontal, 21)
+				.padding(.vertical, 10)
 			}
 			.onChange(of: selection) { newValue in
 				// Keep the active chip on screen when the selection is changed
@@ -68,7 +62,6 @@ struct SourceAppsCategoryStrip: View {
 	@ViewBuilder
 	private func _chip(
 		title: String,
-		count: Int,
 		isSelected: Bool,
 		action: @escaping () -> Void
 	) -> some View {
@@ -76,27 +69,22 @@ struct SourceAppsCategoryStrip: View {
 			UISelectionFeedbackGenerator().selectionChanged()
 			withAnimation(.snappy(duration: 0.2)) { action() }
 		}) {
-			HStack(spacing: 5) {
-				Text(verbatim: title)
-					.font(.subheadline.weight(isSelected ? .semibold : .regular))
-				
-				Text(verbatim: "\(count)")
-					.font(.caption2.weight(.medium))
-					.monospacedDigit()
-					.opacity(0.7)
-			}
-			.lineLimit(1)
-			.padding(.horizontal, 13)
-			.padding(.vertical, 7)
-			.foregroundStyle(isSelected ? Color.white : Color.primary)
-			.background {
-				Capsule(style: .continuous)
-					.fill(isSelected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.quaternary))
-			}
-			.contentShape(Capsule(style: .continuous))
+			Text(verbatim: title)
+				.font(.subheadline.weight(.semibold))
+				.lineLimit(1)
+				.padding(.horizontal, 16)
+				.padding(.vertical, 9)
+				// The selected chip inverts against the page, so it reads the
+				// same way in light and dark without leaning on a tint.
+				.foregroundStyle(isSelected ? AnyShapeStyle(Color(uiColor: .systemBackground)) : AnyShapeStyle(Color.primary))
+				.background {
+					Capsule(style: .continuous)
+						.fill(isSelected ? AnyShapeStyle(Color.primary) : AnyShapeStyle(.quaternary))
+				}
+				.contentShape(Capsule(style: .continuous))
 		}
 		.buttonStyle(.plain)
-		.accessibilityLabel(Text(verbatim: "\(title), \(count)"))
+		.accessibilityLabel(Text(verbatim: title))
 		.accessibilityAddTraits(isSelected ? .isSelected : [])
 	}
 }
