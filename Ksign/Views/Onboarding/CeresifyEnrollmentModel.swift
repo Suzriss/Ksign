@@ -49,8 +49,14 @@ final class CeresifyEnrollmentModel: ObservableObject {
     private static let _pollInterval: Duration = .seconds(3)
     private static let _pollTimeout: TimeInterval = 10 * 60
     
-    var storedUdid: String? {
+    /// Readable from anywhere: the cloud signer needs it as much as this
+    /// screen does.
+    nonisolated static var storedUdid: String? {
         UserDefaults.standard.string(forKey: _Keys.udid)?.nilIfEmpty
+    }
+    
+    var storedUdid: String? {
+        Self.storedUdid
     }
     
     var deviceName: String? {

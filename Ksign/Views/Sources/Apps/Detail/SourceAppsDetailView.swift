@@ -259,8 +259,6 @@ struct SourceAppsDetailView: View {
 
 // MARK: - SourceAppsDetailView (Extension): Builders
 extension SourceAppsDetailView {
-	@available(iOS 18.0, *)
-	@ViewBuilder
 	/// The app's own artwork backs the header, falling back to the source's
 	/// icon. Sources whose icon is a plain favicon left every app behind the
 	/// same blank wash, which is what this replaces.
@@ -272,6 +270,8 @@ extension SourceAppsDetailView {
 		app.iconURL != nil
 	}
 	
+	@available(iOS 18.0, *)
+	@ViewBuilder
 	private func _header() -> some View {
 		ZStack {
 			if let artworkURL = _headerArtworkURL {

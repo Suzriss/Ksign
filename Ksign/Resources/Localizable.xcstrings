@@ -9055,6 +9055,22 @@
         }
       }
     },
+    "Register your device first, then try again.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل جهازك أولاً وبعدين جرّب."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register your device first, then try again."
+          }
+        }
+      }
+    },
     "Registration failed": {
       "localizations": {
         "ar": {
@@ -11382,6 +11398,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tùy chọn ký"
+          }
+        }
+      }
+    },
+    "Signing failed.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فشل التوقيع."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signing failed."
           }
         }
       }

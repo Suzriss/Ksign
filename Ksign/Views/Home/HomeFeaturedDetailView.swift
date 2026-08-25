@@ -58,7 +58,7 @@ struct HomeFeaturedDetailView: View {
             Spacer(minLength: 0)
             
             if let app = item.app {
-                DownloadButtonView(app: app)
+                DownloadButtonView(app: app, cloudSource: item.cloudSource)
             }
         }
     }

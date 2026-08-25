@@ -42,6 +42,9 @@ final class HomeFeaturedViewModel: ObservableObject {
         /// Nil when the entry carries nothing installable, which is what the
         /// web page marks as "التطبيق غير متوفر".
         let app: ASRepository.App?
+        /// Ceresify signs its own uploads by id; the rest are signed from the
+        /// URL the download button already carries.
+        let cloudSource: CeresifySignSource?
     }
     
     func load(force: Bool = false) async {
@@ -82,6 +85,7 @@ private extension HomeFeaturedViewModel {
     
     struct _Featured: Decodable {
         let id: String
+        let appId: String?
         let bundleId: String?
         let name: String?
         let subtitle: String?
@@ -107,7 +111,8 @@ private extension HomeFeaturedViewModel {
                 imageURL: Self._url(imageUrl),
                 iconURL: Self._url(iconUrl),
                 isAvailable: found ?? true,
-                app: (found ?? true) ? _app : nil
+                app: (found ?? true) ? _app : nil,
+                cloudSource: appId?.nilIfBlank.map { CeresifySignSource.appId($0) }
             )
         }
         

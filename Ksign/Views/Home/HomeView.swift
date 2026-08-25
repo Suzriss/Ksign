@@ -143,7 +143,7 @@ struct HomeFeaturedCardView: View {
         HStack(alignment: .bottom, spacing: 12) {
             if let app = item.app {
                 VStack(spacing: 5) {
-                    DownloadButtonView(app: app)
+                    DownloadButtonView(app: app, cloudSource: item.cloudSource)
                     
                     if let note = item.note {
                         Text(verbatim: note)
