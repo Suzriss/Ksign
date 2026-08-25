@@ -137,6 +137,13 @@ protocol AppInfoPresentable {
 	var date: Date? { get }
 	var icon: String? { get }
 	var uuid: String? { get }
+	/// Where the build was downloaded from, when it came from a source.
+	///
+	/// A bundle identifier does not name one app: a store lists several builds
+	/// of the same app under it — YouTube, YouTube Reborn, YTLite — and they
+	/// only differ by the URL they came from. Both entities already store this;
+	/// the protocol carries it so a signed build keeps the imported one's.
+	var source: URL? { get }
 	var isSigned: Bool { get }
 	
 }

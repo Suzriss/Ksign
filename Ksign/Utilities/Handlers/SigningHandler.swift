@@ -156,6 +156,9 @@ final class SigningHandler: NSObject {
 
             Storage.shared.addSigned(
                 uuid: _uuid,
+                // Kept from the imported build, so the store's button still
+                // knows which of the bundle's builds this one is.
+                source: _app.source,
                 certificate: _options.doAdhocSigning ? nil : appCertificate,
                 appName: bundle?.name,
                 appIdentifier: bundle?.bundleIdentifier,

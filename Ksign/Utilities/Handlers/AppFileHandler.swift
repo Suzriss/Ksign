@@ -148,6 +148,10 @@ final class AppFileHandler: NSObject, @unchecked Sendable {
 		
 		Storage.shared.addImported(
 			uuid: _uuid,
+			// What tells this build apart from the other builds sharing its
+			// bundle identifier, so the store's button tracks the one that was
+			// actually fetched.
+			source: _download?.url,
 			appName: bundle?.name,
 			appIdentifier: bundle?.bundleIdentifier,
 			appVersion: bundle?.version,

@@ -58,8 +58,28 @@ struct DownloadButtonView: View {
 		
 		// A nil identifier can never match a stored build, so use a predicate
 		// that stays empty rather than one that matches everything.
-		let predicate = app.id.map { NSPredicate(format: "identifier == %@", $0) }
-			?? NSPredicate(value: false)
+		//
+		// Matched on the download URL rather than the bundle identifier: a
+		// store lists several builds of one app under the same identifier —
+		// YouTube, YouTube Reborn, YTLite — and going by identifier alone made
+		// downloading any one of them turn every sibling's button into
+		// "Install". Builds stored before the URL was recorded have none, so
+		// they still fall back to the identifier and keep working.
+		let predicate: NSPredicate
+		
+		if let identifier = app.id {
+			if let source = app.currentDownloadUrl {
+				predicate = NSPredicate(
+					format: "source == %@ OR (source == nil AND identifier == %@)",
+					source as NSURL,
+					identifier
+				)
+			} else {
+				predicate = NSPredicate(format: "identifier == %@", identifier)
+			}
+		} else {
+			predicate = NSPredicate(value: false)
+		}
 		
 		self.__signed = FetchRequest(
 			entity: Signed.entity(),
