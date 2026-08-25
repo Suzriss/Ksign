@@ -1126,7 +1126,7 @@
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "كل Repositories"
+            "value": "كل المصادر"
           }
         },
         "cs": {
@@ -1992,6 +1992,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "إلغاء التحميل"
+          }
+        }
+      }
+    },
+    "Category": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التصنيف"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kategorie"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kategorie"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Categoría"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catégorie"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Категория"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kategori"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danh mục"
           }
         }
       }
@@ -5988,6 +6047,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nhận quyền truy cập vào Discord riêng của chúng tôi bằng cách ủng hộ, nơi chúng tôi thảo luận về các bản cập nhật tương lai, phiên bản beta và các cách tiềm năng để cải thiện trải nghiệm của bạn."
+          }
+        }
+      }
+    },
+    "Get started by adding your first repository.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابدأ بإضافة أول مصدر لك."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Začněte přidáním svého prvního zdroje."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fügen Sie zunächst Ihre erste Quelle hinzu."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get started by adding your first repository."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza añadiendo tu primer repositorio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencez par ajouter votre premier dépôt."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начните с добавления первого источника."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İlk kaynağınızı ekleyerek başlayın."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu bằng cách thêm nguồn đầu tiên của bạn."
           }
         }
       }

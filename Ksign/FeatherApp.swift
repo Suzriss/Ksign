@@ -77,17 +77,26 @@ struct FeatherApp: App {
 	/// SwiftUI and stay white.
 	private func _applyNavigationBarAppearance() {
 		let gold = UIColor.ceresifyGold
+		let titleAttributes: [NSAttributedString.Key: Any] = [.foregroundColor: gold]
 		
-		let appearance = UINavigationBarAppearance()
-		appearance.configureWithDefaultBackground()
-		appearance.titleTextAttributes = [.foregroundColor: gold]
-		appearance.largeTitleTextAttributes = [.foregroundColor: gold]
+		// The two backgrounds the system already uses: a material once the list
+		// is scrolled under the bar, and nothing at all while a large title is
+		// still at rest. Only the type colour changes.
+		let scrolled = UINavigationBarAppearance()
+		scrolled.configureWithDefaultBackground()
+		scrolled.titleTextAttributes = titleAttributes
+		scrolled.largeTitleTextAttributes = titleAttributes
+		
+		let atRest = UINavigationBarAppearance()
+		atRest.configureWithTransparentBackground()
+		atRest.titleTextAttributes = titleAttributes
+		atRest.largeTitleTextAttributes = titleAttributes
 		
 		let bar = UINavigationBar.appearance()
-		bar.standardAppearance = appearance
-		bar.compactAppearance = appearance
-		bar.scrollEdgeAppearance = appearance
-		bar.compactScrollEdgeAppearance = appearance
+		bar.standardAppearance = scrolled
+		bar.compactAppearance = scrolled
+		bar.scrollEdgeAppearance = atRest
+		bar.compactScrollEdgeAppearance = atRest
 		bar.tintColor = gold
 	}
 	
