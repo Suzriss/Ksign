@@ -210,18 +210,6 @@ struct SourceAppsDetailView: View {
 		}
 		.flexibleHeaderScrollView()
 		.shouldSetInset()
-		.toolbar {
-			NBToolbarButton(
-				systemImage: "link",
-				placement: .topBarTrailing,
-				isDisabled: app.currentDownloadUrl == nil
-			) {
-				if let url = app.currentDownloadUrl {
-					UIPasteboard.general.string = url.absoluteString
-					UINotificationFeedbackGenerator().notificationOccurred(.success)
-				}
-			}
-		}
 		.fullScreenCover(isPresented: $_isScreenshotPreviewPresented) {
 			if !_screenshotURLs.isEmpty {
 				ScreenshotPreviewView(
