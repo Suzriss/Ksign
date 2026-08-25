@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct VariedTabbarView: View {
 	init() {}
 	
 	var body: some View {
-		if #available(iOS 18, *) {
+		// iPad gets the hand-drawn bar: from iPadOS 18 on, the system puts
+		// TabView's own bar at the top of the window.
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			BottomTabbarView()
+		} else if #available(iOS 18, *) {
 			ExtendedTabbarView()
 		} else {
 			TabbarView()
