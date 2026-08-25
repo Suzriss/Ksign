@@ -9,6 +9,10 @@ jobs:
   build:
     name: Build Beta
     runs-on: macos-26
+    # The repo default for GITHUB_TOKEN is read-only, which makes
+    # `gh release create` fail with a 403. Ask for write explicitly.
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Code
