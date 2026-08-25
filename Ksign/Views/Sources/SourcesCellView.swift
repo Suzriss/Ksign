@@ -22,11 +22,8 @@ struct SourcesCellView: View {
 		)
 		.swipeActions {
 			_actions(for: source)
-			_contextActions(for: source)
 		}
 		.contextMenu {
-			_contextActions(for: source)
-			Divider()
 			_actions(for: source)
 		}
 	}
@@ -41,10 +38,4 @@ extension SourcesCellView {
 		}
 	}
 	
-	@ViewBuilder
-	private func _contextActions(for source: AltSource) -> some View {
-		Button(.localized("Copy"), systemImage: "doc.on.clipboard") {
-			UIPasteboard.general.string = source.sourceURL?.absoluteString
-		}
-	}
 }

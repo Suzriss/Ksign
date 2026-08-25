@@ -94,8 +94,13 @@ extension Storage {
 
 	/// The only source shipped with the app: Ceresify's CheckOver catalog.
 	/// Everything the store lists comes from here, so this stays a single entry.
+	///
+	/// The old `/api/check0ver-repo/repo.json` path is gone — it leaked, and it
+	/// answers nobody now. This one is gated on `CeresifyAPI.catalogKey`, so the
+	/// URL alone opens nothing: without the header it answers 404 like any path
+	/// that was never there.
 	static let builtInSourceURLs = [
-		"https://dev.ceresify.com/api/check0ver-repo/repo.json"
+		"https://dev.ceresify.com/api/c0store-9f3a1d7c/repo.json"
 	]
 
 	func addBuiltInSources() {

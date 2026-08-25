@@ -9,6 +9,7 @@ import SwiftUI
 import Nuke
 import OSLog
 import IDeviceSwift
+import NimbleJSON
 
 @main
 struct FeatherApp: App {
@@ -138,6 +139,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         
+        _installCatalogKey()
         _createPipeline()
         _createSourcesDirectory()
         _migrateSourcesIfNeeded()
@@ -154,14 +156,27 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
     
+    /// Signs every fetch aimed at Ceresify with the catalog key. Third-party
+    /// sources keep going out bare — the key is ours to spend, not theirs to
+    /// receive. Installed before the first fetch of the launch.
+    private func _installCatalogKey() {
+        NBFetchService.headerProvider = { url in
+            guard CeresifyAPI.isOurs(url) else { return [:] }
+            return [CeresifyAPI.catalogKeyHeader: CeresifyAPI.catalogKey]
+        }
+    }
+
     /// Bumped whenever the shipped source list changes, so existing installs
     /// re-seed instead of keeping whatever the previous build stored.
-    private static let _sourcesMigrationKey = "ceresify.sourcesMigration.v1"
+    private static let _sourcesMigrationKey = "ceresify.sourcesMigration.v2"
 
     /// Clears every stored source and seeds the CheckOver catalog. Older builds
     /// seeded four third-party sources (Nyasami, SideStore, LiveContainer,
     /// crystall1ne) which stay in Core Data forever otherwise, so the wipe is
     /// what actually moves upgraders onto the single Ceresify catalog.
+    ///
+    /// v2 re-runs it: the catalog moved off the path that leaked, and an
+    /// install still holding the old one shows an empty store.
     private func _migrateSourcesIfNeeded() {
         let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: Self._sourcesMigrationKey) else { return }

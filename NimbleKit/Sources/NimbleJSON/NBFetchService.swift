@@ -31,6 +31,11 @@ public class NBFetchService {
 	}
 	
 	public init() {}
+	
+	/// Extra headers to attach to a request, decided per URL by the host app.
+	/// A closure keeps this package free of any one backend's details while
+	/// still letting an app authenticate the fetches it owns.
+	public nonisolated(unsafe) static var headerProvider: (@Sendable (URL) -> [String: String])?
 }
 
 // MARK: - Class extension: fetch
@@ -51,8 +56,14 @@ extension NBFetchService {
 		from url: URL,
 		completion: @escaping (Result<T, Error>) -> Void
 	) {
+		var request = URLRequest(url: url)
+		
+		for (field, value) in Self.headerProvider?(url) ?? [:] {
+			request.setValue(value, forHTTPHeaderField: field)
+		}
+		
 		DispatchQueue.global(qos: .userInitiated).async {
-			let task = URLSession.shared.dataTask(with: url) { data, response, error in
+			let task = URLSession.shared.dataTask(with: request) { data, response, error in
 				if let error = error {
 					completion(.failure(NBFetchServiceError.networkError(error)))
 					return

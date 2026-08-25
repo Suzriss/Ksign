@@ -96,7 +96,7 @@ class DownloadManager: NSObject, ObservableObject {
         print(id)
 		let download = Download(id: id, url: url)
         
-        let task = _session.downloadTask(with: url)
+        let task = _session.downloadTask(with: Self._request(for: url))
         download.task = task
         task.resume()
         
@@ -108,6 +108,18 @@ class DownloadManager: NSObject, ObservableObject {
 		}
         return download
     }
+	
+	/// Carries the catalog key on downloads pulled from Ceresify, and nothing
+	/// extra on the ones a third-party source hands out.
+	private static func _request(for url: URL) -> URLRequest {
+		var request = URLRequest(url: url)
+		
+		if CeresifyAPI.isOurs(url) {
+			request.setValue(CeresifyAPI.catalogKey, forHTTPHeaderField: CeresifyAPI.catalogKeyHeader)
+		}
+		
+		return request
+	}
 	
 	func startArchive(
 		from url: URL,
@@ -126,7 +138,7 @@ class DownloadManager: NSObject, ObservableObject {
             task.resume()
             _updateBackgroundAudioState()
         } else if let url = download.task?.originalRequest?.url {
-            let task = _session.downloadTask(with: url)
+            let task = _session.downloadTask(with: Self._request(for: url))
             download.task = task
             task.resume()
             _updateBackgroundAudioState()

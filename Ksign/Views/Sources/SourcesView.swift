@@ -17,8 +17,13 @@ struct SourcesView: View {
 	@State private var _addingSourceLoading = false
 	@State private var _searchText = ""
 	
+	/// The list a user manages: the sources they added. Ceresify's own catalog
+	/// is what the store is, not a row to inspect or delete — and its URL stays
+	/// off the screen, the same way the General tab's card leaves it out.
 	private var _filteredSources: [AltSource] {
-		_sources.filter { _searchText.isEmpty || ($0.name?.localizedCaseInsensitiveContains(_searchText) ?? false) }
+		_sources
+			.filter { $0.sourceURL?.host != CeresifyAPI.baseURL.host }
+			.filter { _searchText.isEmpty || ($0.name?.localizedCaseInsensitiveContains(_searchText) ?? false) }
 	}
 	
 	@FetchRequest(

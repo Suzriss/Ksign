@@ -12,6 +12,17 @@ import NimbleExtensions
 /// Where the web app and the store both live.
 enum CeresifyAPI {
     static let baseURL = URL(string: "https://dev.ceresify.com")!
+    
+    /// The catalog is served only to requests carrying this key. A source URL
+    /// copied out of the app is useless on its own, which is the point — the
+    /// old link was passed around the moment it landed on someone's clipboard.
+    static let catalogKeyHeader = "X-Ceresify-Key"
+    static let catalogKey = "bb891c627e2583384c95b535e1fa5f81b18928380517396c"
+    
+    /// Whether a request is one of ours, and so should carry the key.
+    static func isOurs(_ url: URL) -> Bool {
+        url.host == baseURL.host
+    }
 }
 
 /// Loads the same list the web app's main page shows: `/api/sign/featured`.
