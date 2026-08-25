@@ -12,6 +12,26 @@ import SwiftUI
 // only altstore repo (ofc) has the correct format.
 // we're going to use a defensive approach and try to parse many repos.
 
+// MARK: - Tolerant URL decoding
+
+extension KeyedDecodingContainer {
+    /// Sources routinely ship `""` for URL fields they have no value for, and a
+    /// plain `decodeIfPresent(URL.self, ...)` throws on those because
+    /// `URL(string: "")` is nil — which takes down the decode of the entire
+    /// repository over one cosmetic field. Treat blank and unparseable values as
+    /// absent instead.
+    func decodeURLIfPresent(forKey key: Key) -> URL? {
+        guard let string = try? decodeIfPresent(String.self, forKey: key) else {
+            return nil
+        }
+        
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        
+        return URL(string: trimmed)
+    }
+}
+
 // MARK: - Repository
 
 public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
@@ -49,15 +69,9 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
             String.self,
             forKey: .description
         )
-        self.website = try container.decodeIfPresent(URL.self, forKey: .website)
-        self.iconURL = try container.decodeIfPresent(
-            URL.self,
-            forKey: .iconURL
-        )
-        self.headerURL = try container.decodeIfPresent(
-            URL.self,
-            forKey: .headerURL
-        )
+        self.website = container.decodeURLIfPresent(forKey: .website)
+        self.iconURL = container.decodeURLIfPresent(forKey: .iconURL)
+        self.headerURL = container.decodeURLIfPresent(forKey: .headerURL)
         self.tintColor =
             try container.decodeIfPresent(Color.self, forKey: .tintColor)
 
@@ -243,7 +257,7 @@ extension ASRepository {
                 forKey: .versionDescription
             )
 
-            self.downloadURL = try container.decodeIfPresent(URL.self, forKey: .downloadURL)
+            self.downloadURL = container.decodeURLIfPresent(forKey: .downloadURL)
 
             self.localizedDescription =
                 try container.decodeIfPresent(
@@ -251,7 +265,7 @@ extension ASRepository {
                     forKey: .localizedDescription
                 )
 
-            self.iconURL = try? container.decode(URL.self, forKey: .iconURL)
+            self.iconURL = container.decodeURLIfPresent(forKey: .iconURL)
 
             self.tintColor =
                 try container.decodeIfPresent(Color.self, forKey: .tintColor)
@@ -410,10 +424,7 @@ extension ASRepository {
                         String.self,
                         forKey: .localizedDescription
                     )
-                self.downloadURL = try container.decodeIfPresent(
-                    URL.self,
-                    forKey: .downloadURL
-                )
+                self.downloadURL = container.decodeURLIfPresent(forKey: .downloadURL)
                 self.size =
                     (try? container.decodeIfPresent(UInt.self, forKey: .size))
                     ?? (try? container.decodeIfPresent(String.self, forKey: .size))
@@ -461,8 +472,8 @@ extension ASRepository {
                 Color.self,
                 forKey: .tintColor
             )
-            self.imageURL = try container.decodeIfPresent(URL.self, forKey: .imageURL)
-            self.url = try container.decodeIfPresent(URL.self, forKey: .url)
+            self.imageURL = container.decodeURLIfPresent(forKey: .imageURL)
+            self.url = container.decodeURLIfPresent(forKey: .url)
             self.appID = try container.decodeIfPresent(App.ID.self, forKey: .appID)
             self.date = try container.decodeIfPresent(DateParsed.self, forKey: .date)
             self.notify =
