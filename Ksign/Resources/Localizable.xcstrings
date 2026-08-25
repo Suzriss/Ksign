@@ -634,6 +634,22 @@
         }
       }
     },
+    "About this app": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حول التطبيق"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About this app"
+          }
+        }
+      }
+    },
     "Add": {
       "extractionState": "manual",
       "localizations": {
@@ -2305,6 +2321,22 @@
         }
       }
     },
+    "Couldn't reach the server.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما وصلنا للسيرفر."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't reach the server."
+          }
+        }
+      }
+    },
     "Create": {
       "extractionState": "manual",
       "localizations": {
@@ -2700,6 +2732,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mô tả"
+          }
+        }
+      }
+    },
+    "Details": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التفاصيل"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details"
           }
         }
       }
@@ -4425,6 +4473,22 @@
         }
       }
     },
+    "Featured apps": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تطبيقات مختارة"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Featured apps"
+          }
+        }
+      }
+    },
     "Features": {
       "extractionState": "manual",
       "localizations": {
@@ -5599,6 +5663,22 @@
         }
       }
     },
+    "Home": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرئيسية"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        }
+      }
+    },
     "Identifers": {
       "extractionState": "manual",
       "localizations": {
@@ -6538,6 +6618,22 @@
         }
       }
     },
+    "Last updated": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آخر تحديث"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last updated"
+          }
+        }
+      }
+    },
     "Library": {
       "comment": "Library tab",
       "extractionState": "manual",
@@ -7447,6 +7543,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Không tìm thấy tệp ghép nối, vui lòng nhập tệp."
+          }
+        }
+      }
+    },
+    "Nothing featured yet.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ماكو تطبيقات مضافة هنا بعد."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing featured yet."
           }
         }
       }
@@ -12572,6 +12684,22 @@
         }
       },
       "shouldTranslate": false
+    },
+    "Unavailable": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التطبيق غير متوفر"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable"
+          }
+        }
+      }
     },
     "Unknown": {
       "extractionState": "manual",

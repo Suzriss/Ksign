@@ -53,20 +53,24 @@ struct SourceNewsCardView: View {
 				placeholderView
 			}
 			
-			LinearGradient(
-				gradient: Gradient(colors: [.black.opacity(0.6), .clear]),
-				startPoint: .bottom,
-				endPoint: .top
-			)
-			.frame(height: 70)
-			.frame(maxWidth: .infinity, alignment: .bottom)
-			.clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-			
-			Text(new.title)
-				.font(.headline)
-				.foregroundColor(.white)
-				.lineLimit(2)
-				.padding()
+			// Sources that bake the wording into the artwork send an empty
+			// title — shading and captioning those would only dirty the image.
+			if !new.title.isEmpty {
+				LinearGradient(
+					gradient: Gradient(colors: [.black.opacity(0.6), .clear]),
+					startPoint: .bottom,
+					endPoint: .top
+				)
+				.frame(height: 70)
+				.frame(maxWidth: .infinity, alignment: .bottom)
+				.clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+				
+				Text(new.title)
+					.font(.headline)
+					.foregroundColor(.white)
+					.lineLimit(2)
+					.padding()
+			}
 		}
 		.frame(width: width, height: height)
 		.background(new.tintColor ?? Color.secondary)
