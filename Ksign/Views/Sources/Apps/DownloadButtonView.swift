@@ -31,6 +31,7 @@ struct DownloadButtonView: View {
 	@State private var _isCloudSigning = false
 	@State private var _cloudError: String?
 	@State private var _isEnrollmentPresenting = false
+	@State private var _isOptionsPresenting = false
 	
 	/// Get opens the progress sheet: the wait is the part worth showing, and a
 	/// pill in a list row is too small to say how much of it is left.
@@ -129,6 +130,11 @@ struct DownloadButtonView: View {
 		.sheet(isPresented: $_isEnrollmentPresenting) {
 			CeresifyEnrollmentView()
 		}
+		.sheet(isPresented: $_isOptionsPresenting) {
+			if let source = _cloudSource {
+				CloudSignOptionsView(app: app, source: source)
+			}
+		}
 		.sheet(isPresented: $_isProgressPresenting) {
 			DownloadProgressView(
 				title: app.currentName,
@@ -164,6 +170,13 @@ struct DownloadButtonView: View {
 		} else {
 			_pill(.localized("Get")) {
 				_cloudSign(source)
+			}
+			// The same options the app's page shows a button for, for the rows
+			// that only have room for the pill.
+			.contextMenu {
+				Button(.localized("Signing options"), systemImage: "slider.horizontal.3") {
+					_isOptionsPresenting = true
+				}
 			}
 		}
 	}

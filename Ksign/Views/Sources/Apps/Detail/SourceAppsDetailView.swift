@@ -19,6 +19,7 @@ struct SourceAppsDetailView: View {
 	@State private var _isScreenshotPreviewPresented: Bool = false
 	@State private var _selectedScreenshotIndex: Int = 0
 	@State private var _isReportPresented: Bool = false
+	@State private var _isSignOptionsPresented: Bool = false
 	/// Filled in from Apple when the source itself ships no screenshots.
 	@State private var _lookedUpScreenshots: [URL] = []
 	
@@ -69,7 +70,17 @@ struct SourceAppsDetailView: View {
 						
 						Spacer()
 						
-						DownloadButtonView(app: app)
+						HStack(spacing: 8) {
+							DownloadButtonView(app: app)
+							
+							// Only Ceresify's own builds are signed on the
+							// server, and only the server can be told to change
+							// them — everything else goes through the local
+							// signer, which asks for all of this itself.
+							if _cloudSource != nil {
+								_signOptionsButton()
+							}
+						}
 					}
 					.lineLimit(2)
 					.frame(maxWidth: .infinity, alignment: .leading)
@@ -221,6 +232,11 @@ struct SourceAppsDetailView: View {
 		.sheet(isPresented: $_isReportPresented) {
 			ReportProblemView(source: source, app: app)
 		}
+		.sheet(isPresented: $_isSignOptionsPresented) {
+			if let cloudSource = _cloudSource {
+				CloudSignOptionsView(app: app, source: cloudSource)
+			}
+		}
 		.task(id: app.id) {
 			// The catalog carries no screenshots, so ask Apple for them by
 			// bundle identifier the first time this app is opened.
@@ -241,6 +257,29 @@ struct SourceAppsDetailView: View {
 			}
 		}
     }
+	
+	/// Set for the builds Ceresify signs itself — the ones whose name, icon,
+	/// version and identifier the server can be asked to change.
+	private var _cloudSource: CeresifySignSource? {
+		CeresifyCloudSigner.source(for: app)
+	}
+	
+	@ViewBuilder
+	private func _signOptionsButton() -> some View {
+		Button {
+			_isSignOptionsPresented = true
+		} label: {
+			Image(systemName: "slider.horizontal.3")
+				.font(.subheadline.bold())
+				.foregroundStyle(Color.accentColor)
+				.padding(.horizontal, 12)
+				.padding(.vertical, 8)
+				.background(Color(uiColor: .quaternarySystemFill))
+				.clipShape(Capsule())
+		}
+		.buttonStyle(.borderless)
+		.accessibilityLabel(Text(.localized("Signing options")))
+	}
 	
 	var standardIcon: some View {
 		Image("App_Unknown").appIconStyle(size: 111, isCircle: false)
