@@ -80,7 +80,13 @@ final class CeresifyEnrollmentModel: ObservableObject {
             url: CeresifyAPI.baseURL.appendingPathComponent("api/device/nekoo-enroll"),
             resolvingAgainstBaseURL: false
         )
-        components?.queryItems = [URLQueryItem(name: "token", value: token)]
+        // `from=settings` is what makes the callback finish on the server's
+        // "تم تسجيل جهازك بنجاح" page instead of bouncing Safari into the
+        // website's start flow — the app is the thing to come back to.
+        components?.queryItems = [
+            URLQueryItem(name: "from", value: "settings"),
+            URLQueryItem(name: "token", value: token)
+        ]
         
         guard let url = components?.url else {
             step = .failed(.localized("Couldn't reach the server."))

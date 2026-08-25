@@ -32,6 +32,10 @@ struct DownloadButtonView: View {
 	@State private var _cloudError: String?
 	@State private var _isEnrollmentPresenting = false
 	
+	/// Get opens the progress sheet: the wait is the part worth showing, and a
+	/// pill in a list row is too small to say how much of it is left.
+	@State private var _isProgressPresenting = false
+	
 	/// Set for entries whose Ceresify identity isn't visible in the download
 	/// URL — the featured apps, which the server signs by id.
 	private let _explicitCloudSource: CeresifySignSource?
@@ -87,9 +91,9 @@ struct DownloadButtonView: View {
 				}
 			} else {
 				_pill(.localized("Get")) {
-					if let url = app.currentDownloadUrl {
-						_ = downloadManager.startDownload(from: url, id: app.currentUniqueId)
-					}
+					guard let url = app.currentDownloadUrl else { return }
+					_ = downloadManager.startDownload(from: url, id: app.currentUniqueId)
+					_isProgressPresenting = true
 				}
 			}
 		}
@@ -104,6 +108,14 @@ struct DownloadButtonView: View {
 		}
 		.sheet(isPresented: $_isEnrollmentPresenting) {
 			CeresifyEnrollmentView()
+		}
+		.sheet(isPresented: $_isProgressPresenting) {
+			DownloadProgressView(
+				title: app.currentName,
+				iconURL: app.iconURL,
+				downloadId: app.currentUniqueId,
+				isCloudSigning: _isCloudSigning
+			)
 		}
 		.alert(
 			String.localized("Signing failed."),
@@ -144,12 +156,15 @@ struct DownloadButtonView: View {
 		}
 		
 		_isCloudSigning = true
+		_isProgressPresenting = true
 		
 		Task {
 			do {
 				let installURL = try await CeresifyCloudSigner.sign(source)
+				_isProgressPresenting = false
 				UIApplication.open(installURL)
 			} catch {
+				_isProgressPresenting = false
 				_cloudError = error.localizedDescription
 			}
 			
@@ -206,7 +221,7 @@ struct DownloadButtonView: View {
 						.lineLimit(1)
 						.minimumScaleFactor(0.8)
 				} else {
-					Image(systemName: "stop.fill")
+					Image(systemName: "arrow.down")
 						.font(.system(size: 9, weight: .bold))
 					
 					Text(verbatim: "\(percent)%")
@@ -223,11 +238,9 @@ struct DownloadButtonView: View {
 		.clipShape(Capsule())
 		.contentShape(Capsule())
 		.onTapGesture {
-			// Once the file is down and being unpacked there is nothing left to
-			// call off, so the tap stops meaning "cancel".
-			if !_isExtracting {
-				downloadManager.cancelDownload(currentDownload)
-			}
+			// Cancelling now lives on the sheet, next to the numbers it applies
+			// to, so a stray tap on a row can't throw a download away.
+			_isProgressPresenting = true
 		}
 		.accessibilityLabel(Text(verbatim: .localized("Downloading")))
 		.accessibilityValue(Text(verbatim: _accessibilityValue(percent: percent)))

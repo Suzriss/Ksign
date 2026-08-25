@@ -19,7 +19,7 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>nya.asami.ipa</string>
+				<string>com.ceresify.ipa</string>
 			</array>
 		</dict>
 		<dict>
@@ -33,7 +33,7 @@
 			<string>Alternate</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>nya.asami.tipa</string>
+				<string>com.ceresify.tipa</string>
 			</array>
 		</dict>
 		<dict>
@@ -47,42 +47,12 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>nya.asami.ksign.cert</string>
+				<string>com.ceresify.ksign.cert</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleIcons</key>
 	<dict>
-		<key>CFBundleAlternateIcons</key>
-		<dict>
-			<key>kana_ded</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>kana_ded</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>kana_love</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>kana_love</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>kana_peek</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>kana_peek</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>
 			<key>CFBundleIconFiles</key>
@@ -114,7 +84,7 @@
 			<key>CFBundleURLIconFile</key>
 			<string>ksign_extension</string>
 			<key>CFBundleURLName</key>
-			<string>nya.asami.ksign</string>
+			<string>com.ceresify.ksign</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>ksign</string>
@@ -148,7 +118,7 @@
 				<string>IPA</string>
 			</dict>
 			<key>UTTypeIdentifier</key>
-			<string>nya.asami.ipa</string>
+			<string>com.ceresify.ipa</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -180,7 +150,7 @@
 				<string>TIPA</string>
 			</dict>
 			<key>UTTypeIdentifier</key>
-			<string>nya.asami.tipa</string>
+			<string>com.ceresify.tipa</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -209,7 +179,7 @@
 				<string>KSIGN</string>
 			</dict>
 			<key>UTTypeIdentifier</key>
-			<string>nya.asami.ksign.cert</string>
+			<string>com.ceresify.ksign.cert</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

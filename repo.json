@@ -1,6 +1,6 @@
 {
     "name": "Ksign Repository",
-    "identifier": "nya.asami.ksign-repo",
+    "identifier": "com.ceresify.ksign-repo",
     "subtitle": "A source for Ksign app",
     "description": "This is a AltStore source for Ksign",
     "iconURL": "https://github.com/Nyasami/Ksign/blob/v1.5/Ksign/Resources/AppIcons/kana_peek.png?raw=true",
@@ -9,7 +9,7 @@
     "apps": [
         {
             "name": "Ksign",
-            "bundleIdentifier": "nya.asami.ksign",
+            "bundleIdentifier": "com.ceresify.ksign",
             "developerName": "Nagata Asami",
             "iconURL": "https://github.com/Nyasami/Ksign/blob/v1.5/Ksign/Resources/Assets.xcassets/AppIcon.appiconset/Ksign-default.png?raw=true",
             "localizedDescription": "Yet another codesigning app, have you ever wondered what if Feather and Esign had a child? Welcome to Ksign!",

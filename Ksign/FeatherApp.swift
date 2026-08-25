@@ -18,6 +18,7 @@ struct FeatherApp: App {
 	@StateObject var accentColorManager = AccentColorManager.shared
     @StateObject var extractManager = ExtractManager.shared
 	@StateObject var logsManager = LogsManager.shared
+	@StateObject var languageManager = LanguageManager.shared
 	let storage = Storage.shared
 
 	var body: some Scene {
@@ -34,13 +35,37 @@ struct FeatherApp: App {
 			}
 			.animation(.smooth, value: downloadManager.manualDownloads.description)
             .animation(.smooth, value: extractManager.extractItems.description)
+			// The store's own palette: gold type throughout, with app names and
+			// their descriptions opting back out to white.
+			.foregroundStyle(Color.ceresifyGold)
+			.tint(Color.ceresifyGold)
+			// Gold only carries on a dark ground, and Settings no longer offers
+			// an appearance switch to get back out of a white one.
+			.preferredColorScheme(.dark)
+			// Rebuilt when the language changes, so a pick in Preferences shows
+			// up without waiting for the app to be reopened.
+			.environment(\.locale, languageManager.locale)
+			.environment(\.layoutDirection, languageManager.layoutDirection)
+			.id(languageManager.code)
 			.onReceive(accentColorManager.objectWillChange) { _ in
 				accentColorManager.updateGlobalTintColor()
 			}
 			.onAppear {
 				accentColorManager.updateGlobalTintColor()
+				_applyDarkAppearance()
 				if logsManager.isCapturing { logsManager.startCapture() }
 			}
+		}
+	}
+	
+	/// UIKit is presented outside SwiftUI's environment — alerts, document
+	/// pickers, the installer's own screens — so the windows are told directly.
+	private func _applyDarkAppearance() {
+		DispatchQueue.main.async {
+			UIApplication.shared.connectedScenes
+				.compactMap { $0 as? UIWindowScene }
+				.flatMap { $0.windows }
+				.forEach { $0.overrideUserInterfaceStyle = .dark }
 		}
 	}
 	

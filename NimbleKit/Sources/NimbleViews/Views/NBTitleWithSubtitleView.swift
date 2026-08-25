@@ -19,12 +19,15 @@ public struct NBTitleWithSubtitleView: View {
 	}
 	
 	public var body: some View {
+		// App names and their descriptions stay white while the rest of the app
+		// reads gold, so a list of apps is content rather than more chrome.
 		VStack(alignment: .leading, spacing: 2) {
 			Text(_title)
 				.font(.headline)
+				.foregroundStyle(.white)
 			Text(_subtitle)
 				.font(.subheadline)
-				.foregroundStyle(.secondary)
+				.foregroundStyle(.white.opacity(0.72))
 		}
 		.lineLimit(_linelimit)
 		.frame(maxWidth: .infinity, alignment: .leading)

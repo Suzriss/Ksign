@@ -4,6 +4,57 @@
     "": {
       "shouldTranslate": false
     },
+    "%@h left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@h left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "باقي %@ ساعة"
+          }
+        }
+      }
+    },
+    "%@m left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@m left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "باقي %@ دقيقة"
+          }
+        }
+      }
+    },
+    "%@s left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@s left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "باقي %@ ثانية"
+          }
+        }
+      }
+    },
     "%lld Apps": {
       "comment": "Repository app count",
       "extractionState": "manual",
@@ -1810,6 +1861,40 @@
         }
       }
     },
+    "Cancel Download": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel Download"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إلغاء التحميل"
+          }
+        }
+      }
+    },
+    "Ceresify": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceresify"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ceresify"
+          }
+        }
+      }
+    },
     "Ceresify needs your device's UDID to issue a signing certificate. Tap below — Safari opens, downloads a profile, and you install it from Settings.": {
       "localizations": {
         "ar": {
@@ -2327,6 +2412,23 @@
         }
       }
     },
+    "Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم النسخ"
+          }
+        }
+      }
+    },
     "Copy": {
       "extractionState": "manual",
       "localizations": {
@@ -2828,6 +2930,23 @@
         }
       }
     },
+    "Device Information": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device Information"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "معلومات الجهاز"
+          }
+        }
+      }
+    },
     "Discard": {
       "localizations": {
         "ar": {
@@ -3231,6 +3350,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tải xuống LocalDevVPN"
+          }
+        }
+      }
+    },
+    "Download complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download complete"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتمل التحميل"
           }
         }
       }
@@ -4967,6 +5103,23 @@
         }
       }
     },
+    "Follow the store to know when apps and subscriptions land.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow the store to know when apps and subscriptions land."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تابع المتجر لتعرف بالتطبيقات والاشتراكات أول ما تنزل."
+          }
+        }
+      }
+    },
     "Force Localize": {
       "extractionState": "manual",
       "localizations": {
@@ -5799,6 +5952,23 @@
         }
       }
     },
+    "Hide": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إخفاء"
+          }
+        }
+      }
+    },
     "Home": {
       "localizations": {
         "ar": {
@@ -6590,6 +6760,23 @@
         }
       }
     },
+    "Instagram": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إنستغرام"
+          }
+        }
+      }
+    },
     "Install": {
       "extractionState": "manual",
       "localizations": {
@@ -6645,6 +6832,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cài đặt"
+          }
+        }
+      }
+    },
+    "Install the profile so we can register your device. After that you can sign apps.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install the profile so we can register your device. After that you can sign apps."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثبّت الملف التعريفي حتى نسجّل جهازك، وبعدها تگدر توقّع التطبيقات."
           }
         }
       }
@@ -6761,6 +6965,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cho phép chạy nền"
+          }
+        }
+      }
+    },
+    "Language": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اللغة"
+          }
+        }
+      }
+    },
+    "Language and notifications.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language and notifications."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اللغة والإشعارات."
           }
         }
       }
@@ -7077,6 +7315,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Khác"
+          }
+        }
+      }
+    },
+    "Model": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الموديل"
           }
         }
       }
@@ -7737,6 +7992,23 @@
         }
       }
     },
+    "None": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يوجد"
+          }
+        }
+      }
+    },
     "Not registered": {
       "extractionState": "manual",
       "localizations": {
@@ -7782,6 +8054,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "لا يوجد شيء للتوقيع"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإشعارات"
+          }
+        }
+      }
+    },
+    "Notifications are turned off for this app in iOS Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are turned off for this app in iOS Settings."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإشعارات مغلقة لهذا التطبيق من إعدادات iOS."
           }
         }
       }
@@ -8256,6 +8562,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mở trong Tệp"
+          }
+        }
+      }
+    },
+    "Order a subscription from the store to sign and install without limits.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Order a subscription from the store to sign and install without limits."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اطلب اشتراكاً من المتجر حتى توقّع وتثبّت بدون قيود."
           }
         }
       }
@@ -8785,6 +9108,23 @@
         }
       }
     },
+    "Preferences": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preferences"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التفضيلات"
+          }
+        }
+      }
+    },
     "Prefix": {
       "extractionState": "manual",
       "localizations": {
@@ -8828,6 +9168,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tiền tố / Hậu tố sẽ được thêm vào tên app ở trước và sau tên app"
+          }
+        }
+      }
+    },
+    "Preparing your download…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing your download…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري تحضير التحميل…"
           }
         }
       }
@@ -9276,6 +9633,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Register your device first, then try again."
+          }
+        }
+      }
+    },
+    "Registered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registered"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مسجّل"
           }
         }
       }
@@ -11678,6 +12052,40 @@
         }
       }
     },
+    "Some parts of the app only pick up a new language after it is reopened.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some parts of the app only pick up a new language after it is reopened."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بعض أجزاء التطبيق تتغيّر لغتها بعد ما تفتح التطبيق من جديد."
+          }
+        }
+      }
+    },
+    "Soon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soon"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قريباً"
+          }
+        }
+      }
+    },
     "Source": {
       "extractionState": "manual",
       "localizations": {
@@ -11992,6 +12400,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bắt đầu ký"
+          }
+        }
+      }
+    },
+    "Starting…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري البدء…"
+          }
+        }
+      }
+    },
+    "Store Accounts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Store Accounts"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حسابات المتجر"
           }
         }
       }
@@ -12405,6 +12847,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quay lại"
+          }
+        }
+      }
+    },
+    "System": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لغة الجهاز"
           }
         }
       }
@@ -12909,6 +13368,23 @@
         }
       }
     },
+    "TikTok": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TikTok"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تيك توك"
+          }
+        }
+      }
+    },
     "Toggling show sheet will present a share sheet after exporting to your files.": {
       "extractionState": "manual",
       "localizations": {
@@ -13039,6 +13515,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tunnel & Ghép nối"
+          }
+        }
+      }
+    },
+    "Tutorials": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutorials"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الشروحات"
           }
         }
       }
@@ -13276,6 +13769,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Không xác định"
+          }
+        }
+      }
+    },
+    "Unpacking the app…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unpacking the app…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري فك ضغط التطبيق…"
           }
         }
       }
@@ -13861,6 +14371,23 @@
         }
       }
     },
+    "Your device's registration, its UDID, and your subscription.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your device's registration, its UDID, and your subscription."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تسجيل جهازك، ورقم الـ UDID، والاشتراك."
+          }
+        }
+      }
+    },
     "Your subscription is active but no certificate has been issued yet. Contact support and try again.": {
       "localizations": {
         "ar": {
@@ -13877,6 +14404,23 @@
         }
       }
     },
+    "almost done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "almost done"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "على وشك الانتهاء"
+          }
+        }
+      }
+    },
     "https://example.com/app.ipa": {
       "extractionState": "manual",
       "localizations": {
@@ -13884,6 +14428,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "https://example.com/app.ipa"
+          }
+        }
+      }
+    },
+    "iOS Version": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS Version"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إصدار iOS"
           }
         }
       }
@@ -14032,6 +14593,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Đây là phương thức cài đặt nâng cao, yêu cầu phải có máy tính để sử dụng. Bạn có chắc chắn không?"
+          }
+        }
+      }
+    },
+    "left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "left"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "متبقي"
           }
         }
       }

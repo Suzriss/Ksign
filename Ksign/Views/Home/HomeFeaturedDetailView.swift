@@ -25,7 +25,7 @@ struct HomeFeaturedDetailView: View {
                             
                             Text(verbatim: details)
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(Color.ceresifySubtitle)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
@@ -47,11 +47,12 @@ struct HomeFeaturedDetailView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(verbatim: item.name)
                     .font(.title3.bold())
+                    .foregroundStyle(Color.ceresifyTitle)
                 
                 if let subtitle = item.subtitle {
                     Text(verbatim: subtitle)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.ceresifySubtitle)
                 }
             }
             

@@ -1,146 +1,172 @@
 //
 //  SettingsView.swift
-//  Feather
+//  Ksign
 //
-//  Created by samara on 10.04.2025.
+//  The store's settings page, laid out the way the website's is: the device
+//  first, then preferences, then the store's own accounts.
 //
 
 import SwiftUI
 import NimbleViews
+import NimbleExtensions
 
 // MARK: - View
 struct SettingsView: View {
-    @AppStorage("feather.selectedCert") private var _storedSelectedCert: Int = 0
-    @State private var _isEnrollmentPresenting = false
-    @FetchRequest(
-        entity: CertificatePair.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \CertificatePair.date, ascending: false)],
-        animation: .snappy
-    ) private var _certificates: FetchedResults<CertificatePair>
-    
-    private var selectedCertificate: CertificatePair? {
-        guard
-            _storedSelectedCert >= 0,
-            _storedSelectedCert < _certificates.count
-        else {
-            return nil
-        }
-        return _certificates[_storedSelectedCert]
-    }
-    
-    
-	private let _donationsUrl = "https://github.com/sponsors/nyasami"
-	private let _githubUrl = "https://github.com/nyasami/ksign"
-    private let _discordUrl = "https://discord.gg/sfbZfQzVdQ"
+	/// The accounts the website's settings page links to, in its order.
+	/// Computed, so the titles follow a language picked in Preferences.
+	private var _accounts: [_Account] {
+		[
+			_Account(
+				title: .localized("Telegram Channel"),
+				systemImage: "paperplane.fill",
+				tint: Color(red: 0x2A/255, green: 0xAB/255, blue: 0xEE/255),
+				url: "https://t.me/ceresify"
+			),
+			_Account(
+				title: .localized("Instagram"),
+				systemImage: "camera.fill",
+				tint: Color(red: 0xE1/255, green: 0x30/255, blue: 0x6C/255),
+				url: "https://instagram.com/ceresify"
+			),
+			_Account(
+				title: .localized("TikTok"),
+				systemImage: "music.note",
+				tint: Color(white: 0.25),
+				url: nil
+			),
+			_Account(
+				title: .localized("Tutorials"),
+				systemImage: "play.circle.fill",
+				tint: Color(red: 0x50/255, green: 0xC8/255, blue: 0x78/255),
+				url: "https://t.me/+Fjm9BFK7TBMwYjhi"
+			)
+		]
+	}
+	
+	private static let _developerUrl = "https://t.me/uussuu"
+	
 	// MARK: Body
-    var body: some View {
+	var body: some View {
 		NBNavigationView(.localized("Settings")) {
 			Form {
-//				#if !NIGHTLY && !DEBUG
-				SettingsDonationCellView(site: _donationsUrl)
-//				#endif
-				
-				_feedback()
+				Section {
+					NavigationLink(destination: DeviceInfoView()) {
+						Label(.localized("Device Information"), systemImage: "iphone.gen3")
+					}
+				} footer: {
+					Text(.localized("Your device's registration, its UDID, and your subscription."))
+				}
 				
 				Section {
-                    NavigationLink(destination: AppIconView()) {
-                        Label(.localized("App Icon"), systemImage: "app.badge")
-                    }
-					NavigationLink(destination: AppearanceView()) {
-                        Label(.localized("Appearance"), systemImage: "paintbrush")
-                    }
+					NavigationLink(destination: PreferencesView()) {
+						Label(.localized("Preferences"), systemImage: "slider.horizontal.3")
+					}
+				} footer: {
+					Text(.localized("Language and notifications."))
 				}
-                
-                NBSection(.localized("Certificates")) {
-                    
-                    if let cert = selectedCertificate {
-                        CertificatesCellView(cert: cert)
-                    } else {
-                        Text(.localized("No Certificate"))
-                            .font(.footnote)
-                            .foregroundColor(.disabled())
-                    }
-                    NavigationLink(destination: CertificatesView()) {
-                        Label(.localized("Certificates"), systemImage: "signature")
-                    }
-                    
-                    Button {
-                        _isEnrollmentPresenting = true
-                    } label: {
-                        Label(.localized("Register your device"), systemImage: "iphone.badge.checkmark")
-                    }
-                 
-                } footer: {
-                    Text(.localized("Add and manage certificates used for signing applications."))
-                }
 				
-				NBSection(.localized("Features")) {
-                    NavigationLink(destination: LogsView(manager: LogsManager.shared)) {
-                        Label(.localized("Logs"), systemImage: "apple.terminal")
-                    }
+				NBSection(.localized("Store Accounts")) {
+					ForEach(_accounts) { account in
+						_accountRow(account)
+					}
+				} footer: {
+					Text(.localized("Follow the store to know when apps and subscriptions land."))
+				}
+				
+				Section {
 					NavigationLink(destination: AppFeaturesView()) {
-                        Label(.localized("App Features"), systemImage: "sparkles")
-                    }
-					NavigationLink(destination: ConfigurationView()) {
-                        Label(.localized("Signing Options"), systemImage: "gear")
-                    }
-					NavigationLink(destination: ArchiveView()) {
-                        Label(.localized("Archive & Extraction"), systemImage: "archivebox")
-                    }
-					NavigationLink(destination: InstallationView()) {
-                        Label(.localized("Installation"), systemImage: "server.rack")
-                    }
+						Label(.localized("App Features"), systemImage: "sparkles")
+					}
 				}
 				
-				_directories()
-                
-                Section {
-                    NavigationLink(destination: ResetView()) {
-                        Label(.localized("Reset"), systemImage: "trash")
-                    }
-                } footer: {
-                    Text("Reset the applications sources, certificates, apps, and general contents.")
-                }
-
-            }
-            .sheet(isPresented: $_isEnrollmentPresenting) {
-                CeresifyEnrollmentView()
-            }
-        }
-    }
+				Section {
+					_developerCredit
+						.listRowBackground(EmptyView())
+				}
+			}
+		}
+	}
 }
 
-// MARK: - View extension
-extension SettingsView {
-	@ViewBuilder
-	private func _feedback() -> some View {
-		Section {
-			NavigationLink(destination: AboutNyaView()) {
-                Label(.localized("About"), systemImage: "info.circle")
-            }
-			Button(.localized("Telegram Channel"), systemImage: "paperplane.circle") {
-				UIApplication.open("https://t.me/KhoinDNS")
-			}
-			Button(.localized("GitHub Repository"), systemImage: "safari") {
-				UIApplication.open(_githubUrl)
-			}
-            Button(.localized("Discord Server"), systemImage: "safari") {
-                UIApplication.open(_discordUrl)
-            }
-		}
+// MARK: - Extension: View
+private extension SettingsView {
+	struct _Account: Identifiable {
+		let title: String
+		let systemImage: String
+		let tint: Color
+		/// No link means the account isn't open yet — the website marks it
+		/// "soon" rather than hiding it.
+		let url: String?
+		
+		var id: String { title }
 	}
 	
 	@ViewBuilder
-	private func _directories() -> some View {
-		NBSection(.localized("Misc")) {
-			Button(.localized("Open Documents"), systemImage: "folder") {
-				UIApplication.open(URL.documentsDirectory.toSharedDocumentsURL()!)
+	func _accountRow(_ account: _Account) -> some View {
+		Button {
+			if let url = account.url {
+				UIApplication.open(url)
 			}
-			Button(.localized("Open Archives"), systemImage: "folder") {
-				UIApplication.open(FileManager.default.archives.toSharedDocumentsURL()!)
+		} label: {
+			HStack(spacing: 12) {
+				Image(systemName: account.systemImage)
+					.font(.system(size: 15))
+					.foregroundStyle(.white)
+					.frame(width: 29, height: 29)
+					.background(account.tint)
+					.clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+				
+				Text(verbatim: account.title)
+				
+				Spacer(minLength: 8)
+				
+				if account.url == nil {
+					Text(.localized("Soon"))
+						.font(.caption.weight(.semibold))
+						.foregroundStyle(.secondary)
+						.padding(.horizontal, 8)
+						.padding(.vertical, 3)
+						.background(Color(uiColor: .quaternarySystemFill))
+						.clipShape(Capsule())
+				} else {
+					Image(systemName: "chevron.right")
+						.font(.caption.bold())
+						.foregroundStyle(.secondary)
+				}
 			}
-		} footer: {
-			Text(.localized("All of Ksign files except certificates are contained in the documents directory, here are some quick links to these."))
+			.contentShape(Rectangle())
 		}
+		.buttonStyle(.plain)
+		.disabled(account.url == nil)
+	}
+	
+	/// Last thing on the page, the way the website closes its settings page.
+	var _developerCredit: some View {
+		Button {
+			UIApplication.open(Self._developerUrl)
+		} label: {
+			VStack(spacing: 4) {
+				Text(verbatim: "تصميم وبرمجة أيمن الناصري")
+					.font(.subheadline.weight(.semibold))
+					.foregroundStyle(Color.ceresifyGold)
+				
+				Text(verbatim: "Design & development by Ayman Al-Nasri")
+					.font(.caption)
+					.foregroundStyle(.secondary)
+				
+				HStack(spacing: 4) {
+					Image(systemName: "paperplane.fill")
+					Text(verbatim: "@uussuu")
+				}
+				.font(.caption.weight(.medium))
+				.foregroundStyle(Color.ceresifyGold)
+				.padding(.top, 2)
+			}
+			.multilineTextAlignment(.center)
+			.frame(maxWidth: .infinity)
+			.padding(.vertical, 10)
+			.contentShape(Rectangle())
+		}
+		.buttonStyle(.plain)
 	}
 }

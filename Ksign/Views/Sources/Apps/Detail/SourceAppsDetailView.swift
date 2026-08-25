@@ -61,10 +61,10 @@ struct SourceAppsDetailView: View {
 						Text(app.currentName)
 							.font(.title2)
 							.fontWeight(.semibold)
-							.foregroundColor(.primary)
+							.foregroundStyle(Color.ceresifyTitle)
 						Text(app.currentDescription ?? .localized("An awesome application"))
 							.font(.subheadline)
-							.foregroundColor(.secondary)
+							.foregroundStyle(Color.ceresifySubtitle)
 						
 						Spacer()
 						

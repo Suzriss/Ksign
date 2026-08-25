@@ -7,7 +7,6 @@
 
 import SwiftUI
 import NimbleViews
-import UserNotifications
 
 struct AppFeaturesView: View {
     @AppStorage("Ksign.cleanUpAfterInstall") private var _cleanUpAfterInstall: Bool = true
@@ -30,16 +29,6 @@ struct AppFeaturesView: View {
                 Text(.localized("This will show the logs of the signing process when you start signing."))
             }
             Section {
-                Toggle(isOn: $_optionsManager.options.notifications) {
-                    Label(.localized("Notify when download is completed"), systemImage: "bell")
-                }
-                .onChange(of: _optionsManager.options.notifications) { enabled in
-                    _notificationsAuthorization(enabled)
-                }
-            } footer: {
-                Text(.localized("This will notify you when the download is completed."))
-            }
-            Section {
                 Toggle(isOn: $_optionsManager.options.saveAppStoreDownloadsToDownloadsFolder) {
                     Label(.localized("Save App Store downloads to Downloads folder"), systemImage: "square.and.arrow.down.fill")
                 }
@@ -56,43 +45,6 @@ struct AppFeaturesView: View {
         }
         .onChange(of: _optionsManager.options) { _ in
             _optionsManager.saveOptions()
-        }
-    }
-
-    private func _notificationsAuthorization(_ enabled: Bool) {
-        guard enabled else { return }
-        
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
-            switch settings.authorizationStatus {
-            case .notDetermined:
-                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-                    DispatchQueue.main.async {
-                        if !granted {
-                            _optionsManager.options.notifications = false
-                        }
-                    }
-                }
-            case .denied:
-                DispatchQueue.main.async {
-                    _optionsManager.options.notifications = false
-                    
-                    let cancel = UIAlertAction(title: .localized("Cancel"), style: .cancel)
-                    let ok = UIAlertAction(title: .localized("Open Settings"), style: .default) { _ in
-                        if let url = URL(string: UIApplication.openSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
-                    }
-                    UIAlertController.showAlert(
-                        title: .localized("You have denied!"),
-                        message: .localized("Please open settings and grant permission to send notifications."),
-                        actions: [cancel, ok]
-                    )
-                }
-            case .authorized, .provisional, .ephemeral:
-                break
-            @unknown default:
-                break
-            }
         }
     }
 }
