@@ -18,6 +18,7 @@ struct SourceAppsDetailView: View {
 	@State var cancellable: AnyCancellable? // Combine
 	@State private var _isScreenshotPreviewPresented: Bool = false
 	@State private var _selectedScreenshotIndex: Int = 0
+	@State private var _isReportPresented: Bool = false
 	/// Filled in from Apple when the source itself ships no screenshots.
 	@State private var _lookedUpScreenshots: [URL] = []
 	
@@ -145,6 +146,25 @@ struct SourceAppsDetailView: View {
 					}
                 }
 				
+				// Sits under the facts about the app, which is what someone
+				// reporting a broken build has just been reading.
+				Button {
+					_isReportPresented = true
+				} label: {
+					Label(.localized("Report a problem"), systemImage: "exclamationmark.bubble")
+						.font(.subheadline.weight(.medium))
+						.frame(maxWidth: .infinity)
+						.padding(.vertical, 12)
+						.background(
+							RoundedRectangle(cornerRadius: 14, style: .continuous)
+								.fill(Color(.quaternarySystemFill))
+						)
+				}
+				.buttonStyle(.plain)
+				.padding(.top, 4)
+				
+				Divider()
+				
 				if let appPermissions = app.appPermissions {
 					NBSection(.localized("Permissions")) {
 						Group {
@@ -209,6 +229,9 @@ struct SourceAppsDetailView: View {
 					initialIndex: _selectedScreenshotIndex
 				)
 			}
+		}
+		.sheet(isPresented: $_isReportPresented) {
+			ReportProblemView(source: source, app: app)
 		}
 		.task(id: app.id) {
 			// The catalog carries no screenshots, so ask Apple for them by

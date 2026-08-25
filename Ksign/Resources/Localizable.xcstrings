@@ -1344,6 +1344,65 @@
         }
       }
     },
+    "App": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التطبيق"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplikace"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aplicación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приложение"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulama"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ứng dụng"
+          }
+        }
+      }
+    },
     "App Features": {
       "extractionState": "manual",
       "localizations": {
@@ -2677,6 +2736,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't reach the server."
+          }
+        }
+      }
+    },
+    "Couldn't send the report. Try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما انرسل البلاغ. جرّب مرة ثانية."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hlášení se nepodařilo odeslat. Zkuste to znovu."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Meldung konnte nicht gesendet werden. Bitte erneut versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't send the report. Try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo enviar el informe. Inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'envoyer le signalement. Réessayez."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось отправить сообщение. Попробуйте ещё раз."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bildirim gönderilemedi. Tekrar deneyin."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không gửi được báo cáo. Hãy thử lại."
           }
         }
       }
@@ -11501,6 +11619,65 @@
         }
       }
     },
+    "Report a problem": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إبلاغ عن مشكلة"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nahlásit problém"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problem melden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report a problem"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informar de un problema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler un problème"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сообщить о проблеме"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorun bildir"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Báo cáo sự cố"
+          }
+        }
+      }
+    },
     "Repositories": {
       "extractionState": "manual",
       "localizations": {
@@ -12521,6 +12698,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bán cục bộ"
+          }
+        }
+      }
+    },
+    "Send": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إرسال"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odeslat"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отправить"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gönder"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gửi"
           }
         }
       }
@@ -14343,6 +14579,65 @@
         }
       }
     },
+    "Tell us what happens — it fails to install, it crashes on opening, the wrong app arrives.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتبلنا شنو يصير — ما ينصّب، يطلع من نفسه أول ما يفتح، ينزل تطبيق غير."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popište, co se děje — nejde nainstalovat, po spuštění spadne, přijde jiná aplikace."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beschreiben Sie, was passiert – die Installation schlägt fehl, sie stürzt beim Öffnen ab, es kommt die falsche App an."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us what happens — it fails to install, it crashes on opening, the wrong app arrives."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuéntanos qué pasa: no se instala, se cierra al abrirla, llega la aplicación equivocada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-nous ce qui se passe : l'installation échoue, l'app plante à l'ouverture, ce n'est pas la bonne app."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опишите, что происходит: не устанавливается, вылетает при запуске, приходит не то приложение."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne olduğunu yazın — kurulmuyor, açılışta çöküyor, yanlış uygulama geliyor."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cho chúng tôi biết chuyện gì xảy ra — không cài được, mở lên là thoát, tải về nhầm ứng dụng."
+          }
+        }
+      }
+    },
     "TestFlight apps": {
       "extractionState": "manual",
       "localizations": {
@@ -14420,6 +14715,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chỉnh sửa"
+          }
+        }
+      }
+    },
+    "Thanks!": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شكراً!"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Díky!"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danke!"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thanks!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Gracias!"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci !"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спасибо!"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teşekkürler!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cảm ơn!"
           }
         }
       }
@@ -15794,6 +16148,65 @@
         }
       }
     },
+    "What went wrong?": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شنو المشكلة؟"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Co se stalo?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was ist passiert?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What went wrong?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué ha ocurrido?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que s'est-il passé ?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что случилось?"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne oldu?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã xảy ra chuyện gì?"
+          }
+        }
+      }
+    },
     "Whether to remember the last location where a file was copied/moved to or use Ksign's documents folder as default.": {
       "extractionState": "manual",
       "localizations": {
@@ -15918,6 +16331,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "تسجيل جهازك، ورقم الـ UDID، والاشتراك."
+          }
+        }
+      }
+    },
+    "Your report reached us.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصلنا بلاغك."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaše hlášení k nám dorazilo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihre Meldung ist bei uns angekommen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your report reached us."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hemos recibido tu informe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre signalement nous est parvenu."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мы получили ваше сообщение."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bildiriminiz bize ulaştı."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chúng tôi đã nhận được báo cáo của bạn."
           }
         }
       }

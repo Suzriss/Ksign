@@ -26,6 +26,13 @@ struct GeneralView: View {
         animation: .snappy
     ) private var _sources: FetchedResults<AltSource>
     
+    /// The catalog the store is built on is not something to manage: it ships
+    /// with the app and is what the Apps tab already shows. This card is for
+    /// the sources added on top of it.
+    private var _addedSources: [AltSource] {
+        _sources.filter { $0.sourceURL?.host != CeresifyAPI.baseURL.host }
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -90,14 +97,14 @@ struct GeneralView: View {
                 .accessibilityLabel(Text(verbatim: String.localized("Add Source")))
             }
             
-            if _sources.isEmpty {
+            if _addedSources.isEmpty {
                 Text(.localized("Get started by adding your first repository."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 VStack(spacing: 10) {
-                    ForEach(_sources) { source in
+                    ForEach(_addedSources) { source in
                         NavigationLink {
                             SourceAppsView(object: [source], viewModel: _sourcesViewModel)
                         } label: {
