@@ -33,6 +33,84 @@ extension Storage {
 		}
 	}
 	
+	/// Most recently signed build carrying this bundle identifier, if any.
+	///
+	/// Matching is by identifier because nothing links a signed build back to the
+	/// source entry it came from. Signing options that rewrite the identifier
+	/// (PPQ protection, a custom identifier) therefore break the match — those
+	/// builds stay reachable from the Library as before.
+	func latestSigned(forIdentifier identifier: String) -> Signed? {
+		let request: NSFetchRequest<Signed> = Signed.fetchRequest()
+		request.predicate = NSPredicate(format: "identifier == %@", identifier)
+		request.sortDescriptors = [NSSortDescriptor(keyPath: \Signed.date, ascending: false)]
+		request.fetchLimit = 1
+		return (try? context.fetch(request))?.first
+	}
+	
+	/// Most recently imported (unsigned) build carrying this bundle identifier.
+	func latestImported(forIdentifier identifier: String) -> Imported? {
+		let request: NSFetchRequest<Imported> = Imported.fetchRequest()
+		request.predicate = NSPredicate(format: "identifier == %@", identifier)
+		request.sortDescriptors = [NSSortDescriptor(keyPath: \Imported.date, ascending: false)]
+		request.fetchLimit = 1
+		return (try? context.fetch(request))?.first
+	}
+	
+	/// Clears out everything left behind once an app is on the device: the build
+	/// that was installed, any unsigned copy it was signed from, and the archive
+	/// the download left on disk. Only call this after an install actually
+	/// succeeded — it is not recoverable without downloading again.
+	func cleanUpAfterInstall(for app: AppInfoPresentable) {
+		let identifier = app.identifier
+		
+		deleteApp(for: app)
+		
+		if let identifier {
+			if
+				let imported = latestImported(forIdentifier: identifier),
+				imported.uuid != app.uuid
+			{
+				deleteApp(for: imported)
+			}
+			
+			if
+				app.isSigned == false,
+				let signed = latestSigned(forIdentifier: identifier)
+			{
+				deleteApp(for: signed)
+			}
+		}
+		
+		removeDownloadedArchives()
+	}
+	
+	/// Drops the `.ipa` files the downloader parked on disk. They are only ever
+	/// an intermediate step towards an imported app, so nothing references them
+	/// once the install is done.
+	func removeDownloadedArchives() {
+		let fileManager = FileManager.default
+		
+		let directories = [
+			fileManager.temporaryDirectory.appendingPathComponent("FeatherDownloads", isDirectory: true),
+			URL.documentsDirectory.appendingPathComponent("Downloads")
+		]
+		
+		for directory in directories {
+			guard
+				let contents = try? fileManager.contentsOfDirectory(
+					at: directory,
+					includingPropertiesForKeys: nil
+				)
+			else {
+				continue
+			}
+			
+			for url in contents where ["ipa", "tipa"].contains(url.pathExtension.lowercased()) {
+				try? fileManager.removeItem(at: url)
+			}
+		}
+	}
+	
 	func getCertificate(from app: AppInfoPresentable) -> CertificatePair? {
 		if let signed = app as? Signed {
 			return signed.certificate

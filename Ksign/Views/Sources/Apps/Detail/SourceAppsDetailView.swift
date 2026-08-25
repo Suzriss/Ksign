@@ -18,6 +18,17 @@ struct SourceAppsDetailView: View {
 	@State var cancellable: AnyCancellable? // Combine
 	@State private var _isScreenshotPreviewPresented: Bool = false
 	@State private var _selectedScreenshotIndex: Int = 0
+	/// Filled in from Apple when the source itself ships no screenshots.
+	@State private var _lookedUpScreenshots: [URL] = []
+	
+	/// What the screenshot strip and the full-screen preview both read from.
+	private var _screenshotURLs: [URL] {
+		if let fromSource = app.screenshotURLs, !fromSource.isEmpty {
+			return fromSource
+		}
+		
+		return _lookedUpScreenshots
+	}
 	
 	var currentDownload: Download? {
 		downloadManager.getDownload(by: app.currentUniqueId)
@@ -67,9 +78,9 @@ struct SourceAppsDetailView: View {
 				_infoPills(app: app)
 				Divider()
                 
-                if let screenshotURLs = app.screenshotURLs {
+                if !_screenshotURLs.isEmpty {
                     NBSection(.localized("Screenshots")) {
-                        _screenshots(screenshotURLs: screenshotURLs)
+                        _screenshots(screenshotURLs: _screenshotURLs)
                     }
                     
                     Divider()
@@ -112,15 +123,7 @@ struct SourceAppsDetailView: View {
                 
                 NBSection(.localized("Information")) {
                     VStack(spacing: 12) {
-                        if let sourceName = source.name {
-                            _infoRow(title: .localized("Source"), value: sourceName)
-                        }
-                        
-                        if let developer = app.developer, !developer.isEmpty {
-							_infoRow(title: .localized("Developer"), value: developer)
-						}
-						
-						if let size = app.size {
+                        if let size = app.size {
 							_infoRow(title: .localized("Size"), value: size.formattedByteCount)
 						}
 						
@@ -202,11 +205,30 @@ struct SourceAppsDetailView: View {
 			}
 		}
 		.fullScreenCover(isPresented: $_isScreenshotPreviewPresented) {
-			if let screenshotURLs = app.screenshotURLs {
+			if !_screenshotURLs.isEmpty {
 				ScreenshotPreviewView(
-					screenshotURLs: screenshotURLs,
+					screenshotURLs: _screenshotURLs,
 					initialIndex: _selectedScreenshotIndex
 				)
+			}
+		}
+		.task(id: app.id) {
+			// The catalog carries no screenshots, so ask Apple for them by
+			// bundle identifier the first time this app is opened.
+			guard
+				app.screenshotURLs?.isEmpty ?? true,
+				let identifier = app.id,
+				!identifier.isEmpty
+			else {
+				return
+			}
+			
+			let urls = await AppStoreScreenshotService.shared.screenshots(forIdentifier: identifier)
+			
+			guard !urls.isEmpty else { return }
+			
+			withAnimation(.easeIn(duration: 0.25)) {
+				_lookedUpScreenshots = urls
 			}
 		}
     }

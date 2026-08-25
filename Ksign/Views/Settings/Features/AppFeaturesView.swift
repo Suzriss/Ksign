@@ -10,6 +10,7 @@ import NimbleViews
 import UserNotifications
 
 struct AppFeaturesView: View {
+    @AppStorage("Ksign.cleanUpAfterInstall") private var _cleanUpAfterInstall: Bool = true
     @StateObject private var _optionsManager = OptionsManager.shared
     
     var body: some View {
@@ -44,6 +45,13 @@ struct AppFeaturesView: View {
                 }
             } footer: {
                 Text(.localized("This will save the App Store downloads to the Downloads folder, turning this off will help reduce disk usage."))
+            }
+            Section {
+                Toggle(isOn: $_cleanUpAfterInstall) {
+                    Label(.localized("Clean up after installing"), systemImage: "trash")
+                }
+            } footer: {
+                Text(.localized("Once an app finishes installing, remove its downloaded archive and its Library entries. Reinstalling it means downloading it again."))
             }
         }
         .onChange(of: _optionsManager.options) { _ in

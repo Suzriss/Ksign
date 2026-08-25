@@ -16,6 +16,7 @@ struct InstallPreviewView: View {
 	
 	// Sharing
 	@AppStorage("Feather.useShareSheetForArchiving") private var _useShareSheet: Bool = false
+	@AppStorage("Ksign.cleanUpAfterInstall") private var _shouldCleanUpAfterInstall: Bool = true
 	
 	// Methods
     @AppStorage("Feather.installationMethod") private var _installationMethod: Int = 0
@@ -70,7 +71,12 @@ struct InstallPreviewView: View {
 			}
             
             switch newStatus {
-            case .completed, .broken(_):
+            case .completed:
+                progressTask?.cancel()
+                progressTask = nil
+                BackgroundAudioManager.shared.stop()
+                _cleanUpIfNeeded()
+            case .broken(_):
                 progressTask?.cancel()
                 progressTask = nil
                 BackgroundAudioManager.shared.stop()
@@ -96,6 +102,22 @@ struct InstallPreviewView: View {
 			.labelStyle(.titleAndIcon)
 			.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
 			.animation(.smooth, value: viewModel.statusImage)
+	}
+	
+	/// The app is on the device now, so the copies Ksign was holding on to are
+	/// dead weight. Sharing runs through the same screen but produces a file the
+	/// user still needs, and installing Ksign over itself would delete the very
+	/// build that is running, so both are left alone.
+	private func _cleanUpIfNeeded() {
+		guard
+			_shouldCleanUpAfterInstall,
+			!isSharing,
+			app.identifier != Bundle.main.bundleIdentifier
+		else {
+			return
+		}
+		
+		Storage.shared.cleanUpAfterInstall(for: app)
 	}
 	
 	private func _install() {

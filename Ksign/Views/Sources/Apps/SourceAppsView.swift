@@ -101,6 +101,9 @@ struct SourceAppsView: View {
             }
         }
         .navigationTitle(_navigationTitle)
+        // Inline keeps the large title from eating the space above the category
+        // strip, which is what the list is actually driven from.
+        .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $_searchText, placement: .platform())
         .toolbarTitleMenu {
             if
