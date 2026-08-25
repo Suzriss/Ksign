@@ -35,8 +35,10 @@ struct SourceAppsCategoryStrip: View {
 					.id(_allChipId)
 					
 					ForEach(categories) { category in
+						// The chip reads in the app's language; the raw name
+						// stays the identity the list filters on.
 						_chip(
-							title: category.name,
+							title: SourceAppCategoryName.localized(category.name),
 							isSelected: selection == category.name
 						) {
 							selection = category.name
@@ -91,10 +93,16 @@ struct SourceAppsCategoryStrip: View {
 
 // MARK: - Extension: build categories from repositories
 extension SourceAppsCategoryStrip {
-	/// Collects the categories present across the given repositories, ordered by
-	/// app count so the big ones (Games, Apps) land first.
+	/// Collects the categories present across the given repositories, in the
+	/// order the source lists them.
+	///
+	/// A source hands its apps over already ordered — Ceresify's catalog is
+	/// emitted category by category, in the order set in the admin panel — so
+	/// following first appearance is what lets the shop decide which chips lead.
+	/// Sorting by app count here would overrule that.
 	static func categories(from sources: [ASRepository]) -> [Category] {
 		var counts: [String: Int] = [:]
+		var order: [String] = []
 		
 		for source in sources {
 			for app in source.apps {
@@ -105,16 +113,14 @@ extension SourceAppsCategoryStrip {
 					continue
 				}
 				
+				if counts[category] == nil {
+					order.append(category)
+				}
+				
 				counts[category, default: 0] += 1
 			}
 		}
 		
-		return counts
-			.map { Category(name: $0.key, count: $0.value) }
-			.sorted {
-				$0.count != $1.count
-				? $0.count > $1.count
-				: $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
-			}
+		return order.map { Category(name: $0, count: counts[$0] ?? 0) }
 	}
 }

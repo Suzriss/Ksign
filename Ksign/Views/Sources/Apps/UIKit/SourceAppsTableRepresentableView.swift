@@ -238,7 +238,15 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
             _groupedAppsByDate = [:]
             _groupedAppsByNameFirstLetter = [:]
             _sortedSectionTitles = []
-            return sortAscending ? filtered : filtered.reversed()
+            // Every category opens on what was updated most recently rather
+            // than on whatever order the source happened to hand over. It stays
+            // one flat section — the Date option is what breaks the list into
+            // day headers.
+            return filtered.sorted {
+                let d1 = $0.app.currentDate?.date ?? .distantPast
+                let d2 = $1.app.currentDate?.date ?? .distantPast
+                return sortAscending ? (d1 > d2) : (d1 < d2)
+            }
         case .date:
             let sorted = filtered.sorted {
                 let d1 = $0.app.currentDate?.date ?? .distantPast

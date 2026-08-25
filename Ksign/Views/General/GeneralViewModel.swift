@@ -2,15 +2,15 @@
 //  GeneralViewModel.swift
 //  Ksign
 //
-//  What the web app's General page shows: the products from the admin panel,
-//  and the device's own subscription card.
+//  What the General page shows: the products from the admin panel.
 //
 
 import Foundation
 import NimbleExtensions
 
-/// Loads the two things `general.html` loads: `/api/sign/products` for the
-/// store, and `/api/device/info/<udid>` for the card at the top.
+/// Loads what the page shows: `/api/sign/products`, the store the admin panel
+/// publishes. The device card the web page carries lives in Settings here, and
+/// the sources the tab now lists come from Core Data.
 ///
 /// The products come straight from the admin panel, so nothing here decides
 /// what is on sale — the page only renders what the panel publishes, in the
@@ -18,7 +18,6 @@ import NimbleExtensions
 @MainActor
 final class GeneralViewModel: ObservableObject {
     @Published private(set) var products: [Product] = []
-    @Published private(set) var device: Device?
     @Published private(set) var isLoading = false
     @Published private(set) var didFail = false
     
@@ -45,13 +44,6 @@ final class GeneralViewModel: ObservableObject {
         }
     }
     
-    struct Device: Hashable {
-        let udid: String
-        let name: String?
-        let isSubscribed: Bool
-        let expiry: Date?
-    }
-    
     func load(force: Bool = false) async {
         guard force || !_hasLoaded else { return }
         _hasLoaded = true
@@ -60,10 +52,6 @@ final class GeneralViewModel: ObservableObject {
         didFail = false
         
         defer { isLoading = false }
-        
-        // The card is a nice-to-have; a device that never registered simply
-        // doesn't have one, which is not a failure of the page.
-        await _loadDevice()
         
         do {
             let url = CeresifyAPI.baseURL.appendingPathComponent("api/sign/products")
@@ -84,61 +72,6 @@ final class GeneralViewModel: ObservableObject {
                 _hasLoaded = false
             }
         }
-    }
-    
-    private func _loadDevice() async {
-        guard let udid = CeresifyEnrollmentModel.storedUdid else {
-            device = nil
-            return
-        }
-        
-        let url = CeresifyAPI.baseURL
-            .appendingPathComponent("api/device/info")
-            .appendingPathComponent(udid)
-        
-        guard
-            let (data, response) = try? await URLSession.shared.data(from: url),
-            let http = response as? HTTPURLResponse,
-            (200..<300).contains(http.statusCode),
-            let payload = try? JSONDecoder().decode(_DeviceResponse.self, from: data),
-            payload.ok == true,
-            let raw = payload.device
-        else {
-            // Registered here but unknown to the server: still show the UDID,
-            // which is what the user needs when asking for a subscription.
-            device = Device(udid: udid, name: nil, isSubscribed: false, expiry: nil)
-            return
-        }
-        
-        device = Device(
-            udid: raw.udid ?? udid,
-            name: raw.deviceName,
-            isSubscribed: raw.isSubscribed ?? false,
-            expiry: raw.subscriptionExpiry.flatMap(Self._date(from:))
-        )
-    }
-    
-    private static let _isoFormatters: [ISO8601DateFormatter] = [
-        {
-            let formatter = ISO8601DateFormatter()
-            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-            return formatter
-        }(),
-        {
-            let formatter = ISO8601DateFormatter()
-            formatter.formatOptions = [.withInternetDateTime]
-            return formatter
-        }()
-    ]
-    
-    private static func _date(from string: String) -> Date? {
-        for formatter in _isoFormatters {
-            if let date = formatter.date(from: string) {
-                return date
-            }
-        }
-        
-        return nil
     }
 }
 
@@ -182,18 +115,6 @@ private extension GeneralViewModel {
             
             return URL(string: string, relativeTo: CeresifyAPI.baseURL)?.absoluteURL
         }
-    }
-    
-    struct _DeviceResponse: Decodable {
-        let ok: Bool?
-        let device: _Device?
-    }
-    
-    struct _Device: Decodable {
-        let udid: String?
-        let deviceName: String?
-        let isSubscribed: Bool?
-        let subscriptionExpiry: String?
     }
 }
 

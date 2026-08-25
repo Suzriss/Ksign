@@ -41,7 +41,7 @@ enum TabEnum: String, CaseIterable, Hashable {
 		case .settings: 	return "gearshape.2"
 		case .certificates: return "person.text.rectangle"
 		case .appstore: 	return "square.grid.2x2.fill"
-        case .general:      return "bag.fill"
+        case .general:      return "globe"
         case .signer:       return "signature"
 		}
 	}

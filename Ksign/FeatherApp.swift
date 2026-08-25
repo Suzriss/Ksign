@@ -61,12 +61,34 @@ struct FeatherApp: App {
 	/// UIKit is presented outside SwiftUI's environment — alerts, document
 	/// pickers, the installer's own screens — so the windows are told directly.
 	private func _applyDarkAppearance() {
+		_applyNavigationBarAppearance()
+		
 		DispatchQueue.main.async {
 			UIApplication.shared.connectedScenes
 				.compactMap { $0 as? UIWindowScene }
 				.flatMap { $0.windows }
 				.forEach { $0.overrideUserInterfaceStyle = .dark }
 		}
+	}
+	
+	/// A page's own title is drawn by `UINavigationBar`, which sits outside the
+	/// SwiftUI hierarchy the gold `foregroundStyle` colours — so the bar is told
+	/// the same palette directly. App names and their descriptions are drawn by
+	/// SwiftUI and stay white.
+	private func _applyNavigationBarAppearance() {
+		let gold = UIColor.ceresifyGold
+		
+		let appearance = UINavigationBarAppearance()
+		appearance.configureWithDefaultBackground()
+		appearance.titleTextAttributes = [.foregroundColor: gold]
+		appearance.largeTitleTextAttributes = [.foregroundColor: gold]
+		
+		let bar = UINavigationBar.appearance()
+		bar.standardAppearance = appearance
+		bar.compactAppearance = appearance
+		bar.scrollEdgeAppearance = appearance
+		bar.compactScrollEdgeAppearance = appearance
+		bar.tintColor = gold
 	}
 	
 	private func _handleURL(_ url: URL) {

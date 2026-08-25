@@ -13,13 +13,14 @@ import UIKit
 // MARK: - Extension: View (Enil)
 extension SourceAppsView {
     enum SortOption: String, CaseIterable {
+        /// The list's own order: most recently updated first.
         case `default` = "default"
         case name
         case date
         
         var displayName: String {
             switch self {
-            case .default:  .localized("Default")
+            case .default:  .localized("Latest")
             case .name:     .localized("Name")
             case .date:     .localized("Date")
             }
@@ -124,16 +125,9 @@ struct SourceAppsView: View {
             }
         }
         .toolbar {
-            if fromAppStore {
-                ToolbarItem(placement: .topBarLeading) {
-                    NavigationLink {
-                        SourcesView()
-                    } label: {
-                        Text(.localized("Sources"))
-                    }
-                }
-            }
-            
+            // The Sources shortcut used to sit here; sources are managed from
+            // the General tab now, so the store's toolbar stays to refresh and
+            // sort only.
             NBToolbarButton(
                 systemImage: "arrow.trianglehead.2.counterclockwise.rotate.90",
                 style: .icon,

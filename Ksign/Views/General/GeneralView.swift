@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import CoreData
+import AltSourceKit
 import NimbleViews
 import NimbleExtensions
 import NukeUI
@@ -14,13 +16,21 @@ import UIKit
 // MARK: - View
 struct GeneralView: View {
     @StateObject private var _viewModel = GeneralViewModel()
+    @StateObject private var _sourcesViewModel = SourcesViewModel.shared
     @State private var _selected: GeneralViewModel.Product?
+    @State private var _isAddingSource = false
+    
+    @FetchRequest(
+        entity: AltSource.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \AltSource.name, ascending: true)],
+        animation: .snappy
+    ) private var _sources: FetchedResults<AltSource>
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    _deviceCard
+                    _sourcesCard
                     
                     if _viewModel.products.isEmpty {
                         _placeholder
@@ -42,40 +52,77 @@ struct GeneralView: View {
             .sheet(item: $_selected) { product in
                 GeneralProductDetailView(product: product)
             }
+            .sheet(isPresented: $_isAddingSource) {
+                SourcesAddView()
+                    .presentationDetents([.medium])
+            }
         }
         .task {
             await _viewModel.load()
         }
+        // The store tab primes the shared view model, but General can be the
+        // first tab opened — a source row would push an empty list otherwise.
+        .task(id: Array(_sources)) {
+            await _sourcesViewModel.fetchSources(_sources)
+        }
     }
     
-    // MARK: Device
+    // MARK: Sources
     
-    private var _deviceCard: some View {
+    /// Where a second catalog gets added from. The store's toolbar used to
+    /// carry this, but the store is one list of apps now — the sources behind
+    /// it belong on the page that already holds the account's own settings.
+    private var _sourcesCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Label(.localized("Your device"), systemImage: "iphone")
+                Label(.localized("Sources"), systemImage: "globe")
                     .font(.headline)
                 
                 Spacer(minLength: 0)
                 
-                _statusPill
+                Button {
+                    _isAddingSource = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.subheadline.weight(.semibold))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: String.localized("Add Source")))
             }
             
-            if let device = _viewModel.device {
-                VStack(spacing: 8) {
-                    _row(.localized("Device"), value: device.name ?? .localized("Unknown"))
-                    _row(.localized("UDID"), value: Self._shorten(device.udid)) {
-                        UIPasteboard.general.string = device.udid
-                        UINotificationFeedbackGenerator().notificationOccurred(.success)
-                    }
-                    _row(.localized("Subscription"), value: Self._subscriptionText(for: device))
-                }
-            } else {
-                Text(.localized("This device isn't registered yet. Register it to get a certificate and a subscription."))
+            if _sources.isEmpty {
+                Text(.localized("Get started by adding your first repository."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                VStack(spacing: 10) {
+                    ForEach(_sources) { source in
+                        NavigationLink {
+                            SourceAppsView(object: [source], viewModel: _sourcesViewModel)
+                        } label: {
+                            _sourceRow(for: source)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
             }
+            
+            NavigationLink {
+                SourcesView()
+            } label: {
+                HStack {
+                    Text(.localized("All Repositories"))
+                        .font(.subheadline.weight(.medium))
+                    
+                    Spacer(minLength: 0)
+                    
+                    Image(systemName: "chevron.forward")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .buttonStyle(.plain)
         }
         .padding(16)
         .background(
@@ -84,47 +131,36 @@ struct GeneralView: View {
         )
     }
     
-    private var _statusPill: some View {
-        let isSubscribed = _viewModel.device?.isSubscribed ?? false
-        let isRegistered = _viewModel.device != nil
-        
-        let title: String = isSubscribed
-        ? .localized("Active")
-        : (isRegistered ? .localized("Not subscribed") : .localized("Not registered"))
-        
-        return HStack(spacing: 6) {
-            Circle()
-                .fill(isSubscribed ? Color.green : Color.secondary)
-                .frame(width: 7, height: 7)
-            
-            Text(verbatim: title)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(isSubscribed ? Color.green : Color.secondary)
-        }
-    }
-    
-    @ViewBuilder
-    private func _row(_ title: String, value: String, onTap: (() -> Void)? = nil) -> some View {
-        HStack {
-            Text(verbatim: title)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            
-            Spacer(minLength: 12)
-            
-            Text(verbatim: value)
-                .font(.subheadline.weight(.medium))
-                .lineLimit(1)
-                .truncationMode(.middle)
-            
-            if onTap != nil {
-                Image(systemName: "doc.on.doc")
-                    .font(.caption)
-                    .foregroundStyle(Color.accentColor)
+    private func _sourceRow(for source: AltSource) -> some View {
+        HStack(spacing: 10) {
+            LazyImage(url: source.iconURL) { state in
+                if let image = state.image {
+                    image.appIconStyle(size: 34)
+                } else {
+                    Image("Repositories").appIconStyle(size: 34)
+                }
             }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: source.name ?? .localized("Unknown"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.ceresifyTitle)
+                    .lineLimit(1)
+                
+                Text(verbatim: source.sourceURL?.absoluteString ?? "")
+                    .font(.caption)
+                    .foregroundStyle(Color.ceresifySubtitle)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            
+            Spacer(minLength: 0)
+            
+            Image(systemName: "chevron.forward")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
         }
         .contentShape(Rectangle())
-        .onTapGesture { onTap?() }
     }
     
     // MARK: Store
@@ -177,25 +213,6 @@ struct GeneralView: View {
             }
             .padding(.top, 50)
         }
-    }
-    
-    // MARK: Formatting
-    
-    private static func _shorten(_ udid: String) -> String {
-        guard udid.count > 16 else { return udid }
-        return "\(udid.prefix(10))…\(udid.suffix(6))"
-    }
-    
-    private static func _subscriptionText(for device: GeneralViewModel.Device) -> String {
-        guard device.isSubscribed else {
-            return .localized("Not subscribed")
-        }
-        
-        guard let expiry = device.expiry else {
-            return .localized("Active")
-        }
-        
-        return .localized("Expires %@", arguments: expiry.formatted(date: .abbreviated, time: .omitted))
     }
 }
 

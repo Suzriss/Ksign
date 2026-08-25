@@ -18,11 +18,6 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
-                    Text(.localized("Featured apps"))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    
                     if _viewModel.items.isEmpty {
                         _placeholder
                     } else {
