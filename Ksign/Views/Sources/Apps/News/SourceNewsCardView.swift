@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AltSourceKit
+import NimbleExtensions
 import NukeUI
 
 struct SourceNewsCardView: View {
@@ -16,6 +17,21 @@ struct SourceNewsCardView: View {
 	var cornerRadius: CGFloat = 12
 	
 	var body: some View {
+		Group {
+			if let url = new.url {
+				Button {
+					UIApplication.open(url)
+				} label: {
+					_card
+				}
+				.buttonStyle(.plain)
+			} else {
+				_card
+			}
+		}
+	}
+	
+	private var _card: some View {
 		ZStack(alignment: .bottomLeading) {
 			let placeholderView = {
 				Color.gray.opacity(0.2)
