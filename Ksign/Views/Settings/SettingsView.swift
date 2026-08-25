@@ -150,7 +150,7 @@ private extension SettingsView {
 					.font(.subheadline.weight(.semibold))
 					.foregroundStyle(Color.ceresifyGold)
 				
-				Text(verbatim: "Design & development by Ayman Al-Nasri")
+				Text(verbatim: "Design & development by Ayman Al-Nasiri")
 					.font(.caption)
 					.foregroundStyle(.secondary)
 				

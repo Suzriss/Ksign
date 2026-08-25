@@ -114,22 +114,6 @@ struct GeneralView: View {
                     }
                 }
             }
-            
-            NavigationLink {
-                SourcesView()
-            } label: {
-                HStack {
-                    Text(.localized("All Repositories"))
-                        .font(.subheadline.weight(.medium))
-                    
-                    Spacer(minLength: 0)
-                    
-                    Image(systemName: "chevron.forward")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .buttonStyle(.plain)
         }
         .padding(16)
         .background(
