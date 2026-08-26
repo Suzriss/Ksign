@@ -15,11 +15,24 @@ struct ResetView: View {
 	// MARK: Body
     var body: some View {
 		NBList( ("Reset")) {
+			_temporaryFiles()
 			_cache()
 			_coredata()
 			_all()
 		}
     }
+	
+	/// Everything `clearTemporaryFiles()` would reclaim — the apps parked in the
+	/// Signer tab plus the two caches — so the confirmation can say what the
+	/// button is actually worth before anything is deleted.
+	private func _temporaryFilesSize() -> String {
+		var total = Storage.shared.signerContentsSize()
+		total += Int64(URLCache.shared.currentDiskUsage)
+		if let nukeCache = ImagePipeline.shared.configuration.dataCache as? DataCache {
+			total += Int64(nukeCache.totalSize)
+		}
+		return ByteCountFormatter.string(fromByteCount: total, countStyle: .file)
+	}
 	
 	private func _cacheSize() -> String {
 		var totalCacheSize = URLCache.shared.currentDiskUsage
@@ -61,6 +74,22 @@ struct ResetView: View {
 
 // MARK: - View extension
 extension ResetView {
+	@ViewBuilder
+	private func _temporaryFiles() -> some View {
+		Section {
+			Button("Clear Temporary Files", systemImage: "trash") {
+				Self.resetAlert(
+					title: "Clear Temporary Files",
+					message: _temporaryFilesSize()
+				) {
+					Self.clearTemporaryFiles()
+				}
+			}
+		} footer: {
+			Text("Removes the apps in the Signer tab and both caches. Your certificates, sources and settings stay, so the store keeps working as it is.")
+		}
+	}
+	
 	@ViewBuilder
 	private func _cache() -> some View {
 		Section {
@@ -143,6 +172,16 @@ extension ResetView {
 
 // MARK: - View extension: reset
 extension ResetView {
+	/// The one button that reclaims the space that actually accumulates: the
+	/// downloaded archives and the unpacked copies behind the Signer tab, plus
+	/// both caches. Certificates, sources and settings survive, so the store is
+	/// usable the moment the app comes back.
+	static func clearTemporaryFiles() {
+		Storage.shared.clearSignerContents()
+		clearWorkCache()
+		clearNetworkCache()
+	}
+	
 	static func clearWorkCache() {
 		let fileManager = FileManager.default
 		let tmpDirectory = fileManager.temporaryDirectory

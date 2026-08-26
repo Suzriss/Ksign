@@ -35,6 +35,31 @@ extension FileManager {
 		}
 	}
 	
+	/// Bytes held under a directory, walking it in full. Returns zero for a path
+	/// that isn't there, so callers can total up directories that may not have
+	/// been created yet.
+	func directorySize(at url: URL) -> Int64 {
+		guard
+			let enumerator = self.enumerator(
+				at: url,
+				includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey],
+				options: []
+			)
+		else {
+			return 0
+		}
+		
+		var total: Int64 = 0
+		
+		for case let fileURL as URL in enumerator {
+			let values = try? fileURL.resourceValues(forKeys: [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
+			let size = values?.totalFileAllocatedSize ?? values?.fileAllocatedSize ?? 0
+			total += Int64(size)
+		}
+		
+		return total
+	}
+	
 	func createDirectoryIfNeeded(at url: URL) throws {
 		if !self.fileExists(atPath: url.path) {
 			try self.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)

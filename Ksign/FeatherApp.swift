@@ -145,6 +145,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _migrateSourcesIfNeeded()
         
         _clean()
+        _cleanSignerContents()
         
         _copyServerCertificates()
         _addDefaultCertificates()
@@ -235,6 +236,21 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                 try? fileManager.removeItem(atPath: tmpDirectory.appendingPathComponent(file).path())
             }
         }
+    }
+    
+    /// Empties the Signer tab on every launch.
+    ///
+    /// A build sitting in that tab is held twice on disk — the downloaded `.ipa`
+    /// and the uncompressed copy it was unpacked into — and nothing reclaimed it
+    /// unless the app was actually installed, so the two steps of a single
+    /// install could leave half a gigabyte behind indefinitely. Downloading and
+    /// signing is the cheap part to repeat; the certificates and the store are
+    /// what would actually hurt to lose, and those stay.
+    ///
+    /// Off for anyone who turned `Keep apps after signing` on.
+    private func _cleanSignerContents() {
+        guard !UserDefaults.standard.bool(forKey: AppFeaturesView.keepSignerAppsKey) else { return }
+        Storage.shared.clearSignerContents()
     }
     
     private func _copyServerCertificates() {

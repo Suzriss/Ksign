@@ -111,6 +111,52 @@ extension Storage {
 		}
 	}
 	
+	/// Everything the Signer tab is holding: the builds waiting to be signed,
+	/// the ones already signed, and the archives they were unpacked from.
+	///
+	/// Every app in that tab is kept twice over — the downloaded `.ipa` plus the
+	/// uncompressed copy it was unpacked into — so a handful of them is enough to
+	/// reach several hundred megabytes that nothing ever reclaims. They are only
+	/// ever a step on the way to an install, so clearing them costs a re-download
+	/// and nothing else.
+	///
+	/// Certificates, sources and settings are deliberately untouched: the store
+	/// stays usable exactly as it was.
+	func clearSignerContents() {
+		let signedRequest: NSFetchRequest<Signed> = Signed.fetchRequest()
+		let importedRequest: NSFetchRequest<Imported> = Imported.fetchRequest()
+		
+		let signed = (try? context.fetch(signedRequest)) ?? []
+		let imported = (try? context.fetch(importedRequest)) ?? []
+		
+		for object in signed { context.delete(object) }
+		for object in imported { context.delete(object) }
+		
+		// Saved here rather than through `saveContext()`, which hops to the main
+		// queue — at launch this runs before the Signer tab reads the context,
+		// and it has to be consistent by the time it does.
+		try? context.save()
+		
+		let fileManager = FileManager.default
+		try? fileManager.removeFileIfNeeded(at: fileManager.signed)
+		try? fileManager.removeFileIfNeeded(at: fileManager.unsigned)
+		
+		removeDownloadedArchives()
+	}
+	
+	/// What `clearSignerContents()` would reclaim, for the confirmation to show
+	/// before anything is deleted.
+	func signerContentsSize() -> Int64 {
+		let fileManager = FileManager.default
+		
+		return [
+			fileManager.signed,
+			fileManager.unsigned,
+			fileManager.temporaryDirectory.appendingPathComponent("FeatherDownloads", isDirectory: true),
+			URL.documentsDirectory.appendingPathComponent("Downloads")
+		].reduce(Int64(0)) { $0 + fileManager.directorySize(at: $1) }
+	}
+	
 	func getCertificate(from app: AppInfoPresentable) -> CertificatePair? {
 		if let signed = app as? Signed {
 			return signed.certificate

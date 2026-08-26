@@ -2588,6 +2588,64 @@
         }
       }
     },
+    "Clear Temporary Files": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Temporary Files"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مسح الملفات المؤقتة"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa tệp tạm thời"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temporäre Dateien löschen"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить временные файлы"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vymazat dočasné soubory"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar archivos temporales"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer les fichiers temporaires"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geçici dosyaları temizle"
+          }
+        }
+      }
+    },
     "Close": {
       "extractionState": "manual",
       "localizations": {
@@ -7972,6 +8030,64 @@
         }
       }
     },
+    "Keep apps after signing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep apps after signing"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاحتفاظ بالتطبيقات بعد التوقيع"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giữ ứng dụng sau khi ký"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apps nach dem Signieren behalten"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранять приложения после подписи"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponechat aplikace po podepsání"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservar las apps tras firmarlas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conserver les apps après signature"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İmzaladıktan sonra uygulamaları sakla"
+          }
+        }
+      }
+    },
     "Language": {
       "extractionState": "manual",
       "localizations": {
@@ -11775,6 +11891,64 @@
         }
       }
     },
+    "Removes the apps in the Signer tab and both caches. Your certificates, sources and settings stay, so the store keeps working as it is.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removes the apps in the Signer tab and both caches. Your certificates, sources and settings stay, so the store keeps working as it is."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يمسح التطبيقات الموجودة في تبويب التوقيع والذاكرتين المؤقتتين. الشهادات والمصادر والإعدادات تبقى كما هي، فيستمر المتجر بالعمل طبيعياً."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa các ứng dụng trong tab Ký và cả hai bộ nhớ đệm. Chứng chỉ, nguồn và cài đặt của bạn vẫn được giữ nguyên, nên cửa hàng vẫn hoạt động bình thường."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entfernt die Apps im Signierer-Tab sowie beide Caches. Zertifikate, Quellen und Einstellungen bleiben erhalten, der Store funktioniert also weiterhin."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удаляет приложения из вкладки подписи и оба кэша. Сертификаты, источники и настройки сохраняются, поэтому магазин продолжает работать."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstraní aplikace na kartě podepisování a obě mezipaměti. Certifikáty, zdroje a nastavení zůstanou, obchod tedy funguje dál."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina las apps de la pestaña de firma y ambas cachés. Tus certificados, fuentes y ajustes se mantienen, así que la tienda sigue funcionando igual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprime les apps de l’onglet Signature ainsi que les deux caches. Vos certificats, sources et réglages sont conservés, la boutique continue donc de fonctionner."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İmzalama sekmesindeki uygulamaları ve her iki önbelleği siler. Sertifikalarınız, kaynaklarınız ve ayarlarınız kalır, böylece mağaza olduğu gibi çalışmaya devam eder."
+          }
+        }
+      }
+    },
     "Rename": {
       "localizations": {
         "ar": {
@@ -15128,6 +15302,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cảm ơn!"
+          }
+        }
+      }
+    },
+    "The Signer tab is emptied every time Ksign opens, because each app there is stored twice over. Turn this on to keep those apps until you delete them yourself. Certificates are never touched either way.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Signer tab is emptied every time Ksign opens, because each app there is stored twice over. Turn this on to keep those apps until you delete them yourself. Certificates are never touched either way."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يُفرَّغ تبويب التوقيع في كل مرة يُفتح فيها التطبيق، لأن كل تطبيق هناك محفوظ مرتين. فعّل هذا الخيار للاحتفاظ بها حتى تمسحها بنفسك. الشهادات لا تُمَس في الحالتين."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tab Ký được dọn sạch mỗi lần mở Ksign, vì mỗi ứng dụng ở đó được lưu tới hai lần. Bật tùy chọn này để giữ chúng cho tới khi bạn tự xóa. Chứng chỉ không bao giờ bị đụng tới trong cả hai trường hợp."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Signierer-Tab wird bei jedem Start von Ksign geleert, da jede App dort doppelt gespeichert ist. Aktiviere dies, um sie zu behalten, bis du sie selbst löschst. Zertifikate bleiben in beiden Fällen unangetastet."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вкладка подписи очищается при каждом запуске Ksign, поскольку каждое приложение там хранится дважды. Включите этот параметр, чтобы сохранять их до ручного удаления. Сертификаты не затрагиваются в любом случае."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Karta podepisování se vyprázdní při každém spuštění Ksign, protože každá aplikace je tam uložena dvakrát. Zapněte tuto volbu, aby zůstaly, dokud je nesmažete sami. Certifikátů se to v žádném případě nedotkne."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La pestaña de firma se vacía cada vez que se abre Ksign, porque cada app se guarda ahí por duplicado. Activa esto para conservarlas hasta que las borres tú. Los certificados no se tocan en ningún caso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’onglet Signature est vidé à chaque ouverture de Ksign, car chaque app y est stockée en double. Activez ceci pour les conserver jusqu’à ce que vous les supprimiez vous-même. Les certificats ne sont jamais touchés dans les deux cas."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İmzalama sekmesi Ksign her açıldığında boşaltılır, çünkü oradaki her uygulama iki kez saklanır. Bunları kendiniz silene kadar tutmak için bunu açın. Sertifikalara her iki durumda da dokunulmaz."
           }
         }
       }
