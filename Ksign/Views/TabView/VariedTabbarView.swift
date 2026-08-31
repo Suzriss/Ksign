@@ -9,8 +9,8 @@ import SwiftUI
 import UIKit
 
 struct VariedTabbarView: View {
-	/// Cleared only once the user has been through registration, so a launch
-	/// with no certificate offers it instead of leaving them to find it.
+	/// Set the moment the device registers, so the profile is offered exactly
+	/// once and the store never asks for it again.
 	@AppStorage("Ceresify.hasSeenEnrollment") private var _hasSeenEnrollment: Bool = false
 	
 	@FetchRequest(
@@ -28,10 +28,24 @@ struct VariedTabbarView: View {
 				CeresifyEnrollmentView()
 			}
 			.onAppear {
-				// Anyone who already has a certificate is left alone.
-				if !_hasSeenEnrollment, _certificates.isEmpty {
-					_isEnrollmentPresenting = true
+				// The profile is asked for once, at the very start, and never
+				// again: a device that has registered is known to the server
+				// for good, and its certificate is fetched in the background
+				// by `CeresifyQuickEntry` — including on the launch after a
+				// subscription is finally activated. Coming back to this
+				// screen would only offer a second profile, which changes
+				// nothing about an account that hasn't been issued one yet.
+				//
+				// Anyone who already has a certificate is left alone too.
+				guard
+					!_hasSeenEnrollment,
+					CeresifyEnrollmentModel.storedUdid == nil,
+					_certificates.isEmpty
+				else {
+					return
 				}
+				
+				_isEnrollmentPresenting = true
 			}
 	}
 	

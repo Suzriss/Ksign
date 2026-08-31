@@ -63,7 +63,10 @@ struct CeresifyEnrollmentView: View {
             }
         }
         .onChange(of: _model.step) { step in
-            if step == .installed {
+            // Registering is what this screen exists for; whether a
+            // certificate came with it is the account's business, and the
+            // background refresh picks that up on a later launch.
+            if step == .installed || _model.storedUdid != nil {
                 _hasSeenEnrollment = true
             }
         }
@@ -170,9 +173,19 @@ struct CeresifyEnrollmentView: View {
             }
         case .failed:
             VStack(spacing: 10) {
-                _primaryButton(.localized("Try again")) {
-                    _model.register()
+                // A device that already registered has nothing to gain from a
+                // second profile — what failed was the certificate, so that is
+                // what is tried again.
+                if _model.storedUdid != nil {
+                    _primaryButton(.localized("Check again")) {
+                        _model.fetchCertificateForStoredDevice()
+                    }
+                } else {
+                    _primaryButton(.localized("Try again")) {
+                        _model.register()
+                    }
                 }
+                
                 _secondaryButton(.localized("Later")) {
                     _finish()
                 }

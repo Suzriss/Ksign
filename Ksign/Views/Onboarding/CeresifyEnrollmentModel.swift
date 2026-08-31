@@ -48,6 +48,10 @@ final class CeresifyEnrollmentModel: ObservableObject {
         static let enrollToken = "Ceresify.enrollToken"
     }
     
+    /// Set once the device has registered, and read by the tab bar to know
+    /// this screen is done with.
+    static let hasSeenEnrollmentKey = "Ceresify.hasSeenEnrollment"
+    
     private var _enrollToken: String?
     private var _pollTask: Task<Void, Never>?
     
@@ -166,6 +170,12 @@ final class CeresifyEnrollmentModel: ObservableObject {
         UserDefaults.standard.removeObject(forKey: _Keys.enrollToken)
         UserDefaults.standard.set(udid, forKey: _Keys.udid)
         UserDefaults.standard.set(deviceName ?? "", forKey: _Keys.deviceName)
+        // The profile is installed, and that is the whole of what this screen
+        // was for. Waiting for the certificate to land before writing this
+        // meant an account with none yet — the ordinary state between paying
+        // and the certificate being issued — got asked to install a second
+        // profile on every launch, for something a profile can't fix.
+        UserDefaults.standard.set(true, forKey: Self.hasSeenEnrollmentKey)
         await _fetchCertificate(udid: udid)
     }
     
