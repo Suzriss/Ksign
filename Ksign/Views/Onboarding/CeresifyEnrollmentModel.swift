@@ -174,24 +174,47 @@ final class CeresifyEnrollmentModel: ObservableObject {
     private func _fetchCertificate(udid: String) async {
         step = .fetchingCertificate
         
+        switch await Self.installCertificate(udid: udid) {
+        case .installed:
+            step = .installed
+        case .none(let isSubscribed):
+            step = .noCertificate(isSubscribed: isSubscribed)
+        case .failed(let message):
+            step = .failed(message)
+        }
+    }
+    
+    /// What pulling the account's certificate came to.
+    enum CertificateOutcome {
+        case installed
+        /// Registered, but the account carries no certificate yet.
+        case none(isSubscribed: Bool)
+        case failed(String)
+    }
+    
+    /// Pulls the account's certificate and imports it, with no screen attached.
+    ///
+    /// The registration screen drives it, and so does the silent refresh at
+    /// launch — the two want the same three steps (ask what the account has,
+    /// download the pair, import it) and differ only in what they do with the
+    /// answer.
+    static func installCertificate(udid: String) async -> CertificateOutcome {
         do {
-            let info = try await Self._certificateInfo(udid: udid)
+            let info = try await _certificateInfo(udid: udid)
             
             guard info.hasCert else {
-                step = .noCertificate(isSubscribed: info.subscribed)
-                return
+                return .none(isSubscribed: info.subscribed)
             }
             
-            let p12 = try await Self._download(kind: "p12", udid: udid, filename: "ceresify.p12")
-            let provision = try await Self._download(
+            let p12 = try await _download(kind: "p12", udid: udid, filename: "ceresify.p12")
+            let provision = try await _download(
                 kind: "mobileprovision",
                 udid: udid,
                 filename: "ceresify.mobileprovision"
             )
             
             guard FR.checkPasswordForCertificate(for: p12, with: info.password, using: provision) else {
-                step = .failed(.localized("The certificate's password was rejected."))
-                return
+                return .failed(.localized("The certificate's password was rejected."))
             }
             
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
@@ -199,7 +222,7 @@ final class CeresifyEnrollmentModel: ObservableObject {
                     p12URL: p12,
                     provisionURL: provision,
                     p12Password: info.password,
-                    certificateName: "Ceresify"
+                    certificateName: Self.certificateName
                 ) { error in
                     if let error {
                         continuation.resume(throwing: error)
@@ -209,11 +232,15 @@ final class CeresifyEnrollmentModel: ObservableObject {
                 }
             }
             
-            step = .installed
+            return .installed
         } catch {
-            step = .failed(error.localizedDescription)
+            return .failed(error.localizedDescription)
         }
     }
+    
+    /// What the account's certificate is filed under, so a later launch can
+    /// tell it apart from one the user imported themselves.
+    static let certificateName = "Ceresify" 
     
     // MARK: Requests
     

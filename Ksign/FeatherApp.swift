@@ -20,19 +20,26 @@ struct FeatherApp: App {
     @StateObject var extractManager = ExtractManager.shared
 	@StateObject var logsManager = LogsManager.shared
 	@StateObject var languageManager = LanguageManager.shared
+	/// What the shop has decided the store looks like and who it lets in.
+	@StateObject var configManager = CeresifyConfigManager.shared
 	let storage = Storage.shared
 
 	var body: some Scene {
 		WindowGroup {
-			VStack {
-                ExtractHeaderView(extractManager: extractManager)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-				DownloadHeaderView(downloadManager: downloadManager)
-					.transition(.move(edge: .top).combined(with: .opacity))
-				VariedTabbarView()
-					.environment(\.managedObjectContext, storage.context)
-					.onOpenURL(perform: _handleURL)
-					.transition(.move(edge: .top).combined(with: .opacity))
+			// Everything the app is sits behind the gate: the opening screen,
+			// and the three answers — maintenance, a ban, no certificate —
+			// that mean the store doesn't open at all.
+			CeresifyGateView {
+				VStack {
+					ExtractHeaderView(extractManager: extractManager)
+						.transition(.move(edge: .top).combined(with: .opacity))
+					DownloadHeaderView(downloadManager: downloadManager)
+						.transition(.move(edge: .top).combined(with: .opacity))
+					VariedTabbarView()
+						.environment(\.managedObjectContext, storage.context)
+						.onOpenURL(perform: _handleURL)
+						.transition(.move(edge: .top).combined(with: .opacity))
+				}
 			}
 			.animation(.smooth, value: downloadManager.manualDownloads.description)
             .animation(.smooth, value: extractManager.extractItems.description)
@@ -44,10 +51,12 @@ struct FeatherApp: App {
 			// an appearance switch to get back out of a white one.
 			.preferredColorScheme(.dark)
 			// Rebuilt when the language changes, so a pick in Preferences shows
-			// up without waiting for the app to be reopened.
+			// up without waiting for the app to be reopened — and when the shop
+			// repaints the store, which is the other thing that changes every
+			// screen at once.
 			.environment(\.locale, languageManager.locale)
 			.environment(\.layoutDirection, languageManager.layoutDirection)
-			.id(languageManager.code)
+			.id("\(languageManager.code)#\(configManager.revision)")
 			.onReceive(accentColorManager.objectWillChange) { _ in
 				accentColorManager.updateGlobalTintColor()
 			}
@@ -56,6 +65,11 @@ struct FeatherApp: App {
 				_applyDarkAppearance()
 				if logsManager.isCapturing { logsManager.startCapture() }
 			}
+			// A repaint has to reach UIKit too — the bars and the lists are
+			// drawn outside the SwiftUI palette.
+			.onChange(of: configManager.revision) { _ in
+				_applyDarkAppearance()
+			}
 		}
 	}
 	
@@ -63,13 +77,35 @@ struct FeatherApp: App {
 	/// pickers, the installer's own screens — so the windows are told directly.
 	private func _applyDarkAppearance() {
 		_applyNavigationBarAppearance()
+		_applyStoreBackground()
 		
 		DispatchQueue.main.async {
 			UIApplication.shared.connectedScenes
 				.compactMap { $0 as? UIWindowScene }
 				.flatMap { $0.windows }
-				.forEach { $0.overrideUserInterfaceStyle = .dark }
+				.forEach { window in
+					window.overrideUserInterfaceStyle = .dark
+					
+					if let background = CeresifyPalette.background {
+						window.backgroundColor = background
+					}
+				}
 		}
+	}
+	
+	/// The ground the store's lists are drawn on.
+	///
+	/// The app list is a real `UITableView` and the settings pages are
+	/// `List`s, neither of which takes a SwiftUI background — so the colour the
+	/// shop picked is handed to the appearance proxies instead. Nothing is
+	/// touched while no colour is set, which leaves every list on the system's
+	/// own grouped background exactly as before.
+	private func _applyStoreBackground() {
+		guard let background = CeresifyPalette.background else { return }
+		
+		UITableView.appearance().backgroundColor = background
+		UICollectionView.appearance().backgroundColor = background
+		UITableViewCell.appearance().backgroundColor = .clear
 	}
 	
 	/// A page's own title is drawn by `UINavigationBar`, which sits outside the

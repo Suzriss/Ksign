@@ -28,7 +28,13 @@ struct DownloadProgressView: View {
 	let isCloudSigning: Bool
 	
 	@ObservedObject private var _manager = DownloadManager.shared
+	/// The shop's own word for this step, if it set one.
+	@ObservedObject private var _config = CeresifyConfigManager.shared
 	@Environment(\.dismiss) private var _dismiss
+	
+	private var _downloadingTitle: String {
+		_config.text(_config.config.strings.downloading, fallback: .localized("Downloading"))
+	}
 	
 	@State private var _didStart = false
 	
@@ -201,7 +207,7 @@ private struct _DownloadBody: View {
 						.contentTransition(.numericText())
 						.animation(.smooth, value: _percent)
 					
-					Text(_isExtracting ? .localized("Extracting") : .localized("Downloading"))
+					Text(verbatim: _isExtracting ? .localized("Extracting") : _downloadingTitle)
 						.font(.caption2)
 						.foregroundStyle(.secondary)
 				}

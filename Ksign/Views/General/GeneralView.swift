@@ -19,6 +19,9 @@ struct GeneralView: View {
     @StateObject private var _sourcesViewModel = SourcesViewModel.shared
     @State private var _selected: GeneralViewModel.Product?
     @State private var _isAddingSource = false
+    /// Held rather than deleted on the tap: a source takes a moment to add
+    /// back, so the removal is confirmed first.
+    @State private var _sourceToDelete: AltSource?
     
     @FetchRequest(
         entity: AltSource.entity(),
@@ -58,6 +61,26 @@ struct GeneralView: View {
             }
             .sheet(item: $_selected) { product in
                 GeneralProductDetailView(product: product)
+            }
+            .confirmationDialog(
+                .localized("Delete Source"),
+                isPresented: Binding(
+                    get: { _sourceToDelete != nil },
+                    set: { if !$0 { _sourceToDelete = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button(.localized("Delete"), role: .destructive) {
+                    if let source = _sourceToDelete {
+                        Storage.shared.deleteSource(for: source)
+                    }
+                    
+                    _sourceToDelete = nil
+                }
+                
+                Button(.localized("Cancel"), role: .cancel) { _sourceToDelete = nil }
+            } message: {
+                Text(verbatim: _sourceToDelete?.name ?? "")
             }
             .sheet(isPresented: $_isAddingSource) {
                 SourcesAddView()
@@ -105,12 +128,31 @@ struct GeneralView: View {
             } else {
                 VStack(spacing: 10) {
                     ForEach(_addedSources) { source in
-                        NavigationLink {
-                            SourceAppsView(object: [source], viewModel: _sourcesViewModel)
-                        } label: {
-                            _sourceRow(for: source)
+                        HStack(spacing: 8) {
+                            NavigationLink {
+                                SourceAppsView(object: [source], viewModel: _sourcesViewModel)
+                            } label: {
+                                _sourceRow(for: source)
+                            }
+                            .buttonStyle(.plain)
+                            
+                            // A source added by hand has to be removable by
+                            // hand — the card is where they are added, so it
+                            // is where they come off too. The store's own
+                            // catalog is filtered out of this list already, so
+                            // there is nothing here to delete by mistake.
+                            Button {
+                                _sourceToDelete = source
+                            } label: {
+                                Image(systemName: "trash")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.red)
+                                    .padding(6)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(Text(verbatim: String.localized("Delete")))
                         }
-                        .buttonStyle(.plain)
                     }
                 }
             }

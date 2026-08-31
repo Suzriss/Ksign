@@ -19,6 +19,9 @@ import NimbleExtensions
 struct DownloadButtonView: View {
 	let app: ASRepository.App
 	@ObservedObject private var downloadManager = DownloadManager.shared
+	/// The store's own wording for these three steps, which the shop can
+	/// change from the admin panel without a new build.
+	@ObservedObject private var _config = CeresifyConfigManager.shared
 
 	@State private var downloadProgress: Double = 0
 	@State private var _isExtracting = false
@@ -103,15 +106,15 @@ struct DownloadButtonView: View {
 			} else if let currentDownload = downloadManager.getDownload(by: app.currentUniqueId) {
 				_progressPill(for: currentDownload)
 			} else if let signed = _signed.first {
-				_pill(.localized("Install")) {
+				_pill(_installTitle) {
 					_installingApp = AnyApp(base: signed)
 				}
 			} else if let imported = _imported.first {
-				_pill(.localized("Sign")) {
+				_pill(_signTitle) {
 					_signingApp = AnyApp(base: imported)
 				}
 			} else {
-				_pill(.localized("Get")) {
+				_pill(_getTitle) {
 					guard let url = app.currentDownloadUrl else { return }
 					_ = downloadManager.startDownload(from: url, id: app.currentUniqueId)
 					_isProgressPresenting = true
@@ -168,7 +171,7 @@ struct DownloadButtonView: View {
 				.frame(width: 31, height: 31)
 				.compatTransition()
 		} else {
-			_pill(.localized("Get")) {
+			_pill(_getTitle) {
 				_cloudSign(source)
 			}
 			// The same options the app's page shows a button for, for the rows
@@ -203,6 +206,18 @@ struct DownloadButtonView: View {
 			
 			_isCloudSigning = false
 		}
+	}
+	
+	private var _getTitle: String {
+		_config.text(_config.config.strings.get, fallback: .localized("Get"))
+	}
+	
+	private var _signTitle: String {
+		_config.text(_config.config.strings.sign, fallback: .localized("Sign"))
+	}
+	
+	private var _installTitle: String {
+		_config.text(_config.config.strings.install, fallback: .localized("Install"))
 	}
 	
 	@ViewBuilder
@@ -275,7 +290,7 @@ struct DownloadButtonView: View {
 			// to, so a stray tap on a row can't throw a download away.
 			_isProgressPresenting = true
 		}
-		.accessibilityLabel(Text(verbatim: .localized("Downloading")))
+		.accessibilityLabel(Text(verbatim: _downloadingTitle))
 		.accessibilityValue(Text(verbatim: _accessibilityValue(percent: percent)))
 		.compatTransition()
 	}
@@ -290,6 +305,10 @@ struct DownloadButtonView: View {
 		} else {
 			icon
 		}
+	}
+	
+	private var _downloadingTitle: String {
+		_config.text(_config.config.strings.downloading, fallback: .localized("Downloading"))
 	}
 	
 	private func _accessibilityValue(percent: Int) -> String {

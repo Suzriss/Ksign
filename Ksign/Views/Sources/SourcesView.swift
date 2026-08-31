@@ -16,6 +16,9 @@ struct SourcesView: View {
 	@State private var _isAddingPresenting = false
 	@State private var _addingSourceLoading = false
 	@State private var _searchText = ""
+	/// Held rather than deleted on the tap: a source takes a moment to add
+	/// back, so the removal is confirmed first.
+	@State private var _sourceToDelete: AltSource?
 	
 	/// The list a user manages: the sources they added. Ceresify's own catalog
 	/// is what the store is, not a row to inspect or delete — and its URL stays
@@ -62,6 +65,23 @@ struct SourcesView: View {
 							SourcesCellView(source: source)
 						}
 						.buttonStyle(.plain)
+						// Swipe covers the list, the menu covers the grid the
+						// iPad gets instead of one — a source added by hand
+						// has to come off by hand either way.
+						.swipeActions(edge: .trailing, allowsFullSwipe: false) {
+							Button(role: .destructive) {
+								_sourceToDelete = source
+							} label: {
+								Label(.localized("Delete"), systemImage: "trash")
+							}
+						}
+						.contextMenu {
+							Button(role: .destructive) {
+								_sourceToDelete = source
+							} label: {
+								Label(.localized("Delete"), systemImage: "trash")
+							}
+						}
 					}
 				}
 			}
@@ -96,6 +116,26 @@ struct SourcesView: View {
 			.sheet(isPresented: $_isAddingPresenting) {
 				SourcesAddView()
 					.presentationDetents([.medium])
+			}
+			.confirmationDialog(
+				.localized("Delete Source"),
+				isPresented: Binding(
+					get: { _sourceToDelete != nil },
+					set: { if !$0 { _sourceToDelete = nil } }
+				),
+				titleVisibility: .visible
+			) {
+				Button(.localized("Delete"), role: .destructive) {
+					if let source = _sourceToDelete {
+						Storage.shared.deleteSource(for: source)
+					}
+					
+					_sourceToDelete = nil
+				}
+				
+				Button(.localized("Cancel"), role: .cancel) { _sourceToDelete = nil }
+			} message: {
+				Text(verbatim: _sourceToDelete?.name ?? "")
 			}
 			.refreshable {
 				await viewModel.fetchSources(_sources, refresh: true)

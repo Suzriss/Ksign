@@ -55,6 +55,10 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
     public var apps: [App]
     public var featuredApps: [App.ID]?
     public var news: [News]?
+    /// Not part of the AltStore format: Ceresify's catalog lists what it knows
+    /// about each category — its thumbnail and the shop's note on it — and
+    /// clients that don't know the field simply drop it.
+    public var categories: [Category]?
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -111,6 +115,9 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
         self.featuredApps =
             try container.decodeIfPresent([App.ID].self, forKey: .featuredApps) ?? []
         self.news = try container.decodeIfPresent([News].self, forKey: .news) ?? []
+        // Tolerated the same way as everything else here: a source that ships
+        // a malformed entry loses its category art, not its apps.
+        self.categories = (try? container.decodeIfPresent([Category].self, forKey: .categories)) ?? []
     }
 
     public enum CodingKeys: String, CodingKey {
@@ -126,7 +133,8 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
              tintColor,
              apps,
              featuredApps,
-             news
+             news,
+             categories
     }
     
     public var currentIconURL: URL? {
@@ -149,6 +157,37 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
     //        try container.encodeIfPresent(featuredApps, forKey: .featuredApps)
     //        try container.encodeIfPresent(news, forKey: .news)
     //    }
+}
+
+// MARK: - Category
+
+extension ASRepository {
+    /// What a source says about one of its own categories.
+    ///
+    /// `name` is the same string the apps carry in `category`, which is what
+    /// ties the two together.
+    public struct Category: Sendable, Decodable, Hashable, Identifiable {
+        public var name: String
+        /// A single emoji, shown when there is no thumbnail.
+        public var icon: String?
+        public var imageURL: URL?
+        /// A short line the shop wants shown beside the category's name.
+        public var note: String?
+        
+        public var id: String { name }
+        
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.name = (try? container.decodeIfPresent(String.self, forKey: .name)) ?? ""
+            self.icon = try? container.decodeIfPresent(String.self, forKey: .icon)
+            self.imageURL = container.decodeURLIfPresent(forKey: .imageURL)
+            self.note = try? container.decodeIfPresent(String.self, forKey: .note)
+        }
+        
+        public enum CodingKeys: String, CodingKey {
+            case name, icon, imageURL, note
+        }
+    }
 }
 
 // MARK: - App

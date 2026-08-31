@@ -3175,6 +3175,22 @@
         }
       }
     },
+    "Days": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يوم"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Days"
+          }
+        }
+      }
+    },
     "Default": {
       "extractionState": "manual",
       "localizations": {
@@ -3288,6 +3304,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Xóa"
+          }
+        }
+      }
+    },
+    "Delete Source": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حذف السورس"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Source"
           }
         }
       }
@@ -6404,6 +6436,22 @@
         }
       }
     },
+    "Get in touch if you think this is a mistake.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "راسلنا إذا تعتقد أنه خطأ."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get in touch if you think this is a mistake."
+          }
+        }
+      }
+    },
     "Get started by adding your first repository.": {
       "extractionState": "manual",
       "localizations": {
@@ -6865,6 +6913,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Home"
+          }
+        }
+      }
+    },
+    "Hours": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ساعة"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hours"
           }
         }
       }
@@ -8437,6 +8501,22 @@
         }
       }
     },
+    "Members only": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "للمشتركين فقط"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members only"
+          }
+        }
+      }
+    },
     "Minimum Requirement": {
       "comment": "Minimum app version",
       "extractionState": "manual",
@@ -8493,6 +8573,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Yêu cầu tối thiểu"
+          }
+        }
+      }
+    },
+    "Minutes": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دقيقة"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minutes"
           }
         }
       }
@@ -8628,6 +8724,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chỉnh sửa"
+          }
+        }
+      }
+    },
+    "Modify & Properties": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التعديل والخصائص"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modify & Properties"
           }
         }
       }
@@ -9286,6 +9398,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "No certificate on this account"
+          }
+        }
+      }
+    },
+    "No connection — showing what was loaded last.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ماكو اتصال — نعرض آخر شي انحمّل."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No connection — showing what was loaded last."
           }
         }
       }
@@ -9976,6 +10104,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mở trong Tệp"
+          }
+        }
+      }
+    },
+    "Opens the full signer for this build — the same Modify and Properties a build you imported yourself gets. It downloads first, and signs on the device rather than on the server.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يفتح شاشة التوقيع الكاملة لهذه النسخة — نفس التعديل والخصائص مال أي نسخة تجيبها بنفسك. ينزّلها أول، ويوقّعها على الجهاز مو على السيرفر."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the full signer for this build — the same Modify and Properties a build you imported yourself gets. It downloads first, and signs on the device rather than on the server."
           }
         }
       }
@@ -11401,6 +11545,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Register your device first, then try again."
+          }
+        }
+      }
+    },
+    "Register your device to open the store.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل جهازك حتى تفتح المتجر."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register your device to open the store."
           }
         }
       }
@@ -12846,6 +13006,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tìm kiếm Hex hoặc ASCII"
+          }
+        }
+      }
+    },
+    "Seconds": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ثانية"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seconds"
           }
         }
       }
@@ -15455,6 +15631,22 @@
         }
       }
     },
+    "The store is closed for a moment. Try again shortly.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المتجر مقفّل مؤقتاً — جرّب بعد شوية."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The store is closed for a moment. Try again shortly."
+          }
+        }
+      }
+    },
     "These changes require a restart of the app": {
       "extractionState": "manual",
       "localizations": {
@@ -15510,6 +15702,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bạn cần khởi động lại ứng dụng sau khi thực hiện những thay đổi này"
+          }
+        }
+      }
+    },
+    "This app has no download to modify.": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا التطبيق ماكو منه نسخة تنزّل حتى تتعدّل."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app has no download to modify."
           }
         }
       }
@@ -16125,6 +16333,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unavailable"
+          }
+        }
+      }
+    },
+    "Under maintenance": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التطبيق تحت الصيانة"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Under maintenance"
           }
         }
       }
@@ -16884,6 +17108,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "جهازك"
+          }
+        }
+      }
+    },
+    "Your device is blocked": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جهازك محظور"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your device is blocked"
           }
         }
       }

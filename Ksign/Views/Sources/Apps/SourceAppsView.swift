@@ -65,35 +65,14 @@ struct SourceAppsView: View {
     
     // MARK: Body
     var body: some View {
-        ZStack {
-            if
-                let _sources,
-                !_sources.isEmpty
-            {
-                // The banner and the category strip ride inside the list's
-                // header, so the page reads banner → categories → apps and
-                // scrolls as one piece.
-                SourceAppsTableRepresentableView(
-                    sources: _sources,
-                    categories: _categories,
-                    searchText: $_searchText,
-                    sortOption: $_sortOption,
-                    sortAscending: $_sortAscending,
-                    selectedCategory: $_selectedCategory,
-                    onSelect: {self._selectedRoute = $0}
-                )
-                .ignoresSafeArea(edges: .bottom)
-            } else {
-                if #available(iOS 17, *) {
-                    ContentUnavailableView {
-                        ProgressView()
-                        Label(.localized("Fetching..."), systemImage: "")
-                    } description: {
-                        Text(.localized("Stuck? Check if you have any sources added."))
-                    }
-                }
-                else { ProgressView() }
-            }
+        VStack(spacing: 0) {
+            // The shop's own line, and the word that the store is running on
+            // what it loaded last. Kept above the table rather than inside its
+            // header: the header is sized once by UIKit, and either of these
+            // can turn up after that pass has already run.
+            CeresifyStoreNoticesView()
+            
+            _list
         }
         .navigationTitle(_navigationTitle)
         .searchable(text: $_searchText, placement: .platform())
@@ -155,6 +134,42 @@ struct SourceAppsView: View {
             SourceAppsDetailView(source: route.source, app: route.app)
         }
         
+    }
+    
+    /// The store's list — the table with the banner and category strip in its
+    /// header, or the wait for a source to arrive.
+    @ViewBuilder
+    private var _list: some View {
+        ZStack {
+            if
+                let _sources,
+                !_sources.isEmpty
+            {
+                // The banner and the category strip ride inside the list's
+                // header, so the page reads banner → categories → apps and
+                // scrolls as one piece.
+                SourceAppsTableRepresentableView(
+                    sources: _sources,
+                    categories: _categories,
+                    searchText: $_searchText,
+                    sortOption: $_sortOption,
+                    sortAscending: $_sortAscending,
+                    selectedCategory: $_selectedCategory,
+                    onSelect: {self._selectedRoute = $0}
+                )
+                .ignoresSafeArea(edges: .bottom)
+            } else {
+                if #available(iOS 17, *) {
+                    ContentUnavailableView {
+                        ProgressView()
+                        Label(.localized("Fetching..."), systemImage: "")
+                    } description: {
+                        Text(.localized("Stuck? Check if you have any sources added."))
+                    }
+                }
+                else { ProgressView() }
+            }
+        }
     }
     
     private func _load() {
