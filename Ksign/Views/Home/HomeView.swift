@@ -18,6 +18,11 @@ struct HomeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
+                    // The shop's own mark and whatever it is counting down to,
+                    // above the featured cards.
+                    CeresifyStoreLogoView()
+                    CeresifyCountdownStack(placement: .home)
+                    
                     if _viewModel.items.isEmpty {
                         _placeholder
                     } else {

@@ -25,6 +25,9 @@ struct CeresifyGateView<Content: View>: View {
 	@Environment(\.scenePhase) private var _scenePhase
 	
 	@State private var _isOpening: Bool
+	/// So the opening screen is a launch's worth of screen, not something that
+	/// comes back every time the config is fetched again.
+	@State private var _hasShownOpening = false
 	@State private var _isEnrollmentPresenting = false
 	
 	private let _content: Content
@@ -51,12 +54,16 @@ struct CeresifyGateView<Content: View>: View {
 					? .localized("Get in touch if you think this is a mistake.")
 					: reason
 				)
-			case .needsCertificate(let message):
+			case .notOurs(let title, let message):
 				_stop(
 					icon: "person.badge.key.fill",
-					title: .localized("Members only"),
+					title: title,
 					message: message,
-					actionTitle: .localized("Register this device")
+					// Nothing to offer a device the server has never heard of —
+					// only one that could still go and register itself.
+					actionTitle: _config.device.known
+					? nil
+					: .localized("Register this device")
 				) {
 					_isEnrollmentPresenting = true
 				}
@@ -74,6 +81,11 @@ struct CeresifyGateView<Content: View>: View {
 			CeresifyEnrollmentView()
 		}
 		.task {
+			// A copy signed for one subscriber names that device in its own
+			// profile, so there is nothing to install and nothing to ask:
+			// take the UDID and carry on.
+			CeresifyDeviceIdentity.adoptProvisionedUdidIfNeeded()
+			
 			// The device's certificate, brought up to date without a screen —
 			// the profile was installed once, and nothing since then needs the
 			// user's hands. Off on its own: the opening screen waits for the
@@ -82,7 +94,17 @@ struct CeresifyGateView<Content: View>: View {
 			
 			await _config.load()
 			
+			// The stored config decided whether to open on this screen, so a
+			// screen the shop has only just switched on wasn't known about a
+			// moment ago. Showing it now means it appears on the launch it was
+			// enabled rather than the one after.
+			if !_isOpening, _config.config.splash.enabled, !_hasShownOpening {
+				_isOpening = true
+			}
+			
 			guard _isOpening else { return }
+			
+			_hasShownOpening = true
 			
 			let seconds = max(0.6, min(_config.config.splash.seconds, 10))
 			try? await Task.sleep(for: .seconds(seconds))

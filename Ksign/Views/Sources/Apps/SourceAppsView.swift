@@ -70,7 +70,12 @@ struct SourceAppsView: View {
             // what it loaded last. Kept above the table rather than inside its
             // header: the header is sized once by UIKit, and either of these
             // can turn up after that pass has already run.
-            CeresifyStoreNoticesView()
+            CeresifyStoreNoticesView(selectedCategory: _selectedCategory)
+            
+            // The store's own countdown, above the list rather than on any one
+            // app's page.
+            CeresifyCountdownStack(placement: .store)
+                .padding(.horizontal, 21)
             
             _list
         }

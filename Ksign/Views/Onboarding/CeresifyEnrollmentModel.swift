@@ -50,7 +50,10 @@ final class CeresifyEnrollmentModel: ObservableObject {
     
     /// Set once the device has registered, and read by the tab bar to know
     /// this screen is done with.
-    static let hasSeenEnrollmentKey = "Ceresify.hasSeenEnrollment"
+    nonisolated static let hasSeenEnrollmentKey = "Ceresify.hasSeenEnrollment"
+    /// Where the device's UDID is kept, whether it came from registering or
+    /// from the profile the app itself was signed with.
+    nonisolated static let udidKey = _Keys.udid
     
     private var _enrollToken: String?
     private var _pollTask: Task<Void, Never>?

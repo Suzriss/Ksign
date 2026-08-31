@@ -146,6 +146,8 @@ struct CeresifyConfig: Decodable, Equatable {
         var text = ""
         /// Seconds for one full pass; larger is slower.
         var speed: Double = 14
+        /// The categories it runs in. Empty means the whole store.
+        var categories: [String] = []
         
         init() {}
         
@@ -154,11 +156,37 @@ struct CeresifyConfig: Decodable, Equatable {
             enabled = container.flag(.enabled)
             text = container.string(.text)
             speed = (try? container.decodeIfPresent(Double.self, forKey: .speed)) ?? 14
+            categories = (try? container.decodeIfPresent([String].self, forKey: .categories)) ?? []
+        }
+        
+        /// Whether it belongs above a store list filtered to this category.
+        ///
+        /// A label pinned to categories has nothing to say on `All`, where no
+        /// category is chosen — so it stays off there rather than following
+        /// the user everywhere.
+        func runs(in category: String?) -> Bool {
+            guard enabled, !text.isEmpty else { return false }
+            guard !categories.isEmpty else { return true }
+            guard let category else { return false }
+            
+            return categories.contains(category)
         }
         
         enum CodingKeys: String, CodingKey {
-            case enabled, text, speed
+            case enabled, text, speed, categories
         }
+    }
+    
+    /// Where in the app something the shop set is shown.
+    ///
+    /// `appPages` and `app` both land on an app's own page — the first on
+    /// every one of them, the second on a named app's alone.
+    enum Placement: String {
+        case appPages = "all"
+        case app
+        case general
+        case home
+        case store
     }
     
     /// A countdown shown either on every app's page or on one app's alone.
@@ -188,13 +216,22 @@ struct CeresifyConfig: Decodable, Equatable {
             self.endsAt = raw.flatMap(CeresifyConfig._date(from:))
         }
         
-        /// Whether this one belongs on the page of the given app.
-        func applies(to bundleIdentifier: String?) -> Bool {
+        /// Whether this one belongs on the page being drawn.
+        ///
+        /// `bundleIdentifier` is the app that page is about, and is nil
+        /// everywhere else — which is what keeps a countdown set for one app
+        /// off the General and Home tabs.
+        func applies(on placement: Placement, bundleIdentifier: String? = nil) -> Bool {
             guard let endsAt, endsAt > Date() else { return false }
-            guard scope == "app" else { return true }
             
-            return !self.bundleIdentifier.isEmpty
-                && self.bundleIdentifier == bundleIdentifier
+            switch scope {
+            case Placement.app.rawValue:
+                return placement == .appPages
+                    && !self.bundleIdentifier.isEmpty
+                    && self.bundleIdentifier == bundleIdentifier
+            default:
+                return scope == placement.rawValue
+            }
         }
     }
     
@@ -361,10 +398,13 @@ final class CeresifyConfigManager: ObservableObject {
         return trimmed.isEmpty ? fallback : trimmed
     }
     
-    /// The countdowns to show on an app's page, soonest ending first.
-    func countdowns(forApp bundleIdentifier: String?) -> [CeresifyConfig.Countdown] {
+    /// The countdowns belonging on the given page, soonest ending first.
+    func countdowns(
+        on placement: CeresifyConfig.Placement,
+        bundleIdentifier: String? = nil
+    ) -> [CeresifyConfig.Countdown] {
         config.countdowns
-            .filter { $0.applies(to: bundleIdentifier) }
+            .filter { $0.applies(on: placement, bundleIdentifier: bundleIdentifier) }
             .sorted { ($0.endsAt ?? .distantFuture) < ($1.endsAt ?? .distantFuture) }
     }
     
@@ -373,7 +413,9 @@ final class CeresifyConfigManager: ObservableObject {
         case open
         case maintenance(title: String, message: String)
         case banned(reason: String)
-        case needsCertificate(message: String)
+        /// The device isn't one of ours — either the server has never seen it,
+        /// or it carries no certificate from us.
+        case notOurs(title: String, message: String)
     }
     
     var gate: Gate {
@@ -393,12 +435,27 @@ final class CeresifyConfigManager: ObservableObject {
         
         // Only worth refusing once the server has actually said so about this
         // device — an unreachable server must not lock anybody out.
-        if
-            config.requireCertificate,
-            isReachable == true,
-            !device.hasCert
-        {
-            return .needsCertificate(
+        guard config.requireCertificate, isReachable == true else {
+            return .open
+        }
+        
+        // A copy signed for one subscriber already knows whose device it is,
+        // so the question the app asks itself here is simply whether the
+        // server knows that UDID. It doesn't: nothing on the device can fix
+        // that, so the shop's own wording is what gets shown.
+        if !device.known {
+            return .notOurs(
+                title: .localized("This device isn't registered"),
+                message: text(
+                    config.requireCertificateMessage,
+                    fallback: .localized("This copy wasn't issued to this device. Get in touch to have it registered.")
+                )
+            )
+        }
+        
+        if !device.hasCert {
+            return .notOurs(
+                title: .localized("Members only"),
                 message: text(
                     config.requireCertificateMessage,
                     fallback: .localized("Register your device to open the store.")

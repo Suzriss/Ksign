@@ -40,6 +40,8 @@ struct GeneralView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    CeresifyCountdownStack(placement: .general)
+                    
                     _sourcesCard
                     
                     if _viewModel.products.isEmpty {

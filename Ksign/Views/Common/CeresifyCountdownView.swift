@@ -103,16 +103,20 @@ struct CeresifyCountdownView: View {
 	}
 }
 
-/// Every countdown that belongs on the given app's page, stacked.
+/// Every countdown the shop put on this page, stacked.
+///
+/// The page says where it is and, on an app's own page, which app — and the
+/// config decides from there, so a page carries a countdown without knowing
+/// anything about the ones it isn't showing.
 struct CeresifyCountdownStack: View {
 	@ObservedObject private var _config = CeresifyConfigManager.shared
 	
-	/// Nil on a page that isn't about one app, which only the store-wide
-	/// countdowns apply to.
+	let placement: CeresifyConfig.Placement
+	/// Nil anywhere that isn't one app's own page.
 	var bundleIdentifier: String?
 	
 	var body: some View {
-		let countdowns = _config.countdowns(forApp: bundleIdentifier)
+		let countdowns = _config.countdowns(on: placement, bundleIdentifier: bundleIdentifier)
 		
 		if !countdowns.isEmpty {
 			VStack(spacing: 10) {

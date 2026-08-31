@@ -51,12 +51,17 @@ struct FeatherApp: App {
 			// an appearance switch to get back out of a white one.
 			.preferredColorScheme(.dark)
 			// Rebuilt when the language changes, so a pick in Preferences shows
-			// up without waiting for the app to be reopened — and when the shop
-			// repaints the store, which is the other thing that changes every
-			// screen at once.
+			// up without waiting for the app to be reopened.
+			//
+			// A repaint deliberately does NOT go through here. Throwing the
+			// tree away re-runs every tab's first appearance, and the store's
+			// is a ten-thousand-row table — which is why the launch after a
+			// colour change sat on a black screen. The palette is applied to
+			// UIKit directly instead, and the stored config means the next
+			// launch is already drawn in it from the first frame.
 			.environment(\.locale, languageManager.locale)
 			.environment(\.layoutDirection, languageManager.layoutDirection)
-			.id("\(languageManager.code)#\(configManager.revision)")
+			.id(languageManager.code)
 			.onReceive(accentColorManager.objectWillChange) { _ in
 				accentColorManager.updateGlobalTintColor()
 			}
@@ -66,7 +71,9 @@ struct FeatherApp: App {
 				if logsManager.isCapturing { logsManager.startCapture() }
 			}
 			// A repaint has to reach UIKit too — the bars and the lists are
-			// drawn outside the SwiftUI palette.
+			// drawn outside the SwiftUI palette. The bars pick it up as they
+			// are next laid out; the rest is right from the next launch, which
+			// reads the stored config before the first frame.
 			.onChange(of: configManager.revision) { _ in
 				_applyDarkAppearance()
 			}
@@ -77,6 +84,7 @@ struct FeatherApp: App {
 	/// pickers, the installer's own screens — so the windows are told directly.
 	private func _applyDarkAppearance() {
 		_applyNavigationBarAppearance()
+		_applyTabBarAppearance()
 		_applyStoreBackground()
 		
 		DispatchQueue.main.async {
@@ -106,6 +114,42 @@ struct FeatherApp: App {
 		UITableView.appearance().backgroundColor = background
 		UICollectionView.appearance().backgroundColor = background
 		UITableViewCell.appearance().backgroundColor = .clear
+	}
+	
+	/// The bar along the bottom is `UITabBar`, drawn by UIKit on both the old
+	/// tab bar and iOS 18's — so like the navigation bar it takes the palette
+	/// directly rather than through SwiftUI.
+	///
+	/// The selected tab reads in the store's accent, the rest in the type
+	/// colour dimmed, and the bar sits on the shop's own ground when it has
+	/// picked one.
+	private func _applyTabBarAppearance() {
+		let accent = UIColor.ceresifyAccent
+		let resting = CeresifyPalette.gold.withAlphaComponent(0.55)
+		
+		let appearance = UITabBarAppearance()
+		appearance.configureWithDefaultBackground()
+		
+		if let background = CeresifyPalette.background {
+			appearance.backgroundColor = background
+		}
+		
+		for item in [
+			appearance.stackedLayoutAppearance,
+			appearance.inlineLayoutAppearance,
+			appearance.compactInlineLayoutAppearance
+		] {
+			item.selected.iconColor = accent
+			item.selected.titleTextAttributes = [.foregroundColor: accent]
+			item.normal.iconColor = resting
+			item.normal.titleTextAttributes = [.foregroundColor: resting]
+		}
+		
+		let bar = UITabBar.appearance()
+		bar.standardAppearance = appearance
+		bar.scrollEdgeAppearance = appearance
+		bar.tintColor = accent
+		bar.unselectedItemTintColor = resting
 	}
 	
 	/// A page's own title is drawn by `UINavigationBar`, which sits outside the

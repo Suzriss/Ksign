@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import NukeUI
 import NimbleExtensions
 
 /// The label the shop can run across the top of the store.
@@ -32,9 +33,13 @@ struct CeresifyMarqueeView: View {
 	
 	/// The gap between the two copies, so the message doesn't run into itself.
 	private let _spacing: CGFloat = 44
+	private let _height: CGFloat = 34
 	
 	var body: some View {
-		GeometryReader { proxy in
+		// A ZStack rather than a GeometryReader around the content: the reader
+		// pins whatever it holds to the top of its box, which left the text
+		// riding above the middle of the pill instead of sitting in it.
+		ZStack {
 			HStack(spacing: _spacing) {
 				_label
 				
@@ -47,22 +52,30 @@ struct CeresifyMarqueeView: View {
 				maxWidth: .infinity,
 				alignment: _shouldScroll ? .leading : .center
 			)
-			.onAppear {
-				_containerWidth = proxy.size.width
-				_start()
-			}
-			.onChange(of: proxy.size.width) { newValue in
-				_containerWidth = newValue
-				_start()
-			}
 		}
-		.frame(height: 34)
+		.frame(maxWidth: .infinity)
+		.frame(height: _height)
 		.background {
 			Capsule(style: .continuous)
 				.fill(Color.ceresifyGold.opacity(0.12))
 		}
+		.clipShape(Capsule(style: .continuous))
+		.background {
+			// Measured off a shape behind the pill rather than around it, so
+			// the reader never gets a say in how the content is laid out.
+			GeometryReader { proxy in
+				Color.clear
+					.onAppear {
+						_containerWidth = proxy.size.width
+						_start()
+					}
+					.onChange(of: proxy.size.width) { newValue in
+						_containerWidth = newValue
+						_start()
+					}
+			}
+		}
 		.padding(.horizontal, 21)
-		.clipped()
 	}
 	
 	private var _label: some View {
@@ -74,8 +87,14 @@ struct CeresifyMarqueeView: View {
 			.background {
 				GeometryReader { proxy in
 					Color.clear
-						.onAppear { _textWidth = proxy.size.width }
-						.onChange(of: proxy.size.width) { newValue in _textWidth = newValue }
+						.onAppear {
+							_textWidth = proxy.size.width
+							_start()
+						}
+						.onChange(of: proxy.size.width) { newValue in
+							_textWidth = newValue
+							_start()
+						}
 				}
 			}
 	}
@@ -131,12 +150,16 @@ struct CeresifyOfflineBar: View {
 struct CeresifyStoreNoticesView: View {
 	@ObservedObject private var _config = CeresifyConfigManager.shared
 	
+	/// The category chip the list is filtered to, so a label the shop pinned
+	/// to certain categories only turns up in those.
+	var selectedCategory: String?
+	
 	private var _isOffline: Bool {
 		_config.isReachable == false
 	}
 	
 	private var _hasMarquee: Bool {
-		_config.config.marquee.enabled && !_config.config.marquee.text.isEmpty
+		_config.config.marquee.runs(in: selectedCategory)
 	}
 	
 	var body: some View {
@@ -160,5 +183,38 @@ struct CeresifyStoreNoticesView: View {
 		}
 		// Nothing to say means nothing on screen, not a gap above the list.
 		.padding(.vertical, _isOffline || _hasMarquee ? 8 : 0)
+	}
+}
+
+// MARK: - Store logo
+/// The shop's own mark, at the top of the Home tab.
+///
+/// Nothing at all until a logo is set, so a shop that never uploads one keeps
+/// the page it already had. The URL carries the moment it was last changed, so
+/// replacing the image replaces what is on screen instead of the cached copy
+/// of the old one.
+struct CeresifyStoreLogoView: View {
+	@ObservedObject private var _config = CeresifyConfigManager.shared
+	
+	var height: CGFloat = 96
+	
+	private var _url: URL? {
+		let value = _config.config.theme.logoURL
+		return value.isEmpty ? nil : URL(string: value)
+	}
+	
+	var body: some View {
+		if let url = _url {
+			LazyImage(url: url) { state in
+				if let image = state.image {
+					image
+						.resizable()
+						.scaledToFit()
+				}
+			}
+			.frame(maxWidth: .infinity)
+			.frame(height: height)
+			.padding(.bottom, 2)
+		}
 	}
 }

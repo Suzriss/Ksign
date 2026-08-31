@@ -88,7 +88,7 @@ struct SourceAppsDetailView: View {
 				
 				// Whatever the shop is counting down to on this page — the
 				// store-wide ones, and any set for this app in particular.
-				CeresifyCountdownStack(bundleIdentifier: app.id)
+				CeresifyCountdownStack(placement: .appPages, bundleIdentifier: app.id)
 				
 				Divider()
 				_infoPills(app: app)
