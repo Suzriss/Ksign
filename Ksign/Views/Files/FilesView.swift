@@ -381,8 +381,8 @@ struct FilesView: View {
                         self.viewModel.loadFiles()
                     }
                     
-                case .failure:
-                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(err))
+                case .failure(let error):
+                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(error))
                 }
                 ExtractManager.shared.finish(item: extractItem)
             }
@@ -422,8 +422,7 @@ struct FilesView: View {
         downloadManager.handlePachageFile(url: file.url, dl: download) { err in
             DispatchQueue.main.async {
                 if let error = err {
-                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(err))
-                } else {
+                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(error))
                 }
                 if let index = DownloadManager.shared.getDownloadIndex(by: download.id) {
                     DownloadManager.shared.downloads.remove(at: index)

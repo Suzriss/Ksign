@@ -216,7 +216,7 @@ struct LibraryView: View {
 							let dl = downloadManager.startArchive(from: ipas, id: id)
 							downloadManager.handlePachageFile(url: ipas, dl: dl) { err in
 								if let error = err {
-									UIAlertController.showAlertWithOk(title: "Error", message: FR.importFailureMessage(err))
+									UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(error))
 								}
 							}
 						}
