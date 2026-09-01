@@ -63,7 +63,7 @@ struct PlistEditorView: View {
             } label: {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
             }
         }
         .padding(.horizontal, 16)
@@ -220,8 +220,8 @@ struct PlistItemRow: View {
                             .font(.caption)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
-                            .background(Color.accentColor.opacity(0.2))
-                            .foregroundColor(.accentColor)
+                            .background(Color.ceresifyAccent.opacity(0.2))
+                            .foregroundColor(.ceresifyAccent)
                             .cornerRadius(4)
                         
                         Text(item.displayValue)

@@ -18,8 +18,13 @@ class AccentColorManager: ObservableObject {
         }
     }
     
-    private let _accentColors: [(color: Color, uiColor: UIColor)] = [
-        (.ceresifyGold, .ceresifyGold), // Ceresify
+    /// Read rather than stored: the first entry is the shop's own colour, and
+    /// `CeresifyPalette` holds whatever the last config said — a stored copy
+    /// would pin the app to the palette that happened to be loaded the first
+    /// time this manager was touched, which is why a repaint stopped reaching
+    /// the tint.
+    private var _accentColors: [(color: Color, uiColor: UIColor)] { [
+        (.ceresifyAccent, .ceresifyAccent), // Ceresify
         (Color(red: 0xFF/255, green: 0x8B/255, blue: 0x92/255), UIColor(red: 0xFF/255, green: 0x8B/255, blue: 0x92/255, alpha: 1.0)), //rgb(255, 139, 146)
         (.red, .systemRed),
         (.orange, .systemOrange),
@@ -32,7 +37,7 @@ class AccentColorManager: ObservableObject {
         (.mint, .systemMint),
         (.cyan, .systemCyan),
         (.teal, .systemTeal)
-    ]
+    ] }
     
     var currentAccentColor: Color {
         guard _selectedAccentColor < _accentColors.count else {

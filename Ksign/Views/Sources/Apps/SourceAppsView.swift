@@ -110,7 +110,7 @@ struct SourceAppsView: View {
                 placement: .topBarTrailing
             ) {
                 Task {
-                    await viewModel.fetchSources(_allSources, refresh: true)
+                    await viewModel.fetchSources(Array(_allSources), refresh: true)
                 }
             }
             

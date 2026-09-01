@@ -49,29 +49,111 @@ final class AppFileHandler: NSObject, @unchecked Sendable {
 		print("[\(_uuid)] File copied to: \(_ipa.path)")
 	}
 	
+	/// Unpacks the archive, and finds the `Payload` inside it.
+	///
+	/// Both zip libraries are tried rather than one: they disagree about
+	/// plenty of real IPAs — a zip64 entry, a compression method one of them
+	/// doesn't implement, a missing directory record — and what used to happen
+	/// when the picked one failed was an alert asking the user to go into
+	/// Settings and switch libraries by hand. That is a thing the app can do
+	/// for itself, and the one it can't do — say what actually went wrong — is
+	/// what the caller is given instead.
 	func extract() async throws {
 		Zip.addCustomFileExtension("ipa")
 		Zip.addCustomFileExtension("tipa")
 		
 		let download = self._download
-		let library = UserDefaults.standard.string(forKey: "Feather.extractionLibrary") ?? "Zip"
+		let preferred = UserDefaults.standard.string(forKey: "Feather.extractionLibrary") ?? "Zip"
+		let fallback = preferred == "ZIPFoundation" ? "Zip" : "ZIPFoundation"
 		
-		try await withCheckedThrowingContinuation { continuation in
+		try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
 			DispatchQueue.global(qos: .utility).async {
 				do {
-					if library == "ZIPFoundation" {
-						try self._ZIPFoundation(download: download)
-					} else {
-						try self._Zip(download: download)
+					try self._extract(using: preferred, download: download)
+				} catch {
+					print("[\(self._uuid)] \(preferred) couldn't read the archive: \(error.localizedDescription) — trying \(fallback)")
+					
+					do {
+						// Whatever the first pass wrote is half an app, and it
+						// would be walked as if it were whole. The archive
+						// itself was copied in here, so it is the one thing
+						// that has to survive the sweep.
+						self._emptyWorkDirectoryKeepingArchive()
+						try self._extract(using: fallback, download: download)
+					} catch {
+						print("[\(self._uuid)] Extraction error: \(error.localizedDescription)")
+						continuation.resume(throwing: error)
+						return
 					}
-					self.uniqueWorkDirPayload = self._uniqueWorkDir.appendingPathComponent("Payload")
+				}
+				
+				do {
+					self.uniqueWorkDirPayload = try self._payloadDirectory()
 					continuation.resume()
 				} catch {
-					print("[\(self._uuid)] Extraction error: \(error.localizedDescription)")
 					continuation.resume(throwing: error)
 				}
 			}
 		}
+	}
+	
+	private func _extract(using library: String, download: Download?) throws {
+		if library == "ZIPFoundation" {
+			try _ZIPFoundation(download: download)
+		} else {
+			try _Zip(download: download)
+		}
+	}
+	
+	private func _emptyWorkDirectoryKeepingArchive() {
+		guard
+			let contents = try? _fileManager.contentsOfDirectory(
+				at: _uniqueWorkDir,
+				includingPropertiesForKeys: nil
+			)
+		else {
+			return
+		}
+		
+		for url in contents where url.lastPathComponent != _ipa.lastPathComponent {
+			try? _fileManager.removeItem(at: url)
+		}
+	}
+	
+	/// The unpacked `Payload`, wherever the archive happened to put it.
+	///
+	/// Looking for one exact path is what turned a perfectly good IPA into
+	/// "No Payload folder was found": a build packed as `payload` in another
+	/// case, or wrapped in a folder of its own, has an app in it all the same.
+	private func _payloadDirectory() throws -> URL {
+		let direct = _uniqueWorkDir.appendingPathComponent("Payload")
+		var isDirectory: ObjCBool = false
+		
+		if
+			_fileManager.fileExists(atPath: direct.path, isDirectory: &isDirectory),
+			isDirectory.boolValue
+		{
+			return direct
+		}
+		
+		let enumerator = _fileManager.enumerator(
+			at: _uniqueWorkDir,
+			includingPropertiesForKeys: [.isDirectoryKey],
+			options: [.skipsHiddenFiles]
+		)
+		
+		while let url = enumerator?.nextObject() as? URL {
+			guard
+				url.lastPathComponent.caseInsensitiveCompare("Payload") == .orderedSame,
+				(try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+			else {
+				continue
+			}
+			
+			return url
+		}
+		
+		throw ImportedFileHandlerError.payloadNotFound
 	}
 	
 	private func _Zip(download: Download?) throws {
@@ -171,7 +253,10 @@ final class AppFileHandler: NSObject, @unchecked Sendable {
 	}
 }
 
-enum ImportedFileHandlerError: Error, CustomStringConvertible {
+/// `LocalizedError` as well as `CustomStringConvertible`: these are put in
+/// front of the user now rather than only printed, and `localizedDescription`
+/// on a bare `Error` says nothing but "The operation couldn't be completed".
+enum ImportedFileHandlerError: LocalizedError, CustomStringConvertible {
 	case payloadNotFound
 	case notEnoughDiskSpace(needed: Int64, available: Int64)
 	case extractionFailed
@@ -191,4 +276,6 @@ enum ImportedFileHandlerError: Error, CustomStringConvertible {
 			return "Zip library is not available on this platform."
 		}
 	}
+	
+	var errorDescription: String? { description }
 }

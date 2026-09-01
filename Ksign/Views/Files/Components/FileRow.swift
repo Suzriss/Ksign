@@ -61,28 +61,28 @@ struct FileRow: View {
                 if file.isDirectory {
                     if file.isAppDirectory {
                         Image(systemName: "app.badge")
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.ceresifyAccent)
                     } else {
                         Image(systemName: "folder")
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(.ceresifyAccent)
                     }
                 } else if file.isImageFile {
                     ImageRow(file: file)
                 } else if file.isArchive {
                     Image(systemName: "doc.zipper")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                 } else if file.isPlistFile {
                     Image(systemName: "list.bullet")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                 } else if file.isP12Certificate {
                     Image(systemName: "key")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                 } else if file.isKsignFile {
                     Image(systemName: "questionmark")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                 } else {
                     Image(systemName: "doc")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                 }
             }
             .font(.title2)
@@ -125,7 +125,7 @@ struct FileRow: View {
             else {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                         .font(.system(size: 22))
                 }
                 else {

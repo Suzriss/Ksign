@@ -37,21 +37,21 @@ struct DownloadItemRow: View {
             if item.isFinished {
                 Image(systemName: "doc.zipper")
                     .font(.title2)
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
                     .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
             } else {
                 if #available(iOS 17.0, *) {
                     Image(systemName: "arrow.down.document")
                         .font(.title2)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                         .frame(width: 32, height: 32)
                         .contentShape(Rectangle())
                         .symbolEffect(.pulse)
                 } else {
                     Image(systemName: "arrow.down.document")
                         .font(.title2)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.ceresifyAccent)
                         .frame(width: 32, height: 32)
                         .contentShape(Rectangle())
                 }
@@ -72,7 +72,7 @@ struct DownloadItemRow: View {
                 ZStack {
                     Circle()
                         .trim(from: 0, to: item.progress)
-                        .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.3, lineCap: .round))
+                        .stroke(Color.ceresifyAccent, style: StrokeStyle(lineWidth: 2.3, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .frame(width: 31, height: 31)
                         .animation(.smooth, value: item.progress)
@@ -169,14 +169,14 @@ struct AppStoreDownloadItemRow: View {
             if #available(iOS 17.0, *) {
                 Image(systemName: download.unpackageProgress > 0 ? "doc.zipper" : "arrow.down.document")
                     .font(.title2)
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
                     .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
                     .symbolEffect(.pulse)
             } else {
                 Image(systemName: download.unpackageProgress > 0 ? "doc.zipper" : "arrow.down.document")
                     .font(.title2)
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
                     .frame(width: 32, height: 32)
                     .contentShape(Rectangle())
             }
@@ -195,7 +195,7 @@ struct AppStoreDownloadItemRow: View {
             ZStack {
                 Circle()
                     .trim(from: 0, to: download.overallProgress)
-                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2.3, lineCap: .round))
+                    .stroke(Color.ceresifyAccent, style: StrokeStyle(lineWidth: 2.3, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .frame(width: 31, height: 31)
                     .animation(.smooth, value:  download.overallProgress)

@@ -47,7 +47,10 @@ final class SourcesViewModel: ObservableObject {
 	var isFinished = true
 	@Published var sources: [AltSource: ASRepository] = [:]
 	
-	func fetchSources(_ sources: FetchedResults<AltSource>, refresh: Bool = false, batchSize: Int = 4) async {
+	/// Takes a plain array rather than the fetch request's own results: the
+	/// store asks for the shop's catalog alone, which is a filtered slice of
+	/// what Core Data hands back.
+	func fetchSources(_ sources: [AltSource], refresh: Bool = false, batchSize: Int = 4) async {
 		guard isFinished else { return }
 		
 		// What is held was fetched in one language. Picking another in
@@ -71,7 +74,7 @@ final class SourcesViewModel: ObservableObject {
 			self.sources = [:]
 		}
 		
-		let sourcesArray = Array(sources)
+		let sourcesArray = sources
 		
 		for startIndex in stride(from: 0, to: sourcesArray.count, by: batchSize) {
 			let endIndex = min(startIndex + batchSize, sourcesArray.count)

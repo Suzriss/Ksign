@@ -25,7 +25,7 @@ struct ImageRow: View {
                     .scaleEffect(0.6)
             } else {
                 Image(systemName: "photo")
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
                     .font(.title2)
             }
         }

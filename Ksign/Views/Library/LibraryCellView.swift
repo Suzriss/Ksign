@@ -37,7 +37,7 @@ struct LibraryCellView: View {
 					_toggleSelection()
 				} label: {
 					Image(systemName: _isSelected ? "checkmark.circle.fill" : "circle")
-						.foregroundColor(_isSelected ? .accentColor : .secondary)
+						.foregroundColor(_isSelected ? .ceresifyAccent : .secondary)
 						.font(.title2)
 				}
 				.buttonStyle(.borderless)

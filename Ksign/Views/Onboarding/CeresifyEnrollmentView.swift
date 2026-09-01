@@ -77,7 +77,7 @@ struct CeresifyEnrollmentView: View {
     private var _icon: some View {
         Image(systemName: _iconName)
             .font(.system(size: 54))
-            .foregroundStyle(Color.accentColor)
+            .foregroundStyle(Color.ceresifyAccent)
             .symbolRenderingMode(.hierarchical)
     }
     
@@ -199,7 +199,7 @@ struct CeresifyEnrollmentView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .background(Color.ceresifyAccent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .foregroundStyle(Color.white)
         }
         .buttonStyle(.plain)

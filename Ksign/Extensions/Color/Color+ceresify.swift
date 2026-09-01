@@ -21,6 +21,11 @@ public extension Color {
 	static var ceresifyTitle: Color { Color(uiColor: CeresifyPalette.title) }
 	static var ceresifySubtitle: Color { Color(uiColor: CeresifyPalette.subtitle) }
 	
+	/// The colour the store's controls are drawn in — buttons, the picked tab,
+	/// a pill. Falls back to the type colour, which is what the app shipped
+	/// with before the shop could pick a second one.
+	static var ceresifyAccent: Color { Color(uiColor: .ceresifyAccent) }
+	
 	/// What the store is drawn on. Nil for as long as nobody has picked one,
 	/// which leaves every list on the system's own grouped background.
 	static var ceresifyBackground: Color? {

@@ -138,11 +138,11 @@ struct SourcesView: View {
 				Text(verbatim: _sourceToDelete?.name ?? "")
 			}
 			.refreshable {
-				await viewModel.fetchSources(_sources, refresh: true)
+				await viewModel.fetchSources(Array(_sources), refresh: true)
 			}
 		}
 		.task(id: Array(_sources)) {
-			await viewModel.fetchSources(_sources)
+			await viewModel.fetchSources(Array(_sources))
 		}
 	}
 }

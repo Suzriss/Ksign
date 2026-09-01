@@ -61,7 +61,7 @@ struct FilesView: View {
                 NavigationStack {
                     filesBrowserContent
                 }
-                .accentColor(.accentColor)
+                .tint(Color.ceresifyAccent)
             } else {
                 filesBrowserContent
             }
@@ -382,7 +382,7 @@ struct FilesView: View {
                     }
                     
                 case .failure:
-                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: .localized("Whoops!, something went wrong when extracting the file. \nMaybe try switching the extraction library in the settings?"))
+                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(err))
                 }
                 ExtractManager.shared.finish(item: extractItem)
             }
@@ -422,7 +422,7 @@ struct FilesView: View {
         downloadManager.handlePachageFile(url: file.url, dl: download) { err in
             DispatchQueue.main.async {
                 if let error = err {
-                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: .localized("Whoops!, something went wrong when extracting the file. \nMaybe try switching the extraction library in the settings?"))
+                    UIAlertController.showAlertWithOk(title: .localized("Error"), message: FR.importFailureMessage(err))
                 } else {
                 }
                 if let index = DownloadManager.shared.getDownloadIndex(by: download.id) {

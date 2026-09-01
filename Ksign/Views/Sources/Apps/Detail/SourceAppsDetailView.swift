@@ -169,11 +169,16 @@ struct SourceAppsDetailView: View {
 					Label(.localized("Report a problem"), systemImage: "exclamationmark.bubble")
 						.font(.subheadline.weight(.medium))
 						.frame(maxWidth: .infinity)
-						.padding(.vertical, 12)
+						.padding(.vertical, 15)
 						.background(
 							RoundedRectangle(cornerRadius: 14, style: .continuous)
 								.fill(Color(.quaternarySystemFill))
 						)
+						// A plain button is only tappable where it draws, and
+						// what it draws is a label with a lot of air either
+						// side of it. On an iPad that air is most of the row,
+						// so the button read as one and behaved as a word.
+						.contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 				}
 				.buttonStyle(.plain)
 				.padding(.top, 4)
@@ -275,7 +280,7 @@ struct SourceAppsDetailView: View {
 		} label: {
 			Image(systemName: "slider.horizontal.3")
 				.font(.subheadline.bold())
-				.foregroundStyle(Color.accentColor)
+				.foregroundStyle(Color.ceresifyAccent)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 8)
 				.background(Color(uiColor: .quaternarySystemFill))
@@ -371,7 +376,7 @@ extension SourceAppsDetailView {
 		var pills: [NBPillItem] = []
 		
 		if let version = app.currentVersion {
-			pills.append(NBPillItem(title: version, icon: "tag", color: Color.accentColor))
+			pills.append(NBPillItem(title: version, icon: "tag", color: Color.ceresifyAccent))
 		}
 		
 		if let size = app.size {

@@ -95,7 +95,7 @@ struct GeneralView: View {
         // The store tab primes the shared view model, but General can be the
         // first tab opened — a source row would push an empty list otherwise.
         .task(id: Array(_sources)) {
-            await _sourcesViewModel.fetchSources(_sources)
+            await _sourcesViewModel.fetchSources(Array(_sources))
         }
     }
     
@@ -271,7 +271,7 @@ struct GeneralProductCardView: View {
                 if let price = product.price {
                     Text(verbatim: price)
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(Color.ceresifyAccent)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -331,7 +331,7 @@ struct GeneralProductDetailView: View {
                             if let price = product.price {
                                 Text(verbatim: price)
                                     .font(.subheadline.weight(.medium))
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(Color.ceresifyAccent)
                             }
                         }
                         
@@ -358,7 +358,7 @@ struct GeneralProductDetailView: View {
                                 .font(.headline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 14)
-                                .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .background(Color.ceresifyAccent, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .foregroundStyle(Color.white)
                         }
                         .buttonStyle(.plain)

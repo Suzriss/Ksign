@@ -27,6 +27,12 @@ struct SigningView: View {
 	@State var appIcon: UIImage?
 	
 	var signAndInstall: Bool = false
+	/// Set when the signer was opened from the store's Advanced section, so the
+	/// Modify group is already open on arrival instead of hiding the four
+	/// things that were just asked for behind a disclosure triangle.
+	var opensModify: Bool = false
+	
+	@State private var _isModifyExpanded = false
 	
 	// MARK: Fetch
 	@FetchRequest(
@@ -54,11 +60,13 @@ struct SigningView: View {
 	
 	var app: AppInfoPresentable
 	
-	init(app: AppInfoPresentable, signAndInstall: Bool = false) {
+	init(app: AppInfoPresentable, signAndInstall: Bool = false, opensModify: Bool = false) {
 		self.app = app
 		self.signAndInstall = signAndInstall
+		self.opensModify = opensModify
 		let storedCert = UserDefaults.standard.integer(forKey: "feather.selectedCert")
 		__temporaryCertificate = State(initialValue: storedCert)
+		__isModifyExpanded = State(initialValue: opensModify)
 	}
 		
 	// MARK: Body
@@ -235,7 +243,7 @@ extension SigningView {
 	@ViewBuilder
 	private func _customizationProperties(for app: AppInfoPresentable) -> some View {
 		NBSection(.localized("Advanced")) {
-			DisclosureGroup(.localized("Modify")) {
+			DisclosureGroup(.localized("Modify"), isExpanded: $_isModifyExpanded) {
 				NavigationLink(.localized("Existing Dylibs")) {
 					SigningDylibView(
 						app: app,

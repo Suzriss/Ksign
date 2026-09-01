@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AltSourceKit
 import NimbleViews
 import NukeUI
 
@@ -13,6 +14,9 @@ import NukeUI
 struct HomeView: View {
     @StateObject private var _viewModel = HomeFeaturedViewModel()
     @State private var _selected: HomeFeaturedViewModel.Item?
+    /// The card whose signing options are open. Only the builds Ceresify signs
+    /// itself can be customized, so the rest never set it.
+    @State private var _customizing: HomeFeaturedViewModel.Item?
     
     var body: some View {
         NavigationStack {
@@ -27,9 +31,11 @@ struct HomeView: View {
                         _placeholder
                     } else {
                         ForEach(_viewModel.items) { item in
-                            HomeFeaturedCardView(item: item) {
-                                _selected = item
-                            }
+                            HomeFeaturedCardView(
+                                item: item,
+                                onOpen: { _selected = item },
+                                onCustomize: _canCustomize(item) ? { _customizing = item } : nil
+                            )
                         }
                     }
                 }
@@ -48,9 +54,21 @@ struct HomeView: View {
                 HomeFeaturedDetailView(item: item)
             }
         }
+        .sheet(item: $_customizing) { item in
+            if let app = item.app, let source = item.cloudSource {
+                CloudSignOptionsView(app: app, source: source)
+            }
+        }
         .task {
             await _viewModel.load()
         }
+    }
+    
+    /// Whether this entry is one of ours to rewrite before signing. Everything
+    /// else on the page is somebody else's build, which the server can't be
+    /// asked to change.
+    private func _canCustomize(_ item: HomeFeaturedViewModel.Item) -> Bool {
+        item.app != nil && item.cloudSource != nil
     }
     
     @ViewBuilder
@@ -82,12 +100,20 @@ struct HomeView: View {
 struct HomeFeaturedCardView: View {
     let item: HomeFeaturedViewModel.Item
     let onOpen: () -> Void
+    /// Opens the same options sheet the app's own page carries. Nil for an
+    /// entry the server doesn't sign itself, which has nothing to customize.
+    var onCustomize: (() -> Void)?
+    
+    /// The direction the page is being read in, so the parts of the card that
+    /// hold text keep it after the bar itself is pinned.
+    @Environment(\.layoutDirection) private var _layoutDirection
     
     private let _cornerRadius: CGFloat = 26
     
     var body: some View {
         Color.clear
-            .aspectRatio(3.0 / 2.0, contentMode: .fit)
+            // 2:1, which is the banner the admin panel asks the shop to upload.
+            .aspectRatio(2.0 / 1.0, contentMode: .fit)
             .overlay { _artwork }
             .overlay { _shade }
             .overlay(alignment: .topLeading) { _unavailableBadge }
@@ -139,42 +165,86 @@ struct HomeFeaturedCardView: View {
         }
     }
     
+    /// The strip across the bottom of the artwork.
+    ///
+    /// Pinned to one arrangement rather than mirrored with the language: the
+    /// app's icon and its name belong on the right and the buttons on the
+    /// left, the way the website lays the same card out in Arabic. Mirroring
+    /// it put the icon on the left in Arabic and on the right in English, so
+    /// the banner behind it — which the shop composes once — never lined up.
+    /// The two halves get the reading direction handed back so their own text
+    /// still runs the right way.
     private var _bottomBar: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            if let app = item.app {
-                VStack(spacing: 5) {
-                    DownloadButtonView(app: app, cloudSource: item.cloudSource)
-                    
-                    if let note = item.note {
-                        Text(verbatim: note)
-                            .font(.caption2)
-                            .foregroundStyle(Color.white.opacity(0.75))
-                            .lineLimit(1)
-                    }
-                }
-            }
+            _actions
             
             Spacer(minLength: 0)
             
-            HStack(spacing: 11) {
-                VStack(alignment: .trailing, spacing: 1) {
-                    Text(verbatim: item.name)
-                        .font(.title3.bold())
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
+            _identity
+        }
+        .padding(16)
+        .environment(\.layoutDirection, .leftToRight)
+    }
+    
+    @ViewBuilder
+    private var _actions: some View {
+        if let app = item.app {
+            VStack(spacing: 5) {
+                HStack(spacing: 8) {
+                    DownloadButtonView(app: app, cloudSource: item.cloudSource)
                     
-                    if let subtitle = item.subtitle {
-                        Text(verbatim: subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(Color.white.opacity(0.72))
-                            .lineLimit(1)
+                    if onCustomize != nil {
+                        _customizeButton
                     }
                 }
                 
-                HomeFeaturedIconView(url: item.iconURL, size: 58)
+                if let note = item.note {
+                    Text(verbatim: note)
+                        .font(.caption2)
+                        .foregroundStyle(Color.white.opacity(0.75))
+                        .lineLimit(1)
+                }
             }
+            .environment(\.layoutDirection, _layoutDirection)
         }
-        .padding(16)
+    }
+    
+    /// The same sheet the store's app page opens: a name, an icon, a version
+    /// and an identifier to sign this build under, and the way into the full
+    /// signer underneath them.
+    private var _customizeButton: some View {
+        Button {
+            onCustomize?()
+        } label: {
+            Image(systemName: "slider.horizontal.3")
+                .font(.subheadline.bold())
+                .foregroundStyle(Color.ceresifyAccent)
+                .frame(width: 34, height: 30)
+                .background(Color.black.opacity(0.45), in: Capsule())
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(Text(.localized("Signing options")))
+    }
+    
+    private var _identity: some View {
+        HStack(spacing: 11) {
+            VStack(alignment: .trailing, spacing: 1) {
+                Text(verbatim: item.name)
+                    .font(.title3.bold())
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                
+                if let subtitle = item.subtitle {
+                    Text(verbatim: subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.white.opacity(0.72))
+                        .lineLimit(1)
+                }
+            }
+            .multilineTextAlignment(.trailing)
+            
+            HomeFeaturedIconView(url: item.iconURL, size: 58)
+        }
     }
 }
 

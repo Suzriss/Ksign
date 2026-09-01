@@ -15,7 +15,7 @@ struct DylibRowView: View {
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: fileURL.pathExtension.lowercased() == "framework" ? "shippingbox" : "doc.circle")
-                .foregroundColor(.accentColor)
+                .foregroundColor(.ceresifyAccent)
                 .frame(width: 32, height: 32)
             
             VStack(alignment: .leading) {
@@ -31,7 +31,7 @@ struct DylibRowView: View {
             
             if isSelected {
                 Image(systemName: "checkmark")
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
             }
         }
         .contentShape(Rectangle())

@@ -4,6 +4,65 @@
     "": {
       "shouldTranslate": false
     },
+    "%@ free of %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ فاضي من %@"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ volných z %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ frei von %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ free of %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ libres de %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ libres sur %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ свободно из %@"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ boş / %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Còn %@ trên %@"
+          }
+        }
+      }
+    },
     "%@h left": {
       "extractionState": "manual",
       "localizations": {
@@ -2837,6 +2896,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sao chép"
+          }
+        }
+      }
+    },
+    "Couldn't open this file. Both extraction libraries were tried.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما كدرنا نفتح هذا الملف. جرّبنا مكتبتين الاستخراج الثنتين."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tento soubor se nepodařilo otevřít. Byly vyzkoušeny obě rozbalovací knihovny."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Datei konnte nicht geöffnet werden. Beide Entpack-Bibliotheken wurden versucht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open this file. Both extraction libraries were tried."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo abrir este archivo. Se probaron ambas bibliotecas de extracción."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'ouvrir ce fichier. Les deux bibliothèques d'extraction ont été essayées."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось открыть этот файл. Обе библиотеки распаковки были испробованы."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu dosya açılamadı. Her iki çıkarma kitaplığı da denendi."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể mở tệp này. Đã thử cả hai thư viện giải nén."
           }
         }
       }
@@ -8186,6 +8304,65 @@
         }
       }
     },
+    "Language, and what the store has sent you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اللغة، وشنو دزّه إلك المتجر."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jazyk a to, co vám obchod poslal."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sprache und was der Store dir geschickt hat."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language, and what the store has sent you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Idioma, y lo que la tienda te ha enviado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La langue, et ce que la boutique vous a envoyé."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Язык и то, что вам прислал магазин."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dil ve mağazanın size gönderdikleri."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ngôn ngữ, và những gì cửa hàng đã gửi cho bạn."
+          }
+        }
+      }
+    },
     "Last updated": {
       "localizations": {
         "ar": {
@@ -8415,6 +8592,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nhật ký"
+          }
+        }
+      }
+    },
+    "Mark all read": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "علّم الكل مقروء"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Označit vše jako přečtené"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle als gelesen markieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark all read"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcar todo como leído"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout marquer comme lu"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отметить всё прочитанным"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tümünü okundu işaretle"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đánh dấu đã đọc tất cả"
           }
         }
       }
@@ -9589,6 +9825,65 @@
         }
       }
     },
+    "Nothing from the store yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ماكو شي من المتجر لهسه."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zatím nic z obchodu."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch nichts vom Store."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing from the store yet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada de la tienda todavía."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien de la boutique pour l'instant."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пока ничего из магазина."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mağazadan henüz bir şey yok."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa có gì từ cửa hàng."
+          }
+        }
+      }
+    },
     "Nothing to sign yet": {
       "extractionState": "manual",
       "localizations": {
@@ -9596,6 +9891,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "لا يوجد شيء للتوقيع"
+          }
+        }
+      }
+    },
+    "Notices arrive when the app is opened.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإشعارات توصل لما تفتح التطبيق."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oznámení dorazí při otevření aplikace."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen kommen an, wenn die App geöffnet wird."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notices arrive when the app is opened."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los avisos llegan cuando se abre la app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les avis arrivent à l'ouverture de l'app."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уведомления приходят при открытии приложения."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bildirimler uygulama açıldığında gelir."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thông báo đến khi mở ứng dụng."
           }
         }
       }
@@ -14718,6 +15072,65 @@
         }
       }
     },
+    "Storage": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التخزين"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Úložiště"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speicher"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almacenamiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранилище"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depolama"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bộ nhớ"
+          }
+        }
+      }
+    },
     "Store Accounts": {
       "extractionState": "manual",
       "localizations": {
@@ -15627,6 +16040,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Heartbeat được kích hoạt trong nền, nó sẽ khởi động lại khi ứng dụng được mở lại hoặc được nhắc nhở. Nếu trạng thái bên dưới đang nhịp đập, điều đó có nghĩa là nó hoạt động bình thường."
+          }
+        }
+      }
+    },
+    "The same Modify and Properties a build you imported yourself gets. The build is downloaded first and signed on this device, with the certificate already installed — not on the server.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نفس «تعديل» و«الخصائص» اللي تاخذهن نسخة ترفعها بنفسك. النسخة تتنزّل أول وتنوقّع بهذا الجهاز بالشهادة المنصّبة — مو بالسيرفر."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stejné Úpravy a Vlastnosti, jaké dostane balíček, který jste importovali sami. Balíček se nejprve stáhne a podepíše se na tomto zařízení již nainstalovaným certifikátem — ne na serveru."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieselben Änderungen und Eigenschaften, die ein selbst importierter Build bekommt. Der Build wird zuerst geladen und mit dem bereits installierten Zertifikat auf diesem Gerät signiert — nicht auf dem Server."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same Modify and Properties a build you imported yourself gets. The build is downloaded first and signed on this device, with the certificate already installed — not on the server."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las mismas opciones de Modificar y Propiedades que recibe una compilación que importas tú. La compilación se descarga primero y se firma en este dispositivo, con el certificado ya instalado, no en el servidor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les mêmes Modifier et Propriétés qu'obtient un build que vous importez vous-même. Le build est d'abord téléchargé puis signé sur cet appareil, avec le certificat déjà installé — pas sur le serveur."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Те же «Изменить» и «Свойства», что и у сборки, которую вы импортировали сами. Сборка сначала загружается и подписывается на этом устройстве уже установленным сертификатом — не на сервере."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kendi içe aktardığınız bir yapının aldığı Değiştir ve Özellikler ile aynı. Yapı önce indirilir ve sunucuda değil, bu cihazda zaten yüklü sertifikayla imzalanır."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cùng mục Sửa đổi và Thuộc tính như bản dựng bạn tự nhập. Bản dựng được tải về trước rồi ký ngay trên thiết bị này bằng chứng chỉ đã cài — không phải trên máy chủ."
           }
         }
       }

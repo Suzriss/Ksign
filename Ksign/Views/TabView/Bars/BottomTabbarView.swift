@@ -24,6 +24,11 @@ struct BottomTabbarView: View {
 	@AppStorage("Feather.selectedTab") private var _selectedTabRawValue: String = TabEnum.home.rawValue
 	@State private var _selectedTab: TabEnum = .home
 	
+	/// Watched so a repaint from the panel reaches this bar. Nothing else here
+	/// reads it — the colours below come off `CeresifyPalette`, which SwiftUI
+	/// has no way of noticing on its own.
+	@ObservedObject private var _config = CeresifyConfigManager.shared
+	
 	/// UIKit's compact tab bar height, which is what everything else on screen
 	/// is spaced against.
 	private let _barHeight: CGFloat = 49
@@ -63,10 +68,19 @@ struct BottomTabbarView: View {
 		.frame(maxWidth: .infinity)
 		// The material has to reach past the inset and under the home
 		// indicator, or content scrolls through a clear strip below the bar.
+		//
+		// The shop's ground when it has picked one, and the system material
+		// otherwise — this bar is drawn by hand, so unlike `UITabBar` it gets
+		// nothing from the appearance proxy `FeatherApp` sets.
 		.background {
-			Rectangle()
-				.fill(.bar)
-				.ignoresSafeArea(edges: .bottom)
+			Group {
+				if let background = Color.ceresifyBackground {
+					background
+				} else {
+					Rectangle().fill(.bar)
+				}
+			}
+			.ignoresSafeArea(edges: .bottom)
 		}
 		.overlay(alignment: .top) {
 			Divider()
@@ -89,7 +103,14 @@ struct BottomTabbarView: View {
 					.lineLimit(1)
 					.minimumScaleFactor(0.85)
 			}
-			.foregroundStyle(isSelected ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(Color.secondary))
+			// The picked tab in the store's accent and the rest in its type
+			// colour dimmed — the same pairing `UITabBar` is given, so the two
+			// bars can't drift apart.
+			.foregroundStyle(
+				isSelected
+				? AnyShapeStyle(Color.ceresifyAccent)
+				: AnyShapeStyle(Color.ceresifyGold.opacity(0.55))
+			)
 			.frame(maxWidth: .infinity, maxHeight: .infinity)
 			.contentShape(Rectangle())
 		}

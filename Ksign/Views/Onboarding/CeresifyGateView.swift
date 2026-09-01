@@ -115,7 +115,13 @@ struct CeresifyGateView<Content: View>: View {
 			// lock should be noticed — the app may have sat in the background
 			// for days.
 			guard phase == .active else { return }
-			Task { await _config.load() }
+			
+			Task {
+				await _config.load()
+				// A notice sent while the app sat in the background arrives
+				// the moment it is looked at again, not on the next cold launch.
+				await CeresifyNoticeDelivery.deliverPending()
+			}
 		}
 	}
 	

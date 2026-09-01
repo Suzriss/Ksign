@@ -66,7 +66,7 @@ struct HexEditorView: View {
             } label: {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
             }
             
             Spacer()
@@ -82,7 +82,7 @@ struct HexEditorView: View {
             } label: {
                 Image(systemName: viewModel.isEditingMode ? "checkmark.circle.fill" : "pencil.circle.fill")
                     .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.ceresifyAccent)
             }
         }
         .padding(.horizontal, 16)
@@ -137,7 +137,7 @@ struct HexEditorView: View {
                     viewModel.nextSearchMatch()
                 }
                 .font(.caption)
-                .foregroundColor(.accentColor)
+                .foregroundColor(.ceresifyAccent)
             }
         }
         .padding(.horizontal, 16)

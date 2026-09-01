@@ -121,7 +121,7 @@ extension CertificatesAddView {
 		Button(title) {
 			action()
 		}
-		.foregroundColor((file == nil && hasData == nil) ? .accentColor : .disabled())
+		.foregroundColor((file == nil && hasData == nil) ? .ceresifyAccent : .disabled())
 		.disabled(file != nil || hasData != nil)
 		.animation(.easeInOut(duration: 0.3), value: file != nil || hasData != nil)
 	}

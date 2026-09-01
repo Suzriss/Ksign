@@ -22,6 +22,13 @@ struct CeresifyConfig: Decodable, Equatable {
     var maintenance = Maintenance()
     var marquee = Marquee()
     var countdowns: [Countdown] = []
+    /// The rows the Settings page links out to. Empty keeps the ones the app
+    /// shipped with, so a shop that never fills this in loses nothing.
+    var accounts: [Account] = []
+    /// What the shop has to say to this device, newest first.
+    var notifications: [Notification] = []
+    /// The sheets the shop wants shown over the store.
+    var popups: [Popup] = []
     /// Only devices carrying one of our certificates get past the gate.
     var requireCertificate = false
     var requireCertificateMessage = ""
@@ -40,12 +47,16 @@ struct CeresifyConfig: Decodable, Equatable {
         maintenance = (try? container.decodeIfPresent(Maintenance.self, forKey: .maintenance)) ?? Maintenance()
         marquee = (try? container.decodeIfPresent(Marquee.self, forKey: .marquee)) ?? Marquee()
         countdowns = (try? container.decodeIfPresent([Countdown].self, forKey: .countdowns)) ?? []
+        accounts = (try? container.decodeIfPresent([Account].self, forKey: .accounts)) ?? []
+        notifications = (try? container.decodeIfPresent([Notification].self, forKey: .notifications)) ?? []
+        popups = (try? container.decodeIfPresent([Popup].self, forKey: .popups)) ?? []
         requireCertificate = container.flag(.requireCertificate)
         requireCertificateMessage = container.string(.requireCertificateMessage)
     }
     
     enum CodingKeys: String, CodingKey {
         case theme, splash, strings, maintenance, marquee, countdowns
+        case accounts, notifications, popups
         case requireCertificate, requireCertificateMessage
     }
     
@@ -235,10 +246,110 @@ struct CeresifyConfig: Decodable, Equatable {
         }
     }
     
+    /// One of the store's own accounts, as the Settings page lists it.
+    struct Account: Decodable, Equatable, Identifiable {
+        var id = ""
+        var title = ""
+        /// A name, not an SF Symbol: the panel picks from a short list and the
+        /// app decides what to draw for it, so a symbol renamed in a future
+        /// iOS can't leave an empty square in the list.
+        var icon = "link"
+        var color = ""
+        var url = ""
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = (try? container.decodeIfPresent(String.self, forKey: .id)) ?? UUID().uuidString
+            title = container.string(.title)
+            icon = {
+                let value = container.string(.icon)
+                return value.isEmpty ? "link" : value
+            }()
+            color = container.string(.color)
+            url = container.string(.url)
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case id, title, icon, color, url
+        }
+    }
+    
+    /// Something the shop wants said to this device.
+    ///
+    /// There is no APNs here — the app is signed with a certificate that isn't
+    /// ours, so Apple never hands it a token — so a notice rides down with the
+    /// config instead and is raised locally the first time it is seen.
+    struct Notification: Decodable, Equatable, Identifiable {
+        var id = ""
+        var title = ""
+        var message = ""
+        var url = ""
+        var createdAt: Date?
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = (try? container.decodeIfPresent(String.self, forKey: .id)) ?? UUID().uuidString
+            title = container.string(.title)
+            message = container.string(.message)
+            url = container.string(.url)
+            createdAt = CeresifyConfig._date(from: container.string(.createdAt))
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case id, title, message, url, createdAt
+        }
+    }
+    
+    /// A sheet shown over the store, a set number of times per device.
+    struct Popup: Decodable, Equatable, Identifiable {
+        var id = ""
+        var title = ""
+        var message = ""
+        var imageURL = ""
+        var buttonText = ""
+        var buttonURL = ""
+        /// How many times one device sees it. Zero means without limit.
+        var maxShows = 1
+        var endsAt: Date?
+        /// `auto`, `left` or `right` — where the dismiss button sits.
+        var closeSide = "auto"
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = (try? container.decodeIfPresent(String.self, forKey: .id)) ?? UUID().uuidString
+            title = container.string(.title)
+            message = container.string(.message)
+            imageURL = container.string(.imageURL)
+            buttonText = container.string(.buttonText)
+            buttonURL = container.string(.buttonURL)
+            maxShows = (try? container.decodeIfPresent(Int.self, forKey: .maxShows)) ?? 1
+            closeSide = {
+                let value = container.string(.closeSide)
+                return ["auto", "left", "right"].contains(value) ? value : "auto"
+            }()
+            endsAt = CeresifyConfig._date(from: container.string(.endsAt))
+        }
+        
+        /// Whether it still has anything to say, given how often this device
+        /// has already seen it.
+        func isDue(shown: Int) -> Bool {
+            if let endsAt, endsAt <= Date() { return false }
+            guard maxShows > 0 else { return true }
+            return shown < maxShows
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case id, title, message, imageURL, buttonText, buttonURL
+            case maxShows, endsAt, closeSide
+        }
+    }
+    
     /// The server writes ISO 8601; `Date.ISO8601FormatStyle` only takes one
     /// shape at a time, so both are tried rather than losing a countdown to a
     /// fractional second.
     static func _date(from string: String) -> Date? {
+        guard !string.isEmpty else { return nil }
+        
         let plain = ISO8601DateFormatter()
         if let date = plain.date(from: string) { return date }
         
@@ -311,6 +422,11 @@ final class CeresifyConfigManager: ObservableObject {
     @Published private(set) var revision = 0
     
     private static let _cacheKey = "Ceresify.appConfig"
+    /// The notices this device has already been shown, so one raised on a
+    /// launch isn't raised again on the next.
+    private static let _seenKey = "Ceresify.seenNotifications"
+    /// How many times each popup has been put in front of this device.
+    private static let _popupShowsKey = "Ceresify.popupShows"
     private var _isLoading = false
     
     private init() {
@@ -396,6 +512,82 @@ final class CeresifyConfigManager: ObservableObject {
     func text(_ override: String, fallback: String) -> String {
         let trimmed = override.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? fallback : trimmed
+    }
+    
+    // MARK: Notices
+    
+    /// The notices the shop has sent this device, newest first.
+    var notifications: [CeresifyConfig.Notification] {
+        config.notifications
+    }
+    
+    private var _seenIdentifiers: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: Self._seenKey) ?? []) }
+        set { UserDefaults.standard.set(Array(newValue), forKey: Self._seenKey) }
+    }
+    
+    /// How many of them have never been opened.
+    var unreadNotificationCount: Int {
+        let seen = _seenIdentifiers
+        return config.notifications.filter { !seen.contains($0.id) }.count
+    }
+    
+    func isUnread(_ notification: CeresifyConfig.Notification) -> Bool {
+        !_seenIdentifiers.contains(notification.id)
+    }
+    
+    /// The ones that have never been raised on this device, so the inbox can
+    /// show them and iOS can be asked to put them on the lock screen once.
+    ///
+    /// Marking is separate from reading: a notice is only counted as delivered
+    /// once it has actually been handed to the notification centre.
+    func undeliveredNotifications() -> [CeresifyConfig.Notification] {
+        let delivered = Set(UserDefaults.standard.stringArray(forKey: Self._seenKey + ".delivered") ?? [])
+        return config.notifications.filter { !delivered.contains($0.id) }
+    }
+    
+    func markDelivered(_ notifications: [CeresifyConfig.Notification]) {
+        let key = Self._seenKey + ".delivered"
+        var delivered = Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
+        delivered.formUnion(notifications.map(\.id))
+        UserDefaults.standard.set(Array(delivered), forKey: key)
+    }
+    
+    func markRead(_ notification: CeresifyConfig.Notification) {
+        guard isUnread(notification) else { return }
+        
+        var seen = _seenIdentifiers
+        seen.insert(notification.id)
+        _seenIdentifiers = seen
+        objectWillChange.send()
+    }
+    
+    func markAllRead() {
+        _seenIdentifiers = Set(config.notifications.map(\.id))
+        objectWillChange.send()
+    }
+    
+    // MARK: Popups
+    
+    private var _popupShows: [String: Int] {
+        get { UserDefaults.standard.dictionary(forKey: Self._popupShowsKey) as? [String: Int] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: Self._popupShowsKey) }
+    }
+    
+    /// The next sheet owed to this device, if there is one.
+    ///
+    /// One at a time: two stacked over the store would be a wall rather than a
+    /// notice, and the second is still owed on the next launch.
+    var duePopup: CeresifyConfig.Popup? {
+        let shows = _popupShows
+        return config.popups.first { $0.isDue(shown: shows[$0.id] ?? 0) }
+    }
+    
+    func markPopupShown(_ popup: CeresifyConfig.Popup) {
+        var shows = _popupShows
+        shows[popup.id] = (shows[popup.id] ?? 0) + 1
+        _popupShows = shows
+        objectWillChange.send()
     }
     
     /// The countdowns belonging on the given page, soonest ending first.

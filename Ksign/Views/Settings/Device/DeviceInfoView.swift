@@ -24,14 +24,29 @@ struct DeviceInfoView: View {
 					.listRowBackground(EmptyView())
 			}
 			
-			if let device = _model.device {
-				Section {
-					_row(.localized("Device"), value: device.name ?? UIDevice.current.name)
-					_row(.localized("Model"), value: UIDevice.current.model)
-					_row(.localized("iOS Version"), value: UIDevice.current.systemVersion)
-					_udidRow(device.udid)
+			// What the device is, said whether or not the server has ever
+			// answered about it: someone whose registration hasn't gone
+			// through is exactly who opens this page, and it used to have
+			// nothing at all on it for them.
+			Section {
+				_row(.localized("Device"), value: _deviceName)
+				_row(.localized("Model"), value: DeviceHardware.marketingName)
+				_row(.localized("Identifier"), value: DeviceHardware.identifier)
+				_row(.localized("iOS Version"), value: DeviceHardware.systemVersion)
+				
+				if let storage = DeviceHardware.storage {
+					_row(
+						.localized("Storage"),
+						value: .localized("%@ free of %@", arguments: storage.free, storage.total)
+					)
 				}
 				
+				if let device = _model.device {
+					_udidRow(device.udid)
+				}
+			}
+			
+			if let device = _model.device {
 				Section {
 					_row(
 						.localized("Subscription"),
@@ -78,6 +93,15 @@ struct DeviceInfoView: View {
 		}
 	}
 	
+	/// The name the profile registered, and the device's own otherwise.
+	///
+	/// `UIDevice.name` has been the model name rather than what the owner
+	/// called their device since iOS 16, so the registered name is the only
+	/// one worth having — but it is better than nothing before there is one.
+	private var _deviceName: String {
+		_model.device?.name ?? UIDevice.current.name
+	}
+	
 	// MARK: Header
 	
 	private var _header: some View {
@@ -86,7 +110,7 @@ struct DeviceInfoView: View {
 				.font(.system(size: 42))
 				.foregroundStyle(Color.ceresifyGold)
 			
-			Text(verbatim: _model.device?.name ?? UIDevice.current.name)
+			Text(verbatim: _deviceName)
 				.font(.title3.bold())
 			
 			_statusPill

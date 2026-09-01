@@ -241,7 +241,7 @@ private extension SignerView {
                     _awaitingImportSince = nil
                     UIAlertController.showAlertWithOk(
                         title: .localized("Error"),
-                        message: .localized("Whoops!, something went wrong when extracting the file. \nMaybe try switching the extraction library in the settings?")
+                        message: FR.importFailureMessage(err)
                     )
                 }
             }
@@ -320,7 +320,7 @@ Paste a link to an IPA, or to a page that holds one. It's downloaded onto this d
                     _awaitingImportSince = nil
                     UIAlertController.showAlertWithOk(
                         title: .localized("Error"),
-                        message: .localized("Whoops!, something went wrong when extracting the file. \nMaybe try switching the extraction library in the settings?")
+                        message: FR.importFailureMessage(err)
                     )
                 }
                 if let index = libraryManager.getDownloadIndex(by: download.id) {
@@ -388,7 +388,7 @@ struct SignerSourceButtonsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Image(systemName: systemImage)
                     .font(.title2)
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.ceresifyAccent)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: title)
@@ -439,7 +439,7 @@ struct SignerAppRowView: View {
             Button(action: action) {
                 Text(verbatim: actionTitle)
                     .font(.subheadline.bold())
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.ceresifyAccent)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 6)
                     .background(Color(uiColor: .quaternarySystemFill))

@@ -226,7 +226,7 @@ struct DownloadButtonView: View {
 			Text(verbatim: title)
 				.lineLimit(0)
 				.font(.headline.bold())
-				.foregroundStyle(Color.accentColor)
+				.foregroundStyle(Color.ceresifyAccent)
 				.padding(.horizontal, 24)
 				.padding(.vertical, 6)
 				.background(Color(uiColor: .quaternarySystemFill))
@@ -255,7 +255,7 @@ struct DownloadButtonView: View {
 			// filling up rather than a bar drawn inside a pill.
 			GeometryReader { proxy in
 				Capsule()
-					.fill(Color.accentColor.opacity(0.28))
+					.fill(Color.ceresifyAccent.opacity(0.28))
 					.frame(width: max(0, min(1, downloadProgress)) * proxy.size.width)
 					.animation(.smooth, value: downloadProgress)
 			}
@@ -279,7 +279,7 @@ struct DownloadButtonView: View {
 						.animation(.smooth, value: percent)
 				}
 			}
-			.foregroundStyle(Color.accentColor)
+			.foregroundStyle(Color.ceresifyAccent)
 			.padding(.horizontal, 10)
 		}
 		.frame(width: 92, height: 31)

@@ -131,7 +131,7 @@ struct CloudSignOptionsView: View {
 				CeresifyEnrollmentView()
 			}
 			.fullScreenCover(item: $_signingApp) { app in
-				SigningView(app: app.base)
+				SigningView(app: app.base, opensModify: true)
 			}
 			.onChange(of: _imported.first?.uuid) { _ in
 				_openSignerIfBuildArrived()
@@ -262,29 +262,54 @@ extension CloudSignOptionsView {
 	@ViewBuilder
 	private func _advanced() -> some View {
 		NBSection(.localized("Advanced")) {
-			Button {
-				_startAdvanced()
-			} label: {
-				LabeledContent {
-					if _isWaitingForBuild, let download = _download {
-						Text(verbatim: "\(Int((download.overallProgress * 100).rounded()))%")
-							.monospacedDigit()
-					} else if _isWaitingForBuild {
-						ProgressView()
-					} else {
-						Image(systemName: "chevron.forward")
-							.font(.caption.weight(.semibold))
-							.foregroundStyle(.secondary)
-					}
-				} label: {
-					Text(.localized("Modify & Properties"))
-						.foregroundStyle(.primary)
-				}
+			// The signer's own Advanced entries, written out rather than
+			// hidden behind one row saying "Modify & Properties": what a build
+			// brought in by hand gets is exactly what a build from the store
+			// gets, and there was no way to tell that from the outside.
+			ForEach(Self._advancedEntries, id: \.title) { entry in
+				_advancedRow(entry)
 			}
-			.disabled(_isWaitingForBuild)
 		} footer: {
-			Text(.localized("Opens the full signer for this build — the same Modify and Properties a build you imported yourself gets. It downloads first, and signs on the device rather than on the server."))
+			Text(.localized("The same Modify and Properties a build you imported yourself gets. The build is downloaded first and signed on this device, with the certificate already installed — not on the server."))
 		}
+	}
+	
+	private struct _AdvancedEntry {
+		let title: String
+		let systemImage: String
+	}
+	
+	private static var _advancedEntries: [_AdvancedEntry] {
+		[
+			_AdvancedEntry(title: .localized("Existing Dylibs"), systemImage: "puzzlepiece.extension"),
+			_AdvancedEntry(title: .localized("Frameworks & PlugIns"), systemImage: "shippingbox"),
+			_AdvancedEntry(title: .localized("Tweaks"), systemImage: "wrench.adjustable"),
+			_AdvancedEntry(title: .localized("Properties"), systemImage: "slider.horizontal.3")
+		]
+	}
+	
+	@ViewBuilder
+	private func _advancedRow(_ entry: _AdvancedEntry) -> some View {
+		Button {
+			_startAdvanced()
+		} label: {
+			LabeledContent {
+				if _isWaitingForBuild, let download = _download {
+					Text(verbatim: "\(Int((download.overallProgress * 100).rounded()))%")
+						.monospacedDigit()
+				} else if _isWaitingForBuild {
+					ProgressView()
+				} else {
+					Image(systemName: "chevron.forward")
+						.font(.caption.weight(.semibold))
+						.foregroundStyle(.secondary)
+				}
+			} label: {
+				Label(entry.title, systemImage: entry.systemImage)
+					.foregroundStyle(.primary)
+			}
+		}
+		.disabled(_isWaitingForBuild)
 	}
 	
 	/// Opens the signer straight away when the build is already here, and

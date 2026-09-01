@@ -40,6 +40,10 @@ struct FeatherApp: App {
 						.onOpenURL(perform: _handleURL)
 						.transition(.move(edge: .top).combined(with: .opacity))
 				}
+				// Over the store rather than inside a tab: a sheet the shop
+				// sent has nothing to do with whichever page happens to be
+				// open, and one raised per tab would be five of them.
+				.ceresifyPopups()
 			}
 			.animation(.smooth, value: downloadManager.manualDownloads.description)
             .animation(.smooth, value: extractManager.extractItems.description)
@@ -76,6 +80,9 @@ struct FeatherApp: App {
 			// reads the stored config before the first frame.
 			.onChange(of: configManager.revision) { _ in
 				_applyDarkAppearance()
+				// The window's tint is the store's accent, which the shop can
+				// change — so a repaint has to reach it as well as the bars.
+				accentColorManager.updateGlobalTintColor()
 			}
 		}
 	}

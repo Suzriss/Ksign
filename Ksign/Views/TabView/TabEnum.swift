@@ -46,8 +46,17 @@ enum TabEnum: String, CaseIterable, Hashable {
 		}
 	}
 	
+	/// Every tab is drawn on the shop's own ground — the store used to be the
+	/// only page that followed a repaint, because it is the only one built on
+	/// UIKit, which is where the colour was being applied.
 	@ViewBuilder
 	static func view(for tab: TabEnum) -> some View {
+		_body(for: tab)
+			.ceresifyStoreBackground()
+	}
+	
+	@ViewBuilder
+	private static func _body(for tab: TabEnum) -> some View {
 		switch tab {
         case .home: HomeView()
         case .files: FilesView()

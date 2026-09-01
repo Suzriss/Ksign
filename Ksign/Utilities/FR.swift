@@ -14,6 +14,22 @@ import IDeviceSwift
 import OSLog
 
 enum FR {
+	/// What to put in front of someone whose import just failed.
+	///
+	/// The old line told them to go and switch the extraction library in
+	/// Settings; the app tries both by itself now, so the only thing left
+	/// worth saying is what actually stopped it — a corrupt archive, a full
+	/// disk and an IPA with nothing in it are three different problems and
+	/// used to read as one.
+	static func importFailureMessage(_ error: Error?) -> String {
+		let lead = String.localized("Couldn't open this file. Both extraction libraries were tried.")
+		
+		guard let error else { return lead }
+		
+		let detail = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+		return detail.isEmpty ? lead : lead + "\n\n" + detail
+	}
+	
 	static func handlePackageFile(
 		_ ipa: URL,
 		download: Download? = nil,
