@@ -46,27 +46,6 @@ enum DeviceHardware {
         "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
     }
     
-    /// Free and total storage, already formatted.
-    static var storage: (free: String, total: String)? {
-        guard
-            let values = try? URL(fileURLWithPath: NSHomeDirectory()).resourceValues(
-                forKeys: [.volumeAvailableCapacityForImportantUsageKey, .volumeTotalCapacityKey]
-            ),
-            let free = values.volumeAvailableCapacityForImportantUsage,
-            let total = values.volumeTotalCapacity
-        else {
-            return nil
-        }
-        
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        
-        return (
-            formatter.string(fromByteCount: free),
-            formatter.string(fromByteCount: Int64(total))
-        )
-    }
-    
     /// The models this build knows by name. Anything missing falls back to its
     /// identifier, so the list going stale costs a nicer word and nothing else.
     private static let _names: [String: String] = [

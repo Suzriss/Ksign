@@ -29,17 +29,10 @@ struct DeviceInfoView: View {
 			// through is exactly who opens this page, and it used to have
 			// nothing at all on it for them.
 			Section {
-				_row(.localized("Device"), value: _deviceName)
+				_row(.localized("Name"), value: _deviceName)
 				_row(.localized("Model"), value: DeviceHardware.marketingName)
 				_row(.localized("Identifier"), value: DeviceHardware.identifier)
 				_row(.localized("iOS Version"), value: DeviceHardware.systemVersion)
-				
-				if let storage = DeviceHardware.storage {
-					_row(
-						.localized("Storage"),
-						value: .localized("%@ free of %@", arguments: storage.free, storage.total)
-					)
-				}
 				
 				if let device = _model.device {
 					_udidRow(device.udid)
@@ -97,9 +90,13 @@ struct DeviceInfoView: View {
 	///
 	/// `UIDevice.name` has been the model name rather than what the owner
 	/// called their device since iOS 16, so the registered name is the only
-	/// one worth having — but it is better than nothing before there is one.
+	/// one worth having: the server's answer first, then the copy kept from
+	/// registration for when the server can't be reached, and the model name
+	/// only before there is any.
 	private var _deviceName: String {
-		_model.device?.name ?? UIDevice.current.name
+		_model.device?.name
+		?? CeresifyEnrollmentModel.storedDeviceName
+		?? UIDevice.current.name
 	}
 	
 	// MARK: Header

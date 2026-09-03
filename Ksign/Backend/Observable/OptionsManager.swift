@@ -46,6 +46,10 @@ struct Options: Codable, Equatable {
 	var appName: String?
 	/// App version
 	var appVersion: String?
+	/// App build number (`CFBundleVersion`), kept apart from the version so it
+	/// can be raised on its own — it is what iOS compares to decide whether an
+	/// install is an update
+	var appBuildNumber: String?
 	/// App bundle identifer
 	var appIdentifier: String?
 	/// App entitlements

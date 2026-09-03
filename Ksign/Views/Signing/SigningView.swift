@@ -25,6 +25,9 @@ struct SigningView: View {
 	@State private var _isSigning = false
 	@State private var _selectedPhoto: PhotosPickerItem? = nil
 	@State var appIcon: UIImage?
+	/// The build number the bundle carries now, read off its Info.plist once
+	/// the sheet is up — the Identifier page opens on it.
+	@State private var _currentBuildNumber: String?
 	
 	var signAndInstall: Bool = false
 	/// Set when the signer was opened from the store's Advanced section, so the
@@ -44,18 +47,6 @@ struct SigningView: View {
 	private func _selectedCert() -> CertificatePair? {
 		guard certificates.indices.contains(_temporaryCertificate) else { return nil }
 		return certificates[_temporaryCertificate]
-	}
-	
-	private func _getCertAppID() -> String? {
-		guard
-			let cert = _selectedCert(),
-			let decoded = Storage.shared.getProvisionFileDecoded(for: cert),
-			let entitlements = decoded.Entitlements,
-			let appID = entitlements["application-identifier"]?.value as? String
-		else {
-			return nil
-		}
-		return appID.split(separator: ".").dropFirst().joined(separator: ".")
 	}
 	
 	var app: AppInfoPresentable
@@ -149,6 +140,11 @@ struct SigningView: View {
 			.animation(.smooth, value: _isSigning)
 		}
 		.onAppear {
+			if let url = Storage.shared.getAppDirectory(for: app) {
+				_currentBuildNumber = Bundle(url: url)?
+					.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+			}
+			
 			// ppq protection
 			if
 				_optionsManager.options.ppqProtection,
@@ -225,8 +221,9 @@ extension SigningView {
 				SigningPropertiesView(
 					title: .localized("Identifier"),
 					initialValue: _temporaryOptions.appIdentifier ?? (app.identifier ?? ""),
-					certAppId: _getCertAppID(),
-					bindingValue: $_temporaryOptions.appIdentifier
+					initialBuildNumber: _temporaryOptions.appBuildNumber ?? _currentBuildNumber,
+					bindingValue: $_temporaryOptions.appIdentifier,
+					buildNumber: $_temporaryOptions.appBuildNumber
 				)
 			}
 			_infoCell(.localized("Version"), desc: _temporaryOptions.appVersion ?? app.version) {

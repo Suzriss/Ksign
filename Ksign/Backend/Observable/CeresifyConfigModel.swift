@@ -460,6 +460,10 @@ struct CeresifyConfig: Decodable, Equatable {
         var placeholder = ""
         var buttonText = ""
         var thanks = ""
+        /// Whether the server has a rating from this device. Nil from a
+        /// server that doesn't say — or for a device it has never seen —
+        /// in which case the device's own record is all there is.
+        var answered: Bool? = nil
         
         init() {}
         
@@ -474,11 +478,13 @@ struct CeresifyConfig: Decodable, Equatable {
             placeholder = container.string(.placeholder)
             buttonText = container.string(.buttonText)
             thanks = container.string(.thanks)
+            answered = try? container.decodeIfPresent(Bool.self, forKey: .answered)
         }
         
         enum CodingKeys: String, CodingKey {
             case enabled, showOnLaunch, requireAnswer, maxShows
             case title, message, placeholder, buttonText, thanks
+            case answered
         }
     }
     
@@ -634,6 +640,8 @@ final class CeresifyConfigManager: ObservableObject {
             config = loaded
             device = payload.device ?? CeresifyDeviceStatus()
             
+            _syncReviewState()
+            
             // Only a real change bumps the revision: the app rebuilds its tree
             // on it, and doing that on every trip to the foreground would
             // throw away wherever the user had navigated to.
@@ -741,16 +749,36 @@ final class CeresifyConfigManager: ObservableObject {
     
     /// Whether this device has already had its say.
     ///
-    /// Kept on the device rather than asked of the server: the box has to be
-    /// gone from the first frame of the next launch, which is well before any
-    /// answer could come back — and the server already refuses a second
-    /// review from the same account anyway.
+    /// Kept on the device, because the box has to be gone from the first
+    /// frame of the next launch — well before any answer could come back.
+    /// The server keeps the same fact against the device's UDID, and every
+    /// config it sends brings it down again, so a reinstall doesn't get asked
+    /// twice and the panel can ask one device again.
     var hasSentReview: Bool {
         UserDefaults.standard.bool(forKey: Self._reviewSentKey)
     }
     
     func markReviewSent() {
         UserDefaults.standard.set(true, forKey: Self._reviewSentKey)
+        objectWillChange.send()
+    }
+    
+    /// Brings the device's record into line with the server's.
+    ///
+    /// Only for a device the server knows: an unregistered one has nothing
+    /// the server could hold a rating against, so its own record stands. A
+    /// record the panel has cleared also clears the count of showings — a
+    /// box that had used up its showings is owed them again.
+    private func _syncReviewState() {
+        guard device.known, let answered = config.review.answered else { return }
+        guard answered != hasSentReview else { return }
+        
+        UserDefaults.standard.set(answered, forKey: Self._reviewSentKey)
+        
+        if !answered {
+            _reviewShows = 0
+        }
+        
         objectWillChange.send()
     }
     

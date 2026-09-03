@@ -16,6 +16,9 @@ struct SourceNewsView: View {
 	var cardWidth: CGFloat = 250
 	var cardHeight: CGFloat = 150
 	var cornerRadius: CGFloat = 12
+	/// The width of the page the strip sits on. A card narrower than it —
+	/// the capped one on an iPad — is centred instead of hugging the edge.
+	var containerWidth: CGFloat = 0
 	
 	var body: some View {
 		VStack {
@@ -35,6 +38,7 @@ struct SourceNewsView: View {
 						}
 					}
 					.padding(.horizontal, 21)
+					.frame(minWidth: containerWidth > 0 ? containerWidth : nil)
 				}
 				.frame(height: cardHeight)
 				.opacity(isLoading ? 0 : 1)

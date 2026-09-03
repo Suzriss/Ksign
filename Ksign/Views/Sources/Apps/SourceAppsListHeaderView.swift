@@ -23,14 +23,18 @@ struct SourceAppsListHeaderView: View {
     let selection: String?
     let onSelectCategory: (String?) -> Void
 
+    /// Banners are drawn 2:1 (the CheckOver artwork is 1200x600), so the card
+    /// keeps that shape at every width rather than cropping into it. It is
+    /// the width that is capped, not the height: with the height pinned, a
+    /// card spanning an iPad — and a landscape one worst of all — was a
+    /// letterbox cut out of the middle of the artwork. The cap matches the
+    /// column Home keeps its cards to.
     private var _cardWidth: CGFloat {
-        max(width - 42, 240)
+        min(max(width - 42, 240), 560)
     }
 
-    /// Banners are drawn 2:1 (the CheckOver artwork is 1200x600), so the card
-    /// follows that rather than cropping into it.
     private var _cardHeight: CGFloat {
-        min(max(_cardWidth / 2, 140), 260)
+        _cardWidth / 2
     }
 
     var body: some View {
@@ -43,7 +47,8 @@ struct SourceAppsListHeaderView: View {
                     news: news,
                     cardWidth: _cardWidth,
                     cardHeight: _cardHeight,
-                    cornerRadius: 20
+                    cornerRadius: 20,
+                    containerWidth: width
                 )
                 .padding(.top, 6)
             }

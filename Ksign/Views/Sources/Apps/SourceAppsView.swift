@@ -123,7 +123,10 @@ struct SourceAppsView: View {
             }
         }
         .onAppear {
-            if !hasLoadedOnce, !viewModel.isFetching {
+            // Whatever the model already holds — the stored copy, or a
+            // fetch that finished while another tab was up — goes on screen
+            // straight away, fetching or not.
+            if !hasLoadedOnce {
                 _load()
                 hasLoadedOnce = true
             }
@@ -134,6 +137,11 @@ struct SourceAppsView: View {
         // accident, which is what left this page waiting forever.
         .onChange(of: viewModel.isFetching) { isFetching in
             guard !isFetching else { return }
+            _load()
+        }
+        // The stored copy lands first and the fresh one after it; each is
+        // shown as it arrives rather than at the end of the whole fetch.
+        .onChange(of: viewModel.revision) { _ in
             _load()
         }
         .onChange(of: _sortOption) { newValue in

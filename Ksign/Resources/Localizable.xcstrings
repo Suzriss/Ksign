@@ -2157,6 +2157,17 @@
         }
       }
     },
+    "Build number": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رقم النسخة (Build)"
+          }
+        }
+      }
+    },
     "Bundle": {
       "extractionState": "manual",
       "localizations": {
@@ -8962,29 +8973,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Đánh dấu đã đọc tất cả"
-          }
-        }
-      }
-    },
-    "Matching Certificate's App ID": {
-      "extractionState": "manual",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "App ID المطابق للشهادة"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zutreffende App-ID vom Zertifikat"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sử dụng App ID (mã định danh app) của chứng chỉ"
           }
         }
       }
@@ -17965,29 +17953,6 @@
         }
       }
     },
-    "Use certiticate's app ID, this will help the app have access to features that uses certificate's entitlements.": {
-      "extractionState": "manual",
-      "localizations": {
-        "ar": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "استخدم App ID الخاص بالشهادة، فهذا يساعد التطبيق على الوصول إلى الميزات التي تعتمد على الصلاحيات الموجودة في الشهادة."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benutze die App ID vom Zertifikat. Dies hilft der app dabei, auf Funktionen von der Zertifikatberchtigungen erlaubten Funktionen zuzugreifen."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dùng App ID của chứng chỉ, điều này sẽ giúp app ký sẽ dùng được những tính năng sử dụng entilements của chứng chỉ"
-          }
-        }
-      }
-    },
     "Use last copied location": {
       "extractionState": "manual",
       "localizations": {
@@ -18386,6 +18351,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trình duyệt"
+          }
+        }
+      }
+    },
+    "What iOS compares to decide whether an install is an update. Raise it to install over a copy that is already there.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الرقم اللي يقارنه iOS حتى يعرف إذا التثبيت تحديث. ارفعه حتى تثبّت فوق نسخة موجودة أصلاً."
           }
         }
       }

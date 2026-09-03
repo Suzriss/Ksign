@@ -30,6 +30,12 @@ struct VariedTabbarView: View {
 				CeresifyEnrollmentView()
 			}
 			.onAppear(perform: _offerProfileIfNeeded)
+			// The catalog is asked for the moment the store is up, not when
+			// the Apps tab is first opened: by the time it is, the stored
+			// copy is drawn and the fresh one is usually already here.
+			.task {
+				await SourcesViewModel.shared.fetchSources(Storage.shared.getSources())
+			}
 			// The first answer from the server is what settles the gate, and
 			// the gate is what decides whether this view stays in the tree at
 			// all — so the offer waits for it and is reconsidered when it

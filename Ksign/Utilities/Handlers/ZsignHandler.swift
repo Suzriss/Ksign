@@ -51,7 +51,10 @@ final class ZsignHandler {
             entitlementsPath: _options.appEntitlementsFile?.path ?? "",
             customIdentifier: _options.appIdentifier ?? "",
             customName: _options.appName ?? "",
-            customVersion: _options.appVersion ?? "",
+            // Already written into the Info.plist by `SigningHandler`, where
+            // the build number can be set apart from the version — zsign
+            // would put one string in both keys.
+            customVersion: "",
             removeProvision: !_options.removeProvisioning,
             completion: { _, error in
                 self.hadError = error
@@ -65,7 +68,7 @@ final class ZsignHandler {
 			entitlementsPath: _options.appEntitlementsFile?.path ?? "",
 			customIdentifier: _options.appIdentifier ?? "",
 			customName: _options.appName ?? "",
-			customVersion: _options.appVersion ?? "",
+			customVersion: "",
 			adhoc: true,
             removeProvision: !_options.removeProvisioning,
             completion: { _, error in

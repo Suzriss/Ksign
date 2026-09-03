@@ -210,10 +210,18 @@ extension SigningHandler {
 				infoDictionary.setObject(customName, forKey: "CFBundleDisplayName" as NSCopying)
 				infoDictionary.setObject(customName, forKey: "CFBundleName" as NSCopying)
 			}
-			if let customVersion = options.appVersion {
-				infoDictionary.setObject(customVersion, forKey: "CFBundleShortVersionString" as NSCopying)
-				infoDictionary.setObject(customVersion, forKey: "CFBundleVersion" as NSCopying)
-			}
+		}
+		
+		// The version is written here rather than handed to zsign, which puts
+		// one string in both keys: the build number has to be able to differ
+		// from the version, since it is the one iOS compares on an update.
+		// This runs before signing, so the signature covers it.
+		if let customVersion = options.appVersion {
+			infoDictionary.setObject(customVersion, forKey: "CFBundleShortVersionString" as NSCopying)
+			infoDictionary.setObject(customVersion, forKey: "CFBundleVersion" as NSCopying)
+		}
+		if let buildNumber = options.appBuildNumber {
+			infoDictionary.setObject(buildNumber, forKey: "CFBundleVersion" as NSCopying)
 		}
 		
 		try infoDictionary.write(to: app.appendingPathComponent("Info.plist"))
