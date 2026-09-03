@@ -47,19 +47,10 @@ struct CloudSignOptionsView: View {
 	@State private var _error: String?
 	
 	@ObservedObject private var _downloadManager = DownloadManager.shared
-	/// Set once Advanced has been asked for, so the signer opens by itself the
+	/// Set once the build has been asked for, so the signer opens by itself the
 	/// moment the download lands rather than making the user come back.
 	@State private var _isWaitingForBuild = false
 	@State private var _signingApp: AnyApp?
-	
-	/// The signer's own options, editable here and now.
-	///
-	/// Advanced used to be four rows that each started a download and then
-	/// handed the build to the signer — so the one thing the user came for,
-	/// picking the options, only became possible after the wait. These are the
-	/// same options the Signer tab edits, started from the saved defaults, and
-	/// they carry into the signer when the build finally arrives.
-	@State private var _advancedOptions: Options = OptionsManager.shared.options
 	
 	/// The copy of this build already on the device, if there is one. Matched
 	/// on the download URL the same way the store's pill matches it: a store
@@ -95,7 +86,6 @@ struct CloudSignOptionsView: View {
 			Form {
 				_customization()
 				_duplication()
-				_advanced()
 				
 				if let error = _error {
 					Section {
@@ -108,11 +98,11 @@ struct CloudSignOptionsView: View {
 			.disabled(_isSigning)
 			.safeAreaInset(edge: .bottom) {
 				Button {
-					// Anything picked under Advanced is the device's work, so
-					// the same button fetches the build and signs it here
-					// instead of asking the server for something it cannot do.
+					// An app the shop signs on the device is fetched and handed
+					// to the signer, where every option it has lives. The rest
+					// go to Ceresify with the fields above.
 					if _signsOnDevice {
-						_startAdvanced()
+						_signOnDevice()
 					} else {
 						_sign()
 					}
@@ -175,22 +165,10 @@ struct CloudSignOptionsView: View {
 
 // MARK: - Extension: View
 extension CloudSignOptionsView {
-	/// Whether anything under Advanced was actually touched.
-	///
-	/// Compared against the saved defaults rather than tracked with a flag: a
-	/// user who opens Properties, flips a toggle and flips it back has changed
-	/// nothing, and should still get the fast server path.
-	var _didCustomizeAdvanced: Bool {
-		_advancedOptions != OptionsManager.shared.options
-	}
-	
-	/// Whether this one is signed here rather than by Ceresify.
-	///
-	/// Either because the shop said so for this app — a rule in the panel, or
-	/// a size over the limit — or because the user picked something under
-	/// Advanced, which is work only the device can do.
+	/// Whether this one is signed here rather than by Ceresify — a rule in the
+	/// panel for this app, or a size over the limit.
 	var _signsOnDevice: Bool {
-		_didCustomizeAdvanced || CeresifyCloudSigner.place(for: app) == .device
+		CeresifyCloudSigner.place(for: app) == .device
 	}
 	
 	/// What the bottom button says, which is also what it will do.
@@ -295,107 +273,22 @@ extension CloudSignOptionsView {
 	}
 }
 
-// MARK: - Extension: View (advanced)
+// MARK: - Extension: View (signing here)
 extension CloudSignOptionsView {
 	/// Whether a download of this build is running right now.
 	private var _download: Download? {
 		_downloadManager.getDownload(by: app.currentUniqueId)
 	}
 	
-	/// The signer's own Advanced pane, reached from the store.
-	///
-	/// The fields above are applied by Ceresify, which rewrites the IPA before
-	/// it signs it — that is all a server can do to a build it never installs.
-	/// Everything here is the device's work, so choosing it means the build is
-	/// downloaded and signed on this device with the certificate already
-	/// installed, exactly as a build brought in by hand is.
-	///
-	/// Tweaks and Properties open straight away and edit the real options:
-	/// nothing about a `.dylib` the user is adding or a toggle they are
-	/// flipping needs the IPA in hand, and making them wait for a download
-	/// before they could even see the pane was the whole complaint. Only the
-	/// two that read what is *inside* the build — its existing dylibs and its
-	/// frameworks — have to fetch it first, and they say so.
-	@ViewBuilder
-	private func _advanced() -> some View {
-		NBSection(.localized("Advanced")) {
-			NavigationLink {
-				SigningTweaksView(options: $_advancedOptions)
-			} label: {
-				Label(.localized("Tweaks"), systemImage: "wrench.adjustable")
-					.foregroundStyle(.primary)
-			}
-			
-			NavigationLink {
-				Form {
-					SigningOptionsView(
-						options: $_advancedOptions,
-						temporaryOptions: OptionsManager.shared.options
-					)
-				}
-				.navigationTitle(.localized("Properties"))
-			} label: {
-				Label(.localized("Properties"), systemImage: "slider.horizontal.3")
-					.foregroundStyle(.primary)
-			}
-		} footer: {
-			Text(.localized("Pick these now — nothing is downloaded until you start. What you set here is signed onto the build on this device, with the certificate already installed."))
-		}
-		
-		NBSection(.localized("Needs the build")) {
-			ForEach(Self._buildEntries, id: \.title) { entry in
-				_advancedRow(entry)
-			}
-		} footer: {
-			Text(.localized("These two read what is already inside the app, so the build is fetched first and the signer opens on it — with everything you set above already applied."))
-		}
-	}
-	
-	private struct _AdvancedEntry {
-		let title: String
-		let systemImage: String
-	}
-	
-	/// The two panes that can only be drawn once the IPA is on the device.
-	private static var _buildEntries: [_AdvancedEntry] {
-		[
-			_AdvancedEntry(title: .localized("Existing Dylibs"), systemImage: "puzzlepiece.extension"),
-			_AdvancedEntry(title: .localized("Frameworks & PlugIns"), systemImage: "shippingbox")
-		]
-	}
-	
-	@ViewBuilder
-	private func _advancedRow(_ entry: _AdvancedEntry) -> some View {
-		Button {
-			_startAdvanced()
-		} label: {
-			LabeledContent {
-				if _isWaitingForBuild, let download = _download {
-					Text(verbatim: "\(Int((download.overallProgress * 100).rounded()))%")
-						.monospacedDigit()
-				} else if _isWaitingForBuild {
-					ProgressView()
-				} else {
-					Image(systemName: "arrow.down.circle")
-						.font(.caption.weight(.semibold))
-						.foregroundStyle(.secondary)
-				}
-			} label: {
-				Label(entry.title, systemImage: entry.systemImage)
-					.foregroundStyle(.primary)
-			}
-		}
-		.disabled(_isWaitingForBuild)
-	}
-	
-	/// The options the local signer opens on: what was picked under Advanced,
-	/// plus the name, identifier and version typed at the top of this sheet.
+	/// The options the local signer opens on: the saved defaults, plus the
+	/// name, identifier and version typed at the top of this sheet.
 	///
 	/// Those three are applied by Ceresify on the server path, so on the device
 	/// path they have to be applied here or filling them in would quietly do
-	/// nothing.
+	/// nothing. Everything else — tweaks, dylibs, the property toggles — is
+	/// picked in the signer itself, which is where that pane lives.
 	private var _localOptions: Options {
-		var options = _advancedOptions
+		var options = OptionsManager.shared.options
 		
 		if let name = Self._trimmed(_name)              { options.appName = name }
 		if let version = Self._trimmed(_version)        { options.appVersion = version }
@@ -404,9 +297,12 @@ extension CloudSignOptionsView {
 		return options
 	}
 	
-	/// Opens the signer straight away when the build is already here, and
-	/// otherwise starts the download and waits for it.
-	private func _startAdvanced() {
+	/// Fetches the build and hands it to the signer, which is where the whole
+	/// Advanced pane lives — tweaks, dylibs, frameworks and the property
+	/// toggles all need the IPA on the device anyway.
+	///
+	/// Opens straight away when the build is already here.
+	private func _signOnDevice() {
 		if let imported = _imported.first {
 			_signingApp = AnyApp(base: imported)
 			return

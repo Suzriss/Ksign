@@ -30,6 +30,10 @@ struct DownloadButtonView: View {
 	@State private var cancellable: AnyCancellable?
 	@State private var _signingApp: AnyApp?
 	@State private var _installingApp: AnyApp?
+	/// Set while this row is the one that opened the signer, so the install
+	/// that follows is presented here and not by every other row listening for
+	/// the same word.
+	@State private var _isAwaitingInstall = false
 	
 	@State private var _isCloudSigning = false
 	@State private var _cloudError: String?
@@ -152,7 +156,22 @@ struct DownloadButtonView: View {
 		}
 		.animation(.easeInOut(duration: 0.3), value: downloadManager.getDownload(by: app.currentUniqueId) != nil)
 		.fullScreenCover(item: $_signingApp) { app in
-			SigningView(app: app.base)
+			// Get → Sign → Install is one walk, so signing hands the build to
+			// the installer itself rather than turning the pill into `Install`
+			// and waiting to be tapped a third time.
+			SigningView(app: app.base, signAndInstall: true)
+		}
+		.onChange(of: _signingApp != nil) { isOpen in
+			if isOpen { _isAwaitingInstall = true }
+		}
+		// Every row in the store is listening for this, so only the one that
+		// actually opened the signer answers — and its own fetch request is
+		// already scoped to this app's build.
+		.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("feather.installApp"))) { _ in
+			guard _isAwaitingInstall, let signed = _signed.first else { return }
+			
+			_isAwaitingInstall = false
+			_installingApp = AnyApp(base: signed)
 		}
 		.sheet(isPresented: $_isEnrollmentPresenting) {
 			CeresifyEnrollmentView()

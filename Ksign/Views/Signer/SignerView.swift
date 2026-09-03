@@ -30,6 +30,10 @@ struct SignerView: View {
     
     @State private var _signingApp: AnyApp?
     @State private var _installingApp: AnyApp?
+    /// Set while this tab is the one that opened the signer, so the install
+    /// that follows belongs to it and not to some other screen listening for
+    /// the same word.
+    @State private var _isAwaitingInstall = false
     
     /// Set the moment a link or a file is handed over, so the app that lands
     /// after it can be taken straight to the signing options.
@@ -174,7 +178,19 @@ struct SignerView: View {
                 webViewSheet(url: url)
             }
             .fullScreenCover(item: $_signingApp) { app in
-                SigningView(app: app.base)
+                // Signing and installing are one action, not two: the signer
+                // hands the finished build straight to the installer rather
+                // than closing and leaving it to be found in the list below.
+                SigningView(app: app.base, signAndInstall: true)
+            }
+            .onChange(of: _signingApp != nil) { isOpen in
+                if isOpen { _isAwaitingInstall = true }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("feather.installApp"))) { _ in
+                guard _isAwaitingInstall, let signed = _signedApps.first else { return }
+                
+                _isAwaitingInstall = false
+                _installingApp = AnyApp(base: signed)
             }
             .sheet(item: $_installingApp) { app in
                 InstallPreviewView(app: app.base)
