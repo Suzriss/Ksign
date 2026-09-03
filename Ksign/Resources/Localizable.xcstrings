@@ -10301,6 +10301,23 @@
         }
       }
     },
+    "Nothing in this category yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ماكو تطبيقات بهذي الفئة"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing in this category yet"
+          }
+        }
+      }
+    },
     "Nothing to show": {
       "extractionState": "manual",
       "localizations": {
@@ -16752,6 +16769,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Heartbeat được kích hoạt trong nền, nó sẽ khởi động lại khi ứng dụng được mở lại hoặc được nhắc nhở. Nếu trạng thái bên dưới đang nhịp đập, điều đó có nghĩa là nó hoạt động bình thường."
+          }
+        }
+      }
+    },
+    "The install certificates are missing and couldn't be downloaded. Check your connection, then try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهادات التثبيت ناقصة وما نزلت. تأكد من الاتصال وحاول مرة ثانية."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The install certificates are missing and couldn't be downloaded. Check your connection, then try again."
+          }
+        }
+      }
+    },
+    "The install certificates were missing and have been downloaded. Please try installing again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شهادات التثبيت كانت ناقصة وانزلت هسه. جرّب التثبيت مرة ثانية."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The install certificates were missing and have been downloaded. Please try installing again."
           }
         }
       }

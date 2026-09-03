@@ -65,6 +65,15 @@ final class SourcesViewModel: ObservableObject {
 	func fetchSources(_ sources: [AltSource], refresh: Bool = false, batchSize: Int = 4) async {
 		guard isFinished else { return }
 		
+		// The shop's own catalog is not fetched here any more. It is ten
+		// thousand apps and six megabytes, and pulling all of it before a
+		// single row could be drawn is what left the store empty on a weak
+		// signal — `CatalogPager` asks it for twenty-five apps at a time
+		// instead. Everyone else's source is still one file, fetched whole.
+		let sources = sources.filter { source in
+			source.sourceURL.map { !CeresifyAPI.isOurs($0) } ?? true
+		}
+		
 		// What is held was fetched in one language. Picking another in
 		// Preferences has to go back to the server for it — the descriptions
 		// are part of the payload, not something the app can translate.
@@ -246,10 +255,15 @@ enum SourceCache {
 	}
 	
 	static func load(_ url: URL) -> ASRepository? {
-		guard let data = try? Data(contentsOf: _file(for: url, suffix: ".json")) else {
-			return nil
-		}
+		guard let data = rawData(for: url) else { return nil }
 		return try? JSONDecoder().decode(ASRepository.self, from: data)
+	}
+	
+	/// The stored bytes themselves, for a caller that reads more out of them
+	/// than the repository — the paged catalog also stores how many apps the
+	/// page it came from was one of.
+	static func rawData(for url: URL) -> Data? {
+		try? Data(contentsOf: _file(for: url, suffix: ".json"))
 	}
 	
 	static func etag(for url: URL) -> String? {

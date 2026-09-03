@@ -22,7 +22,10 @@ deps:
 	curl -L -o deps/server.key2 https://backloop.dev/backloop.dev-key.part2.pem || true
 	cat deps/server.key1 deps/server.key2 > deps/server.pem 2>/dev/null || true
 	rm -f deps/server.key1 deps/server.key2
-	echo "*.backloop.dev" > deps/commonName.txt
+	# A host, not the wildcard the certificate is issued to: `*.backloop.dev`
+	# resolves nowhere, and the install manifest has to be fetched from a name
+	# the device can actually reach. Every label under it points at 127.0.0.1.
+	echo "ksign.backloop.dev" > deps/commonName.txt
 
 $(SCHEMES): deps
 	xcodebuild \

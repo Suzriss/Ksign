@@ -29,6 +29,17 @@ struct SourceAppsTableRepresentableView: UIViewRepresentable {
     @Binding var sortAscending: Bool
     @Binding var selectedCategory: String?
     var onSelect: (SourceAppsView.SourceAppRoute) -> Void
+    /// The apps arrive one page at a time, already filtered, searched and
+    /// ordered by the server. Nothing here re-does any of it — the rows are
+    /// shown in the order they came in.
+    var isPaged: Bool = false
+    /// How many apps the whole query has, which is what the list's own header
+    /// says. Only the paged catalog knows a number bigger than what it holds.
+    var totalCount: Int?
+    /// A further page is on its way, so the list carries a spinner under it.
+    var isLoadingMore: Bool = false
+    /// The list is within a screen of its end.
+    var onReachEnd: (() -> Void)?
     
     /// News only makes sense when a single source is on screen — merged sources
     /// have no one banner to show.
@@ -92,14 +103,27 @@ struct SourceAppsTableRepresentableView: UIViewRepresentable {
         let sortDirectionChanged = context.coordinator.sortAscending != sortAscending
         let categoryChanged = context.coordinator.selectedCategory != selectedCategory
         
+        // A page landing under the ones already read is an addition, not a new
+        // list: it gets no cross-dissolve, which on a growing list reads as the
+        // whole store blinking every time the user reaches the bottom.
+        let appended = isPaged
+            && sourcesChanged
+            && !searchChanged && !sortOptionChanged && !sortDirectionChanged && !categoryChanged
+            && context.coordinator.appCount(in: sources) > context.coordinator.appCount(in: context.coordinator.sources)
+        
         context.coordinator.sources = sources
         context.coordinator.searchText = searchText
         context.coordinator.sortOption = sortOption
         context.coordinator.sortAscending = sortAscending
         context.coordinator.selectedCategory = selectedCategory
+        context.coordinator.isPaged = isPaged
+        context.coordinator.totalCount = totalCount
+        context.coordinator.onReachEnd = onReachEnd
+        
+        context.coordinator.setLoadingMore(isLoadingMore, in: tableView)
         
         if sourcesChanged || searchChanged || sortOptionChanged || sortDirectionChanged || categoryChanged {
-            context.coordinator.invalidateCache()
+            context.coordinator.invalidateCache(animated: !appended)
         }
     }
     
@@ -110,7 +134,10 @@ struct SourceAppsTableRepresentableView: UIViewRepresentable {
             sortOption: sortOption,
             sortAscending: sortAscending,
             selectedCategory: selectedCategory,
-            onSelect: onSelect
+            onSelect: onSelect,
+            isPaged: isPaged,
+            totalCount: totalCount,
+            onReachEnd: onReachEnd
         )
     }
 }
@@ -123,6 +150,21 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
     var sortAscending: Bool
     var selectedCategory: String?
     let onSelect: (SourceAppsView.SourceAppRoute) -> Void
+    var isPaged: Bool
+    var totalCount: Int?
+    var onReachEnd: (() -> Void)?
+    private var _isLoadingMore = false
+    
+    /// The order the rows are actually drawn in. A paged list is handed over
+    /// already ordered, so it stays one flat section whatever the sort menu
+    /// says — the menu is answered by the server, not here.
+    private var _displaySort: SourceAppsView.SortOption {
+        isPaged ? .default : sortOption
+    }
+    
+    func appCount(in sources: [ASRepository]) -> Int {
+        sources.reduce(0) { $0 + $1.apps.count }
+    }
     
     private var _groupedAppsByNameFirstLetter: [String: [(source: ASRepository, app: ASRepository.App)]] = [:]
     private var _groupedAppsByDate: [String: [(source: ASRepository, app: ASRepository.App)]] = [:]
@@ -205,7 +247,10 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
         sortOption: SourceAppsView.SortOption,
         sortAscending: Bool,
         selectedCategory: String?,
-        onSelect: @escaping (SourceAppsView.SourceAppRoute) -> Void
+        onSelect: @escaping (SourceAppsView.SourceAppRoute) -> Void,
+        isPaged: Bool = false,
+        totalCount: Int? = nil,
+        onReachEnd: (() -> Void)? = nil
     ) {
         self.sources = sources
         self.searchText = searchText
@@ -213,6 +258,9 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
         self.sortAscending = sortAscending
         self.selectedCategory = selectedCategory
         self.onSelect = onSelect
+        self.isPaged = isPaged
+        self.totalCount = totalCount
+        self.onReachEnd = onReachEnd
         super.init()
         
         if sortOption != .default {
@@ -221,6 +269,16 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
     }
     
     private func _calculateSortedApps() -> [(source: ASRepository, app: ASRepository.App)] {
+        // The server was asked for this category, this search and this order,
+        // and answered with exactly the apps to show. Filtering a page of
+        // twenty-five again here would only throw most of it away.
+        if isPaged {
+            _groupedAppsByDate = [:]
+            _groupedAppsByNameFirstLetter = [:]
+            _sortedSectionTitles = []
+            return _allAppsWithSource
+        }
+        
         let byCategory = selectedCategory.map { category in
             _allAppsWithSource.filter { $0.app.category == category }
         } ?? _allAppsWithSource
@@ -290,26 +348,48 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
         }
     }
     
-    func invalidateCache() {
+    func invalidateCache(animated: Bool = true) {
         _cachedSortedApps = _calculateSortedApps()
-        if let tableView = uiTableView {
-            UIView.transition(with: tableView, duration: 0.3, options: [.transitionCrossDissolve], animations: {
-                tableView.reloadData()
-            })
+        
+        guard let tableView = uiTableView else { return }
+        
+        guard animated else {
+            tableView.reloadData()
+            return
         }
+        
+        UIView.transition(with: tableView, duration: 0.3, options: [.transitionCrossDissolve], animations: {
+            tableView.reloadData()
+        })
+    }
+    
+    /// The spinner under the last row while the next page is on its way.
+    func setLoadingMore(_ isLoadingMore: Bool, in tableView: UITableView) {
+        guard _isLoadingMore != isLoadingMore else { return }
+        _isLoadingMore = isLoadingMore
+        
+        guard isLoadingMore else {
+            tableView.tableFooterView = nil
+            return
+        }
+        
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.startAnimating()
+        spinner.frame = CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 56)
+        tableView.tableFooterView = spinner
     }
     
     // MARK: TableView
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        switch sortOption {
+        switch _displaySort {
         case .default: 1
         case .name, .date: _sortedSectionTitles.count
         }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch sortOption {
+        switch _displaySort {
         case .default: _sortedApps.count
         case .name: _groupedAppsByNameFirstLetter[_sortedSectionTitles[section]]?.count ?? 0
         case .date: _groupedAppsByDate[_sortedSectionTitles[section]]?.count ?? 0
@@ -319,7 +399,7 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "AppCell", for: indexPath)
         let entry: (source: ASRepository, app: ASRepository.App)
-        switch sortOption {
+        switch _displaySort {
         case .default: entry = _sortedApps[indexPath.row]
         case .name: entry = _groupedAppsByNameFirstLetter[_sortedSectionTitles[indexPath.section]]?[indexPath.row] ?? _sortedApps[indexPath.row]
         case .date: entry = _groupedAppsByDate[_sortedSectionTitles[indexPath.section]]?[indexPath.row] ?? _sortedApps[indexPath.row]
@@ -336,7 +416,7 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
             tableView.deselectRow(at: indexPath, animated: true)
             
             let entry: (source: ASRepository, app: ASRepository.App)
-            switch sortOption {
+            switch _displaySort {
             case .default: entry = _sortedApps[indexPath.row]
             case .name: entry = _groupedAppsByNameFirstLetter[_sortedSectionTitles[indexPath.section]]?[indexPath.row] ?? _sortedApps[indexPath.row]
             case .date: entry = _groupedAppsByDate[_sortedSectionTitles[indexPath.section]]?[indexPath.row] ?? _sortedApps[indexPath.row]
@@ -346,12 +426,25 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
         }
     }
     
+    /// Asks for the next page a screenful before the list runs out, so the
+    /// rows are already there by the time the scroll reaches them.
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard
+            isPaged,
+            indexPath.row >= _sortedApps.count - 8
+        else {
+            return
+        }
+        
+        onReachEnd?()
+    }
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "SectionHeader")
         let title: String
         
-        switch sortOption {
-        case .default: title = .localized("%lld Apps", arguments: _sortedApps.count)
+        switch _displaySort {
+        case .default: title = .localized("%lld Apps", arguments: totalCount ?? _sortedApps.count)
         case .name, .date: title = _sortedSectionTitles[section]
         }
         
@@ -368,7 +461,7 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
     }
     
     func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-        sortOption == .name ? _sortedSectionTitles : nil
+        _displaySort == .name ? _sortedSectionTitles : nil
     }
     
     func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
@@ -377,7 +470,7 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
     
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let entry: (source: ASRepository, app: ASRepository.App)
-        switch sortOption {
+        switch _displaySort {
         case .default: entry = _sortedApps[indexPath.row]
         case .name: entry = _groupedAppsByNameFirstLetter[_sortedSectionTitles[indexPath.section]]?[indexPath.row] ?? _sortedApps[indexPath.row]
         case .date: entry = _groupedAppsByDate[_sortedSectionTitles[indexPath.section]]?[indexPath.row] ?? _sortedApps[indexPath.row]

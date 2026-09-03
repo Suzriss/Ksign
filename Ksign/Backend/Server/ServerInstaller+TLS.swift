@@ -43,7 +43,13 @@ extension ServerInstaller {
 	}
 	
 	// MARK: Files/IP
-	static let sni: String = {
+	/// The name the install manifest is served under.
+	///
+	/// Worked out on every read rather than held for the life of the process:
+	/// the certificates are fetched at launch and can land after the first
+	/// screen is up, and a name settled before them would stay wrong until the
+	/// app was relaunched.
+	static var sni: String {
 		let localhost = "127.0.0.1"
 		
 		if getServerMethod() == 1 {
@@ -53,7 +59,18 @@ extension ServerInstaller {
 		} else {
 			return readCommonName() ?? localhost
 		}
-	}()
+	}
+	
+	/// Whether there is anything to serve the manifest over https with.
+	///
+	/// `itms-services://` will only fetch a manifest over https, so without
+	/// these the link opens nothing whatsoever — no error, no prompt, nothing —
+	/// and the installer sits on `Ready` until it is dismissed.
+	static var hasTLSMaterial: Bool {
+		getUrl("server", ext: "crt") != nil
+		&& getUrl("server", ext: "pem") != nil
+		&& readCommonName() != nil
+	}
 	
 	static func tls() throws -> TLSConfiguration? {
 		guard
@@ -74,12 +91,33 @@ extension ServerInstaller {
 	}
 	
 	static func readCommonName() -> String? {
-		guard let url = getUrl("commonName", ext: "txt") else {
+		guard
+			let url = getUrl("commonName", ext: "txt"),
+			let name = try? String(contentsOf: url, encoding: .utf8)
+		else {
 			return nil
 		}
 		
-		return try? String(contentsOf: url, encoding: .utf8)
-			.trimmingCharacters(in: .whitespacesAndNewlines)
+		return commonNameHost(name)
+	}
+	
+	/// Turns the name a certificate is issued to into a name that can actually
+	/// be reached.
+	///
+	/// The pack is issued to `*.backloop.dev`, and that wildcard is what both
+	/// the build and `pack.json` wrote down — but a wildcard is not a host.
+	/// Nothing resolves it, so the manifest URL named a machine the device
+	/// could never reach, `itms-services://` quietly opened nothing at all, and
+	/// every install ended staring at `Ready`. Every label under the wildcard
+	/// points back at this device and is covered by the same certificate, so
+	/// the star is given one.
+	static func commonNameHost(_ commonName: String) -> String? {
+		let trimmed = commonName.trimmingCharacters(in: .whitespacesAndNewlines)
+		
+		guard !trimmed.isEmpty else { return nil }
+		guard trimmed.hasPrefix("*.") else { return trimmed }
+		
+		return "ksign" + trimmed.dropFirst()
 	}
 }
 

@@ -152,6 +152,28 @@ struct SourceAppsCategoryStrip: View {
 
 // MARK: - Extension: build categories from repositories
 extension SourceAppsCategoryStrip {
+	/// The categories a source declares about itself, in the order it lists
+	/// them — which is the order the shop set in the admin panel.
+	///
+	/// The paged catalog has to read the strip from here: what is on screen is
+	/// one page of twenty-five apps, and the categories those happen to carry
+	/// are not the categories the store has. Nil for a source that declares
+	/// none, which is every source but ours.
+	static func declared(in repository: ASRepository) -> [Category]? {
+		let declared = (repository.categories ?? []).filter { !$0.name.isEmpty }
+		guard !declared.isEmpty else { return nil }
+		
+		return declared.map {
+			Category(
+				name: $0.name,
+				count: 0,
+				imageURL: $0.imageURL,
+				icon: $0.icon,
+				note: $0.note
+			)
+		}
+	}
+	
 	/// Collects the categories present across the given repositories, in the
 	/// order the source lists them.
 	///

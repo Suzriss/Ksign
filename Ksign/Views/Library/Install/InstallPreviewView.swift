@@ -121,6 +121,21 @@ struct InstallPreviewView: View {
 	}
 	
 	private func _install() {
+        // The manifest is fetched by iOS itself, and only over https. With no
+        // certificate to serve it with, `itms-services://` opens nothing at
+        // all — no prompt, no error — and this screen sits on `Ready` until
+        // it is dismissed, which is what "the install never comes up" was.
+        // Say so, and fetch them so the next attempt has them.
+        guard
+            isSharing
+            || _installationMethod == 1
+            || _serverMethod == 1
+            || ServerInstaller.hasTLSMaterial
+        else {
+            _repairCertificates()
+            return
+        }
+        
         guard isSharing || app.identifier != Bundle.main.bundleIdentifier! || _installationMethod == 1 else {
             UIAlertController.showAlertWithOk(
                 title: .localized("Install"),
@@ -189,6 +204,31 @@ struct InstallPreviewView: View {
 			}
 		}
 	}
+    
+    /// Fetches the SSL pack the local server needs, and tells the user the
+    /// install has to be asked for again once it is here.
+    private func _repairCertificates() {
+#if SERVER
+        FR.downloadSSLCertificates(from: "https://backloop.dev/pack.json") { success in
+            DispatchQueue.main.async {
+                UIAlertController.showAlertWithOk(
+                    title: .localized("Install"),
+                    message: success
+                        ? .localized("The install certificates were missing and have been downloaded. Please try installing again.")
+                        : .localized("The install certificates are missing and couldn't be downloaded. Check your connection, then try again."),
+                    action: { dismiss() }
+                )
+            }
+        }
+#else
+        UIAlertController.showAlertWithOk(
+            title: .localized("Install"),
+            message: .localized("The install certificates are missing and couldn't be downloaded. Check your connection, then try again."),
+            action: { dismiss() }
+        )
+#endif
+    }
+    
     private func startInstallProgressPolling(
             bundleID: String,
             viewModel: InstallerStatusViewModel

@@ -57,6 +57,38 @@ struct SourceAppsView: View {
     @ObservedObject var viewModel: SourcesViewModel
     @State private var _sources: [ASRepository]?
     
+    /// The shop's own catalog, read a page at a time. Every other source is
+    /// still one file fetched whole through `viewModel`.
+    @ObservedObject private var _pager = CatalogPager.shared
+    
+    /// The catalog source among the ones this page was handed, if any.
+    private var _catalogURL: URL? {
+        object.compactMap(\.sourceURL).first(where: CeresifyAPI.isOurs)
+    }
+    
+    private var _isPaged: Bool { _catalogURL != nil }
+    
+    /// What the pager is being asked for right now: the chip, the search field,
+    /// the sort menu and the language, in one value.
+    private var _query: CatalogPager.Query {
+        CatalogPager.Query(
+            category: _selectedCategory,
+            search: _searchText,
+            sort: _sortOption,
+            ascending: _sortAscending,
+            language: LanguageManager.shared.effectiveCode
+        )
+    }
+    
+    /// What the list draws. One repository either way — the paged catalog's is
+    /// the pages read so far.
+    private var _displayed: [ASRepository] {
+        if _isPaged {
+            return _pager.repository.map { [$0] } ?? []
+        }
+        return _sources ?? []
+    }
+    
     @FetchRequest(
         entity: AltSource.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \AltSource.name, ascending: true)],
@@ -110,6 +142,7 @@ struct SourceAppsView: View {
                 placement: .topBarTrailing
             ) {
                 Task {
+                    if _isPaged { _pager.refresh() }
                     await viewModel.fetchSources(Array(_allSources), refresh: true)
                 }
             }
@@ -131,6 +164,22 @@ struct SourceAppsView: View {
                 hasLoadedOnce = true
             }
             _sortOption = SortOption(rawValue: _sortOptionRawValue) ?? .default
+            
+            _applyQuery()
+        }
+        // The chip, the sort menu and the language are all part of the one
+        // question put to the server, so any of them moving asks it again from
+        // the first page. The search field has its own wait below.
+        .onChange(of: _selectedCategory) { _ in _applyQuery() }
+        .onChange(of: _sortAscending) { _ in _applyQuery() }
+        // Typing is not a question per letter: the store waits for the typing
+        // to stop before asking. `task(id:)` cancels the wait on every new
+        // letter, which is the whole of the debounce.
+        .task(id: _searchText) {
+            guard _isPaged else { return }
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled else { return }
+            await MainActor.run { _applyQuery() }
         }
         // Driven by `isFetching`, which is published: `isFinished` is written
         // off the main actor and a view could only notice it flipping by
@@ -146,6 +195,7 @@ struct SourceAppsView: View {
         }
         .onChange(of: _sortOption) { newValue in
             _sortOptionRawValue = newValue.rawValue
+            _applyQuery()
         }
         .navigationDestinationIfAvailable(item: $_selectedRoute) { route in
             SourceAppsDetailView(source: route.source, app: route.app)
@@ -158,24 +208,33 @@ struct SourceAppsView: View {
     @ViewBuilder
     private var _list: some View {
         ZStack {
-            if
-                let _sources,
-                !_sources.isEmpty
-            {
+            if !_displayed.isEmpty {
                 // The banner and the category strip ride inside the list's
                 // header, so the page reads banner → categories → apps and
                 // scrolls as one piece.
                 SourceAppsTableRepresentableView(
-                    sources: _sources,
-                    categories: _categories,
+                    sources: _displayed,
+                    categories: _isPaged ? _pager.categories : _categories,
                     searchText: $_searchText,
                     sortOption: $_sortOption,
                     sortAscending: $_sortAscending,
                     selectedCategory: $_selectedCategory,
-                    onSelect: {self._selectedRoute = $0}
+                    onSelect: {self._selectedRoute = $0},
+                    isPaged: _isPaged,
+                    totalCount: _isPaged ? _pager.total : nil,
+                    isLoadingMore: _pager.isLoadingMore,
+                    onReachEnd: { _pager.loadMore() }
                 )
                 .ignoresSafeArea(edges: .bottom)
-            } else if viewModel.isFetching || _sources == nil {
+                // The strip is inside the table, so a category that came back
+                // with nothing still has to draw it — the way out of an empty
+                // category is the strip that led into it.
+                .overlay {
+                    if _isPaged, _pager.repository?.apps.isEmpty == true, !_pager.isLoading {
+                        _empty
+                    }
+                }
+            } else if _isPaged ? _pager.isLoading : (viewModel.isFetching || _sources == nil) {
                 _waiting
             } else {
                 // The fetch is over and it brought nothing. Saying `Fetching…`
@@ -201,6 +260,26 @@ struct SourceAppsView: View {
         }
     }
     
+    /// The chip that is selected has no apps under it — which is not the same
+    /// as the store having failed to answer.
+    @ViewBuilder
+    private var _empty: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "square.grid.2x2")
+                .font(.system(size: 34))
+                .foregroundStyle(Color.ceresifyGold.opacity(0.7))
+            
+            Text(.localized("Nothing in this category yet"))
+                .font(.subheadline)
+                .foregroundStyle(Color.ceresifySubtitle)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal, 34)
+        .padding(.top, 40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .allowsHitTesting(false)
+    }
+    
     @ViewBuilder
     private var _nothing: some View {
         VStack(spacing: 12) {
@@ -219,6 +298,7 @@ struct SourceAppsView: View {
             
             Button {
                 Task {
+                    if _isPaged { _pager.refresh() }
                     await viewModel.fetchSources(Array(_allSources), refresh: true)
                 }
             } label: {
@@ -228,6 +308,12 @@ struct SourceAppsView: View {
         }
         .padding(.horizontal, 34)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func _applyQuery() {
+        guard _isPaged else { return }
+        _pager.configure(_catalogURL)
+        _pager.apply(_query)
     }
     
     private func _load() {
@@ -241,8 +327,11 @@ struct SourceAppsView: View {
             _categories = loadedCategories
             
             // A refresh can drop the category the filter was pinned to, which
-            // would otherwise leave the list permanently empty.
+            // would otherwise leave the list permanently empty. The paged
+            // catalog keeps its own chips — this is looking at a list it has
+            // nothing to do with.
             if
+                !_isPaged,
                 let selected = _selectedCategory,
                 !loadedCategories.contains(where: { $0.name == selected })
             {

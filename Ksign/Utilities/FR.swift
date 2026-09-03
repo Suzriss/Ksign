@@ -192,7 +192,11 @@ enum FR {
 					try FileManager.default.createDirectoryIfNeeded(at: serverDir)
 					try pack.key.write(to: pemURL, atomically: true, encoding: .utf8)
 					try pack.cert.write(to: crtURL, atomically: true, encoding: .utf8)
-					try pack.info.domains.commonName.write(to: commonNameURL, atomically: true, encoding: .utf8)
+					// The pack names the wildcard the certificate is issued to;
+					// what gets written down has to be a host that resolves.
+					let host = ServerInstaller.commonNameHost(pack.info.domains.commonName)
+						?? pack.info.domains.commonName
+					try host.write(to: commonNameURL, atomically: true, encoding: .utf8)
 					
 					generator.notificationOccurred(.success)
 					completion(true)

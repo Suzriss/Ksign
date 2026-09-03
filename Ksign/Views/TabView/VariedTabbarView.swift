@@ -34,6 +34,21 @@ struct VariedTabbarView: View {
 			// the Apps tab is first opened: by the time it is, the stored
 			// copy is drawn and the fresh one is usually already here.
 			.task {
+				// The catalog's first page — twenty-five apps — is asked for
+				// here rather than when the Apps tab is opened, so the store
+				// is already drawn by the time anyone gets to it.
+				await MainActor.run {
+					CatalogPager.shared.start(
+						CatalogPager.Query(
+							sort: SourceAppsView.SortOption(
+								rawValue: UserDefaults.standard.string(forKey: "Feather.sortOptionRawValue") ?? ""
+							) ?? .default,
+							ascending: UserDefaults.standard.object(forKey: "Feather.sortAscending") as? Bool ?? true,
+							language: LanguageManager.shared.effectiveCode
+						)
+					)
+				}
+				
 				await SourcesViewModel.shared.fetchSources(Storage.shared.getSources())
 			}
 			// The first answer from the server is what settles the gate, and
