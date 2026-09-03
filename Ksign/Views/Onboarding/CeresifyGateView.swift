@@ -33,6 +33,10 @@ struct CeresifyGateView<Content: View>: View {
 	/// A launch that opened on nothing and is waiting to be told what the
 	/// store looks like, as opposed to one showing the shop's own screen.
 	private let _isWaitingOnFirstAnswer: Bool
+	/// Whether the store may be built yet. True from the start on any launch
+	/// with a stored config; on a fresh install, only once the first answer
+	/// has landed or been given up on.
+	@State private var _isStoreReady: Bool
 
 	private let _content: Content
 
@@ -54,13 +58,26 @@ struct CeresifyGateView<Content: View>: View {
 		__isOpening = State(
 			initialValue: waiting || CeresifyConfigManager.shared.config.splash.enabled
 		)
+		__isStoreReady = State(initialValue: !waiting)
 	}
 	
 	var body: some View {
 		ZStack {
 			switch _config.gate {
 			case .open:
-				_content
+				// A fresh install builds the store once, with the answer in
+				// hand — not before it. Built under the waiting screen in no
+				// colours at all, the whole tree — every tab, the store's
+				// table, the bars UIKit draws off appearance proxies set
+				// before a view exists — was then repainted in place the
+				// moment the shop's colours arrived, and that mid-launch
+				// repaint is what stuck on the new colour; a shop with no
+				// colour set had nothing to repaint, which is why it opened.
+				// Held back until the answer, this launch is the same launch
+				// as every one after it: a stored config, then the store.
+				if _isStoreReady {
+					_content
+				}
 			case .maintenance(let title, let message):
 				_stop(icon: "wrench.and.screwdriver.fill", title: title, message: message)
 			case .banned(let reason):
@@ -130,6 +147,14 @@ struct CeresifyGateView<Content: View>: View {
 			while _config.isReachable == nil, Date() < ceiling {
 				try? await Task.sleep(for: .milliseconds(80))
 			}
+
+			// Set from here rather than off `isReachable` itself, and a beat
+			// after the answer: the palette and the appearance proxies are
+			// applied by the render the answer triggers, and the store has to
+			// be built after that render, not in it — exactly as on a launch
+			// that read them off disk.
+			try? await Task.sleep(for: .milliseconds(120))
+			_isStoreReady = true
 
 			// The stored config decided whether to open on this screen, so a
 			// screen the shop has only just switched on wasn't known about a
