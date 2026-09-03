@@ -213,6 +213,14 @@ final class AppFileHandler: NSObject, @unchecked Sendable {
 			throw ImportedFileHandlerError.payloadNotFound
 		}
 		
+		// `Documents/App/Unsigned` is made at launch and then emptied — folder
+		// and all — by the sweep that clears the Signer tab, so by the time an
+		// import lands it may not be there. Moving into a folder that isn't
+		// there is what produced "couldn't move Payload to Unsigned"; the
+		// import was fine, it had nowhere to go.
+		try _fileManager.createDirectoryIfNeeded(at: destinationURL.deletingLastPathComponent())
+		try _fileManager.removeFileIfNeeded(at: destinationURL)
+		
 		try _fileManager.moveItem(at: payloadURL, to: destinationURL)
 		print("[\(_uuid)] Moved Payload to: \(destinationURL.path)")
 		

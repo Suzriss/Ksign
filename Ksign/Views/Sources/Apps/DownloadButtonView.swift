@@ -47,8 +47,24 @@ struct DownloadButtonView: View {
 	/// Ceresify signs its own builds on the server, the way the website does.
 	/// Anything else — a build the user imported, or an app from someone
 	/// else's source — stays on the device and goes through the local signer.
+	///
+	/// A featured card names its build by id rather than by URL, but *where*
+	/// it is signed is still the shop's call: a rule pinning that app to the
+	/// device, or a size limit it is over, drops the cloud path here too and
+	/// sends it down Get → Sign → Install like anything else.
 	private var _cloudSource: CeresifySignSource? {
-		_explicitCloudSource ?? CeresifyCloudSigner.source(for: app)
+		guard let explicit = _explicitCloudSource else {
+			return CeresifyCloudSigner.source(for: app)
+		}
+		
+		return CeresifyCloudSigner.place(for: app) == .server ? explicit : nil
+	}
+	
+	/// What the options sheet is opened on — the server's reference to the
+	/// build where the server signs it, and the plain download URL otherwise.
+	private var _optionsSource: CeresifySignSource? {
+		if let source = _cloudSource { return source }
+		return app.currentDownloadUrl.map(CeresifySignSource.ipaURL)
 	}
 	
 	// Driven by Core Data so the button advances on its own the moment a signed
@@ -119,6 +135,14 @@ struct DownloadButtonView: View {
 					_ = downloadManager.startDownload(from: url, id: app.currentUniqueId)
 					_isProgressPresenting = true
 				}
+				// The same options the cloud pill offers. A build signed on the
+				// device is exactly the one whose options are worth setting
+				// first, so leaving the entry off this pill was backwards.
+				.contextMenu {
+					Button(.localized("Signing options"), systemImage: "slider.horizontal.3") {
+						_isOptionsPresenting = true
+					}
+				}
 			}
 		}
 		.onAppear(perform: setupObserver)
@@ -134,7 +158,7 @@ struct DownloadButtonView: View {
 			CeresifyEnrollmentView()
 		}
 		.sheet(isPresented: $_isOptionsPresenting) {
-			if let source = _cloudSource {
+			if let source = _optionsSource {
 				CloudSignOptionsView(app: app, source: source)
 			}
 		}

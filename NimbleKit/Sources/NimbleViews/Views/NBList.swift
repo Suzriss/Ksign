@@ -45,5 +45,8 @@ public struct NBList<Content>: View where Content: View {
 		}
 		.navigationTitle(_title)
 		.navigationBarTitleDisplayMode(_mode)
+		// A pushed page is hosted on its own, so it takes the app's ground
+		// here rather than inheriting the one under the page it came from.
+		.nbAppearanceBackground()
 	}
 }

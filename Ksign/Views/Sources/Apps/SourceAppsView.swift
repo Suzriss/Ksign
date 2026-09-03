@@ -123,13 +123,17 @@ struct SourceAppsView: View {
             }
         }
         .onAppear {
-            if !hasLoadedOnce, viewModel.isFinished {
+            if !hasLoadedOnce, !viewModel.isFetching {
                 _load()
                 hasLoadedOnce = true
             }
             _sortOption = SortOption(rawValue: _sortOptionRawValue) ?? .default
         }
-        .onChange(of: viewModel.isFinished) { _ in
+        // Driven by `isFetching`, which is published: `isFinished` is written
+        // off the main actor and a view could only notice it flipping by
+        // accident, which is what left this page waiting forever.
+        .onChange(of: viewModel.isFetching) { isFetching in
+            guard !isFetching else { return }
             _load()
         }
         .onChange(of: _sortOption) { newValue in
@@ -163,18 +167,59 @@ struct SourceAppsView: View {
                     onSelect: {self._selectedRoute = $0}
                 )
                 .ignoresSafeArea(edges: .bottom)
+            } else if viewModel.isFetching || _sources == nil {
+                _waiting
             } else {
-                if #available(iOS 17, *) {
-                    ContentUnavailableView {
-                        ProgressView()
-                        Label(.localized("Fetching..."), systemImage: "")
-                    } description: {
-                        Text(.localized("Stuck? Check if you have any sources added."))
-                    }
-                }
-                else { ProgressView() }
+                // The fetch is over and it brought nothing. Saying `Fetching…`
+                // here is a lie the user can do nothing about — the catalog is
+                // unreachable, or answered with an empty list — so say so and
+                // give them the one thing that can change it.
+                _nothing
             }
         }
+    }
+    
+    @ViewBuilder
+    private var _waiting: some View {
+        if #available(iOS 17, *) {
+            ContentUnavailableView {
+                ProgressView()
+                Label(.localized("Fetching..."), systemImage: "")
+            } description: {
+                Text(.localized("Stuck? Check if you have any sources added."))
+            }
+        } else {
+            ProgressView()
+        }
+    }
+    
+    @ViewBuilder
+    private var _nothing: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "tray")
+                .font(.system(size: 40))
+                .foregroundStyle(Color.ceresifyGold.opacity(0.7))
+            
+            Text(.localized("Nothing to show"))
+                .font(.headline)
+                .foregroundStyle(Color.ceresifyTitle)
+            
+            Text(.localized("The store didn't answer. Check your connection and try again."))
+                .font(.subheadline)
+                .foregroundStyle(Color.ceresifySubtitle)
+                .multilineTextAlignment(.center)
+            
+            Button {
+                Task {
+                    await viewModel.fetchSources(Array(_allSources), refresh: true)
+                }
+            } label: {
+                Text(.localized("Try Again")).bg()
+            }
+            .padding(.top, 4)
+        }
+        .padding(.horizontal, 34)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private func _load() {

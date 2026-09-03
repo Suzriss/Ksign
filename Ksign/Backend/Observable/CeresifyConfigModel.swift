@@ -29,6 +29,11 @@ struct CeresifyConfig: Decodable, Equatable {
     var notifications: [Notification] = []
     /// The sheets the shop wants shown over the store.
     var popups: [Popup] = []
+    /// Where each build is signed — on the server, or on the device.
+    var signing = Signing()
+    /// The rating box: whether it is offered at all, and whether it is asked
+    /// for rather than waited for.
+    var review = Review()
     /// Only devices carrying one of our certificates get past the gate.
     var requireCertificate = false
     var requireCertificateMessage = ""
@@ -50,6 +55,8 @@ struct CeresifyConfig: Decodable, Equatable {
         accounts = (try? container.decodeIfPresent([Account].self, forKey: .accounts)) ?? []
         notifications = (try? container.decodeIfPresent([Notification].self, forKey: .notifications)) ?? []
         popups = (try? container.decodeIfPresent([Popup].self, forKey: .popups)) ?? []
+        signing = (try? container.decodeIfPresent(Signing.self, forKey: .signing)) ?? Signing()
+        review = (try? container.decodeIfPresent(Review.self, forKey: .review)) ?? Review()
         requireCertificate = container.flag(.requireCertificate)
         requireCertificateMessage = container.string(.requireCertificateMessage)
     }
@@ -57,6 +64,7 @@ struct CeresifyConfig: Decodable, Equatable {
     enum CodingKeys: String, CodingKey {
         case theme, splash, strings, maintenance, marquee, countdowns
         case accounts, notifications, popups
+        case signing, review
         case requireCertificate, requireCertificateMessage
     }
     
@@ -344,6 +352,136 @@ struct CeresifyConfig: Decodable, Equatable {
         }
     }
     
+    /// Where a build is signed.
+    ///
+    /// The server signs with the account's own certificate and hands back an
+    /// install link, which is the fast path and the only one that works with
+    /// no certificate on the device. The device signs locally, which is slower
+    /// and needs the whole IPA down first — but it is the only place the
+    /// signer's own options (tweaks, dylibs, the property toggles) can be
+    /// applied at all.
+    struct Signing: Decodable, Equatable {
+        enum Place: String, Equatable {
+            case server
+            case device
+        }
+        
+        /// `auto`, `server` or `device`.
+        var mode = "auto"
+        /// Anything bigger than this signs on the device whatever the mode
+        /// says. Zero means no limit.
+        var localAboveMB: Double = 0
+        /// The apps the shop has decided about one by one.
+        var rules: [Rule] = []
+        
+        init() {}
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            mode = {
+                let value = container.string(.mode)
+                return ["auto", "server", "device"].contains(value) ? value : "auto"
+            }()
+            localAboveMB = (try? container.decodeIfPresent(Double.self, forKey: .localAboveMB)) ?? 0
+            rules = (try? container.decodeIfPresent([Rule].self, forKey: .rules)) ?? []
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case mode, localAboveMB, rules
+        }
+        
+        struct Rule: Decodable, Equatable {
+            var bundleIdentifier = ""
+            /// `server` or `device`.
+            var mode = "server"
+            
+            init(from decoder: any Decoder) throws {
+                let container = try decoder.container(keyedBy: CodingKeys.self)
+                bundleIdentifier = container.string(.bundleIdentifier)
+                mode = container.string(.mode) == "device" ? "device" : "server"
+            }
+            
+            enum CodingKeys: String, CodingKey {
+                case bundleIdentifier = "bundleId"
+                case mode
+            }
+        }
+        
+        /// Where this build belongs.
+        ///
+        /// A rule written for the app itself wins outright — it is the most
+        /// specific thing the shop said. The size limit comes next, because it
+        /// exists precisely to override the general answer for the builds that
+        /// are too big to push through the server. `isOurs` is only consulted
+        /// by `auto`: a shop that has explicitly said "server" means the
+        /// server, and it can fetch a build from anywhere.
+        func place(bundleIdentifier: String?, sizeBytes: Int64?, isOurs: Bool) -> Place {
+            if
+                let bundleIdentifier,
+                !bundleIdentifier.isEmpty,
+                let rule = rules.first(where: { $0.bundleIdentifier == bundleIdentifier })
+            {
+                return rule.mode == "device" ? .device : .server
+            }
+            
+            if
+                localAboveMB > 0,
+                let sizeBytes,
+                Double(sizeBytes) > localAboveMB * 1_000_000
+            {
+                return .device
+            }
+            
+            switch mode {
+            case Place.server.rawValue: return .server
+            case Place.device.rawValue: return .device
+            default:                    return isOurs ? .server : .device
+            }
+        }
+    }
+    
+    /// The box that asks what the user makes of the app.
+    ///
+    /// It is the same box wherever it appears — Settings, or over the store on
+    /// a launch — and what it collects goes to `/api/reviews`, which holds it
+    /// for the panel to approve.
+    struct Review: Decodable, Equatable {
+        /// The row in Settings.
+        var enabled = false
+        /// Raised by itself when the app is opened.
+        var showOnLaunch = false
+        /// No way past it but to answer.
+        var requireAnswer = false
+        /// How many launches it is raised on. Zero is without limit; a device
+        /// that has already sent one is never asked again either way.
+        var maxShows = 1
+        var title = ""
+        var message = ""
+        var placeholder = ""
+        var buttonText = ""
+        var thanks = ""
+        
+        init() {}
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            enabled = container.flag(.enabled)
+            showOnLaunch = container.flag(.showOnLaunch)
+            requireAnswer = container.flag(.requireAnswer)
+            maxShows = (try? container.decodeIfPresent(Int.self, forKey: .maxShows)) ?? 1
+            title = container.string(.title)
+            message = container.string(.message)
+            placeholder = container.string(.placeholder)
+            buttonText = container.string(.buttonText)
+            thanks = container.string(.thanks)
+        }
+        
+        enum CodingKeys: String, CodingKey {
+            case enabled, showOnLaunch, requireAnswer, maxShows
+            case title, message, placeholder, buttonText, thanks
+        }
+    }
+    
     /// The server writes ISO 8601; `Date.ISO8601FormatStyle` only takes one
     /// shape at a time, so both are tried rather than losing a countdown to a
     /// fractional second.
@@ -587,6 +725,46 @@ final class CeresifyConfigManager: ObservableObject {
         var shows = _popupShows
         shows[popup.id] = (shows[popup.id] ?? 0) + 1
         _popupShows = shows
+        objectWillChange.send()
+    }
+    
+    // MARK: Rating
+    
+    private static let _reviewSentKey = "Ceresify.reviewSent"
+    private static let _reviewShowsKey = "Ceresify.reviewShows"
+    
+    /// Whether this device has already had its say.
+    ///
+    /// Kept on the device rather than asked of the server: the box has to be
+    /// gone from the first frame of the next launch, which is well before any
+    /// answer could come back — and the server already refuses a second
+    /// review from the same account anyway.
+    var hasSentReview: Bool {
+        UserDefaults.standard.bool(forKey: Self._reviewSentKey)
+    }
+    
+    func markReviewSent() {
+        UserDefaults.standard.set(true, forKey: Self._reviewSentKey)
+        objectWillChange.send()
+    }
+    
+    private var _reviewShows: Int {
+        get { UserDefaults.standard.integer(forKey: Self._reviewShowsKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self._reviewShowsKey) }
+    }
+    
+    /// Whether the box is owed a showing over the store right now.
+    var isReviewDue: Bool {
+        let review = config.review
+        
+        guard review.enabled, review.showOnLaunch, !hasSentReview else { return false }
+        guard review.maxShows > 0 else { return true }
+        
+        return _reviewShows < review.maxShows
+    }
+    
+    func markReviewShown() {
+        _reviewShows += 1
         objectWillChange.send()
     }
     

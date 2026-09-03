@@ -73,11 +73,12 @@ struct SourceAppsDetailView: View {
 						HStack(spacing: 8) {
 							DownloadButtonView(app: app)
 							
-							// Only Ceresify's own builds are signed on the
-							// server, and only the server can be told to change
-							// them — everything else goes through the local
-							// signer, which asks for all of this itself.
-							if _cloudSource != nil {
+							// Offered for anything with a build behind it. What
+							// the sheet then does depends on where this app is
+							// signed: the server is asked to rewrite it, or it
+							// is fetched and signed here with whatever was
+							// picked under Advanced.
+							if _optionsSource != nil {
 								_signOptionsButton()
 							}
 						}
@@ -242,8 +243,8 @@ struct SourceAppsDetailView: View {
 			ReportProblemView(source: source, app: app)
 		}
 		.sheet(isPresented: $_isSignOptionsPresented) {
-			if let cloudSource = _cloudSource {
-				CloudSignOptionsView(app: app, source: cloudSource)
+			if let source = _optionsSource {
+				CloudSignOptionsView(app: app, source: source)
 			}
 		}
 		.task(id: app.id) {
@@ -267,10 +268,15 @@ struct SourceAppsDetailView: View {
 		}
     }
 	
-	/// Set for the builds Ceresify signs itself — the ones whose name, icon,
-	/// version and identifier the server can be asked to change.
-	private var _cloudSource: CeresifySignSource? {
-		CeresifyCloudSigner.source(for: app)
+	/// What the options sheet is opened on.
+	///
+	/// Ceresify's own reference to the build where the server is the one
+	/// signing it, and the plain download URL otherwise — the sheet needs
+	/// something to point at either way, and on the device path it is the
+	/// downloader rather than the server that reads it.
+	private var _optionsSource: CeresifySignSource? {
+		if let cloud = CeresifyCloudSigner.source(for: app) { return cloud }
+		return app.currentDownloadUrl.map(CeresifySignSource.ipaURL)
 	}
 	
 	@ViewBuilder

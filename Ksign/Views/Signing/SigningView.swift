@@ -60,13 +60,27 @@ struct SigningView: View {
 	
 	var app: AppInfoPresentable
 	
-	init(app: AppInfoPresentable, signAndInstall: Bool = false, opensModify: Bool = false) {
+	/// The options the signer opens on.
+	///
+	/// The store's Advanced pane is edited before the build has even been
+	/// fetched, so what was picked there is handed in here rather than being
+	/// lost the moment the signer takes over. Nil is the saved defaults, which
+	/// is what a build opened from the Signer tab gets.
+	init(
+		app: AppInfoPresentable,
+		signAndInstall: Bool = false,
+		opensModify: Bool = false,
+		initialOptions: Options? = nil,
+		initialIcon: UIImage? = nil
+	) {
 		self.app = app
 		self.signAndInstall = signAndInstall
 		self.opensModify = opensModify
 		let storedCert = UserDefaults.standard.integer(forKey: "feather.selectedCert")
 		__temporaryCertificate = State(initialValue: storedCert)
 		__isModifyExpanded = State(initialValue: opensModify)
+		__temporaryOptions = State(initialValue: initialOptions ?? OptionsManager.shared.options)
+		_appIcon = State(initialValue: initialIcon)
 	}
 		
 	// MARK: Body

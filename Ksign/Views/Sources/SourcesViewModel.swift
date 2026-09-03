@@ -45,6 +45,14 @@ final class SourcesViewModel: ObservableObject {
 	}
 	
 	var isFinished = true
+	/// Whether a fetch is running right now, published on the main actor.
+	///
+	/// `isFinished` is written from whatever thread starts a fetch, so it can't
+	/// be published — and a view watching it saw the flip only by accident,
+	/// whenever something else redrew it. That is what left the store on
+	/// `Fetching…` for good when the catalog came back empty: nothing ever told
+	/// it the wait was over.
+	@Published private(set) var isFetching = false
 	@Published var sources: [AltSource: ASRepository] = [:]
 	
 	/// Takes a plain array rather than the fetch request's own results: the
@@ -71,7 +79,12 @@ final class SourcesViewModel: ObservableObject {
 		defer { isFinished = true }
 		
 		await MainActor.run {
+			self.isFetching = true
 			self.sources = [:]
+		}
+		
+		defer {
+			Task { @MainActor in self.isFetching = false }
 		}
 		
 		let sourcesArray = sources

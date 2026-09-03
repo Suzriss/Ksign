@@ -27,6 +27,10 @@ public struct NBNavigationView<Content>: View where Content: View {
 			_content
 				.navigationTitle(_title)
 				.navigationBarTitleDisplayMode(_mode)
+				// Inside the stack rather than around it: a `NavigationStack`
+				// draws its own opaque ground, so a background applied from
+				// the outside never reaches the page.
+				.nbAppearanceBackground()
 		}
 	}
 }

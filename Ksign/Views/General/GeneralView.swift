@@ -58,6 +58,7 @@ struct GeneralView: View {
                 .padding(.vertical, 18)
             }
             .navigationTitle(.localized("General"))
+            .nbAppearanceBackground()
             .refreshable {
                 await _viewModel.load(force: true)
             }

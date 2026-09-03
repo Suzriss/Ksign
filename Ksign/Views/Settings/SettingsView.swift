@@ -64,6 +64,17 @@ struct SettingsView: View {
 	
 	private static let _developerUrl = "https://t.me/uussuu"
 	
+	@State private var _isReviewPresenting = false
+	
+	/// Whether the rating row belongs on the page.
+	///
+	/// Off unless the shop has switched it on, and gone for good once this
+	/// device has had its say — the server only takes one rating per account
+	/// anyway, so a row that would be refused is a row worth not drawing.
+	private var _showsReview: Bool {
+		_config.config.review.enabled && !_config.hasSentReview
+	}
+	
 	// MARK: Body
 	var body: some View {
 		NBNavigationView(.localized("Settings")) {
@@ -115,10 +126,26 @@ struct SettingsView: View {
 					}
 				}
 				
+				if _showsReview {
+					Section {
+						Button {
+							_isReviewPresenting = true
+						} label: {
+							Label(.localized("Rate us"), systemImage: "star.bubble")
+								.foregroundStyle(.primary)
+						}
+					} footer: {
+						Text(.localized("Tell us what you make of the app — it reaches us straight away."))
+					}
+				}
+				
 				Section {
 					_developerCredit
 						.listRowBackground(EmptyView())
 				}
+			}
+			.sheet(isPresented: $_isReviewPresenting) {
+				CeresifyReviewView()
 			}
 		}
 	}

@@ -47,6 +47,9 @@ struct HomeView: View {
                 .padding(.vertical, 18)
             }
             .navigationTitle(.localized("Home"))
+            // Inside the stack: a background handed to a `NavigationStack`
+            // from the outside is painted over by its own opaque ground.
+            .nbAppearanceBackground()
             .refreshable {
                 await _viewModel.load(force: true)
             }

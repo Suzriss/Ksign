@@ -17,12 +17,20 @@ import UIKit
 /// labels — so it reads as the system bar rather than a lookalike, down to the
 /// symbol bouncing as a tab is picked.
 ///
-/// Tabs are all kept alive behind one another rather than swapped in and out,
+/// Tabs are kept alive behind one another rather than swapped in and out,
 /// which is what a real tab bar does: leaving a tab and coming back keeps its
 /// scroll position and its navigation stack.
+///
+/// Kept alive, but only once they have been opened. Building all five up front
+/// meant every launch paid for the store's ten-thousand-row table, the featured
+/// list and the products list before the first tab could be drawn, which is
+/// what left the app sitting on `Fetching…` for the best part of a minute on an
+/// iPad. A tab is built the first time it is picked and stays built after that.
 struct BottomTabbarView: View {
 	@AppStorage("Feather.selectedTab") private var _selectedTabRawValue: String = TabEnum.home.rawValue
 	@State private var _selectedTab: TabEnum = .home
+	/// The tabs that have been opened at least once this launch.
+	@State private var _built: Set<TabEnum> = [.home]
 	
 	/// Watched so a repaint from the panel reaches this bar. Nothing else here
 	/// reads it — the colours below come off `CeresifyPalette`, which SwiftUI
@@ -35,7 +43,7 @@ struct BottomTabbarView: View {
 	
 	var body: some View {
 		ZStack {
-			ForEach(TabEnum.defaultTabs, id: \.hashValue) { tab in
+			ForEach(TabEnum.defaultTabs.filter(_built.contains), id: \.hashValue) { tab in
 				TabEnum.view(for: tab)
 					.opacity(tab == _selectedTab ? 1 : 0)
 					.allowsHitTesting(tab == _selectedTab)
@@ -52,9 +60,12 @@ struct BottomTabbarView: View {
 			   TabEnum.defaultTabs.contains(stored) {
 				_selectedTab = stored
 			}
+			
+			_built.insert(_selectedTab)
 		}
 		.onChange(of: _selectedTab) { newValue in
 			_selectedTabRawValue = newValue.rawValue
+			_built.insert(newValue)
 		}
 	}
 	

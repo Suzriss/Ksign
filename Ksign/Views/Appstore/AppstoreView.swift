@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import NimbleViews
 import CoreData
 import AltSourceKit
 
@@ -31,6 +32,7 @@ struct AppstoreView: View {
 	var body: some View {
 		NavigationStack {
             SourceAppsView(fromAppStore: true, object: _catalog, viewModel: _viewModel)
+                .nbAppearanceBackground()
 		}
 		// Every source is still fetched — the Sources card on General shows a
 		// page per source and reads the same view model, and only one fetch

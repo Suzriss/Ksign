@@ -10,6 +10,7 @@ import Nuke
 import OSLog
 import IDeviceSwift
 import NimbleJSON
+import NimbleViews
 
 @main
 struct FeatherApp: App {
@@ -44,9 +45,22 @@ struct FeatherApp: App {
 				// sent has nothing to do with whichever page happens to be
 				// open, and one raised per tab would be five of them.
 				.ceresifyPopups()
+				// The rating box, when the shop has asked for one on opening.
+				// Inside the gate rather than around it: nobody is asked what
+				// they make of a store they have been refused entry to.
+				.ceresifyReviewPrompt()
 			}
 			.animation(.smooth, value: downloadManager.manualDownloads.description)
             .animation(.smooth, value: extractManager.extractItems.description)
+			// The ground the shop picked, handed down to every page rather
+			// than to the store's UIKit table alone. `NBNavigationView` and
+			// `NBList` apply it inside their own stack, which is the only
+			// place a `NavigationStack` lets a background show — one set
+			// around it is painted over by the stack's own.
+			//
+			// Read straight off the palette, so it follows a repaint: this
+			// body is rebuilt whenever the config's revision moves.
+			.nbBackground(Color.ceresifyBackground)
 			// The store's own palette: gold type throughout, with app names and
 			// their descriptions opting back out to white.
 			.foregroundStyle(Color.ceresifyGold)

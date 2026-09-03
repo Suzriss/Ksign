@@ -56,14 +56,26 @@ enum CeresifySignError: LocalizedError {
 /// the device and go through the local signer, same as before. Only what
 /// Ceresify already hosts is signed in the cloud.
 enum CeresifyCloudSigner {
-    /// The cloud path applies to builds that live on Ceresify. A source app
-    /// carrying a download URL anywhere else is somebody else's, so it stays
-    /// local.
+    /// Where this build is signed, as the shop has decided it.
+    ///
+    /// Left to itself the answer is what it always was — Ceresify signs what
+    /// Ceresify hosts, and everyone else's builds stay on the device — but the
+    /// panel can pin one app either way, send everything one way, or send
+    /// anything over a size on-device, which is the only place a build too big
+    /// to push through the server can be signed.
+    static func place(for app: ASRepository.App) -> CeresifyConfig.Signing.Place {
+        CeresifyConfigManager.shared.config.signing.place(
+            bundleIdentifier: app.id,
+            sizeBytes: app.currentSize,
+            isOurs: app.currentDownloadUrl?.host == CeresifyAPI.baseURL.host
+        )
+    }
+    
+    /// The build to hand the server, or nil when this one is signed here.
     static func source(for app: ASRepository.App) -> CeresifySignSource? {
         guard
-            let url = app.currentDownloadUrl,
-            let host = url.host,
-            host == CeresifyAPI.baseURL.host
+            place(for: app) == .server,
+            let url = app.currentDownloadUrl
         else {
             return nil
         }
@@ -181,5 +193,21 @@ enum CeresifyCloudSigner {
         append("\r\n--\(boundary)--\r\n")
         
         return body
+    }
+}
+
+// MARK: - Extension: ASRepository.App
+extension ASRepository.App {
+    /// How big this build is, as the source reports it.
+    ///
+    /// A source records the size against the version rather than the app
+    /// wherever it lists more than one, so the picked version's number is the
+    /// one that answers "is this over the limit".
+    var currentSize: Int64? {
+        if let versionSize = currentAppVersion?.size {
+            return Int64(versionSize)
+        }
+        
+        return size
     }
 }

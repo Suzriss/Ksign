@@ -657,6 +657,65 @@
         }
       }
     },
+    "%lld stars": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%lld نجوم"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld hvězdiček"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Sterne"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld stars"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld estrellas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld étoiles"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld звёзд"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld yıldız"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sao"
+          }
+        }
+      }
+    },
     "About": {
       "extractionState": "manual",
       "localizations": {
@@ -1897,6 +1956,65 @@
         }
       }
     },
+    "At least %lld characters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "‏%lld حرف على الأقل."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alespoň %lld znaků."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mindestens %lld Zeichen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least %lld characters."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al menos %lld caracteres."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moins %lld caractères."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не менее %lld символов."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En az %lld karakter."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ít nhất %lld ký tự."
+          }
+        }
+      }
+    },
     "Available Tweaks": {
       "extractionState": "stale",
       "localizations": {
@@ -3034,6 +3152,65 @@
         }
       }
     },
+    "Couldn't send your rating. Try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما انرسل التقييم. حاول مرة ثانية."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hodnocení se nepodařilo odeslat. Zkuste to znovu."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewertung konnte nicht gesendet werden. Versuch es erneut."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't send your rating. Try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo enviar tu valoración. Inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'envoyer votre avis. Réessayez."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось отправить оценку. Попробуйте снова."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değerlendirmen gönderilemedi. Tekrar dene."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không gửi được đánh giá. Thử lại."
+          }
+        }
+      }
+    },
     "Create": {
       "extractionState": "manual",
       "localizations": {
@@ -3911,6 +4088,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Xong"
+          }
+        }
+      }
+    },
+    "Download & Sign here": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نزّل ووقّع بالجهاز"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stáhnout a podepsat zde"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laden & hier signieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download & Sign here"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargar y firmar aquí"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharger et signer ici"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скачать и подписать здесь"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İndir ve burada imzala"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải & ký tại đây"
           }
         }
       }
@@ -7051,6 +7287,65 @@
         }
       }
     },
+    "How are you finding the app? Your words reach us directly.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شلون شفت التطبيق؟ كلامك يوصلنا مباشرة."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jak se vám aplikace líbí? Vaše slova se k nám dostanou přímo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie gefällt dir die App? Deine Worte erreichen uns direkt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How are you finding the app? Your words reach us directly."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué te parece la app? Tus palabras nos llegan directamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que pensez-vous de l'app ? Vos mots nous parviennent directement."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как вам приложение? Ваши слова доходят до нас напрямую."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulamayı nasıl buldun? Yazdıkların bize doğrudan ulaşır."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn thấy ứng dụng thế nào? Lời của bạn đến thẳng với chúng tôi."
+          }
+        }
+      }
+    },
     "Identifers": {
       "extractionState": "manual",
       "localizations": {
@@ -9179,6 +9474,65 @@
         }
       }
     },
+    "Needs the build": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحتاج النسخة"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyžaduje sestavení"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Braucht den Build"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs the build"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requiere la compilación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nécessite la version"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Требуется сборка"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Derlemeyi gerektirir"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần bản dựng"
+          }
+        }
+      }
+    },
     "New": {
       "extractionState": "manual",
       "localizations": {
@@ -9880,6 +10234,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chưa có gì từ cửa hàng."
+          }
+        }
+      }
+    },
+    "Nothing to show": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ماكو شي يتعرض"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Není co zobrazit"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nichts anzuzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to show"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay nada que mostrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien à afficher"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нечего показать"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gösterilecek bir şey yok"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không có gì để hiển thị"
           }
         }
       }
@@ -10997,6 +11410,65 @@
         }
       }
     },
+    "Pick these now — nothing is downloaded until you start. What you set here is signed onto the build on this device, with the certificate already installed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختارها هسه — ماكو تحميل لحد ما تبدأ. اللي تحدده هنا ينتوقّع على النسخة بهذا الجهاز، بالشهادة المنصّبة."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte je hned — nic se nestahuje, dokud nezačnete. Co zde nastavíte, se podepíše do sestavení v tomto zařízení, s již nainstalovaným certifikátem."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle jetzt — es wird nichts geladen, bis du startest. Was du hier einstellst, wird auf diesem Gerät in den Build signiert, mit dem bereits installierten Zertifikat."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick these now — nothing is downloaded until you start. What you set here is signed onto the build on this device, with the certificate already installed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige ahora: no se descarga nada hasta que empieces. Lo que definas aquí se firma en la compilación en este dispositivo, con el certificado ya instalado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez dès maintenant — rien n'est téléchargé avant que vous ne commenciez. Ce que vous définissez ici est signé dans la version sur cet appareil, avec le certificat déjà installé."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите сейчас — ничего не загружается, пока вы не начнёте. То, что вы зададите здесь, подписывается в сборку на этом устройстве уже установленным сертификатом."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şimdi seç — sen başlamadan hiçbir şey indirilmez. Burada belirlediklerin, bu cihazda zaten kurulu sertifikayla derlemeye imzalanır."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn ngay — không tải gì cho đến khi bạn bắt đầu. Những gì bạn đặt ở đây sẽ được ký vào bản dựng trên thiết bị này, với chứng chỉ đã cài."
+          }
+        }
+      }
+    },
     "Picked for you": {
       "extractionState": "manual",
       "localizations": {
@@ -11781,6 +12253,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thiết bị đã cấp phép"
+          }
+        }
+      }
+    },
+    "Rate us": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قيّمنا"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohodnoťte nás"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewerte uns"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rate us"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valóranos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notez-nous"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оцените нас"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bizi değerlendir"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đánh giá chúng tôi"
           }
         }
       }
@@ -13756,6 +14287,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gửi"
+          }
+        }
+      }
+    },
+    "Sending": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يرسل"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odesílání"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird gesendet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviando"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoi"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отправка"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gönderiliyor"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang gửi"
           }
         }
       }
@@ -15755,6 +16345,65 @@
         }
       }
     },
+    "Tell us what you make of the app — it reaches us straight away.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "گلنا شرايك بالتطبيق — يوصلنا على طول."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Řekněte nám, co si o aplikaci myslíte — dorazí to k nám hned."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sag uns, was du von der App hältst – es erreicht uns sofort."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell us what you make of the app — it reaches us straight away."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuéntanos qué te parece la app: nos llega enseguida."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dites-nous ce que vous pensez de l'app — cela nous parvient aussitôt."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расскажите, что думаете о приложении — это дойдёт до нас сразу."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uygulama hakkında ne düşündüğünü söyle — bize hemen ulaşır."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cho chúng tôi biết bạn nghĩ gì về ứng dụng — nó đến ngay với chúng tôi."
+          }
+        }
+      }
+    },
     "TestFlight apps": {
       "extractionState": "manual",
       "localizations": {
@@ -16103,6 +16752,65 @@
         }
       }
     },
+    "The store didn't answer. Check your connection and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المتجر ما رد. تأكد من الاتصال وحاول مرة ثانية."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obchod neodpověděl. Zkontrolujte připojení a zkuste to znovu."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Store hat nicht geantwortet. Prüfe deine Verbindung und versuche es erneut."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The store didn't answer. Check your connection and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tienda no respondió. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La boutique n'a pas répondu. Vérifiez votre connexion et réessayez."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Магазин не ответил. Проверьте подключение и попробуйте снова."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mağaza yanıt vermedi. Bağlantını kontrol edip tekrar dene."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cửa hàng không phản hồi. Kiểm tra kết nối và thử lại."
+          }
+        }
+      }
+    },
     "The store is closed for a moment. Try again shortly.": {
       "localizations": {
         "ar": {
@@ -16178,6 +16886,65 @@
         }
       }
     },
+    "These two read what is already inside the app, so the build is fetched first and the signer opens on it — with everything you set above already applied.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هاي الثنتين تقرا اللي موجود داخل التطبيق، فتنتزّل النسخة أول وبعدين يفتح الموقّع عليها — وكل اللي حددته فوق يكون منطبّق."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tyto dvě čtou to, co už je uvnitř aplikace, takže se nejprve stáhne sestavení a podepisovač se otevře na něm — se vším, co jste nastavili výše."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese beiden lesen, was bereits in der App steckt — der Build wird also zuerst geladen und der Signierer öffnet sich darauf, mit allem, was du oben eingestellt hast."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These two read what is already inside the app, so the build is fetched first and the signer opens on it — with everything you set above already applied."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estas dos leen lo que ya hay dentro de la app, así que primero se descarga la compilación y el firmador se abre sobre ella, con todo lo que definiste arriba ya aplicado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces deux-là lisent ce qui se trouve déjà dans l'app : la version est donc téléchargée d'abord et le signeur s'ouvre dessus, avec tout ce que vous avez défini plus haut déjà appliqué."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эти две читают то, что уже внутри приложения, поэтому сборка сначала загружается, и подписчик открывается на ней — со всем, что вы задали выше."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu ikisi uygulamanın içinde zaten olanı okur; bu yüzden önce derleme indirilir ve imzalayıcı onun üzerinde açılır — yukarıda belirlediğin her şey uygulanmış olarak."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai mục này đọc những gì đã có bên trong ứng dụng, nên bản dựng được tải trước rồi trình ký mở trên đó — với mọi thứ bạn đặt ở trên đã được áp dụng."
+          }
+        }
+      }
+    },
     "This app has no download to modify.": {
       "localizations": {
         "ar": {
@@ -16240,6 +17007,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cái này sẽ bật hiệu ứng Liquid Glass cho Ksign, yêu cầu khởi động lại app"
+          }
+        }
+      }
+    },
+    "This is the name shown next to your rating. Nothing else about you is published.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الاسم اللي يطلع جنب تقييمك. ماكو شي ثاني عنك ينعرض."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toto jméno se zobrazí u vašeho hodnocení. Nic dalšího o vás nezveřejňujeme."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Name steht neben deiner Bewertung. Sonst wird nichts über dich veröffentlicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is the name shown next to your rating. Nothing else about you is published."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este es el nombre que aparece junto a tu valoración. No se publica nada más sobre ti."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C'est le nom affiché à côté de votre avis. Rien d'autre vous concernant n'est publié."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Это имя показывается рядом с вашей оценкой. Больше о вас ничего не публикуется."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu, değerlendirmenin yanında görünen addır. Hakkında başka hiçbir şey yayınlanmaz."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đây là tên hiển thị cạnh đánh giá của bạn. Không có thông tin nào khác được đăng."
           }
         }
       }
@@ -16535,6 +17361,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "Công cụ"
+          }
+        }
+      }
+    },
+    "Try Again": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حاول مرة ثانية"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zkusit znovu"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try Again"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tekrar dene"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử lại"
           }
         }
       }
@@ -17535,6 +18420,65 @@
         }
       }
     },
+    "Write what you think…": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتب رأيك…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Napište, co si myslíte…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreib, was du denkst…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write what you think…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe lo que piensas…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrivez ce que vous en pensez…"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Напишите, что думаете…"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne düşündüğünü yaz…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viết điều bạn nghĩ…"
+          }
+        }
+      }
+    },
     "You have unsaved changes. Do you want to save them before closing?": {
       "localizations": {
         "ar": {
@@ -17629,6 +18573,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "تسجيل جهازك، ورقم الـ UDID، والاشتراك."
+          }
+        }
+      }
+    },
+    "Your name": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسمك"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaše jméno"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Name"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your name"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu nombre"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre nom"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваше имя"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adın"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tên của bạn"
+          }
+        }
+      }
+    },
+    "Your rating reached us.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وصلنا تقييمك."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vaše hodnocení k nám dorazilo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Bewertung ist bei uns angekommen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your rating reached us."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu valoración nos llegó."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre avis nous est parvenu."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ваша оценка получена."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değerlendirmen bize ulaştı."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đánh giá của bạn đã đến với chúng tôi."
           }
         }
       }

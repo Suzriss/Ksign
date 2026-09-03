@@ -141,6 +141,13 @@ extension Storage {
 		try? fileManager.removeFileIfNeeded(at: fileManager.signed)
 		try? fileManager.removeFileIfNeeded(at: fileManager.unsigned)
 		
+		// Put back straight away. Both are made once at launch, and this runs
+		// after that — so leaving them gone meant the next import had no folder
+		// to move its Payload into and failed with a file-system error the user
+		// could do nothing about.
+		try? fileManager.createDirectoryIfNeeded(at: fileManager.signed)
+		try? fileManager.createDirectoryIfNeeded(at: fileManager.unsigned)
+		
 		removeDownloadedArchives()
 	}
 	

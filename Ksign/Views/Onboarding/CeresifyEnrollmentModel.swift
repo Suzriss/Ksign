@@ -71,8 +71,14 @@ final class CeresifyEnrollmentModel: ObservableObject {
         Self.storedUdid
     }
     
-    var deviceName: String? {
+    /// Readable from anywhere, the way the UDID is: the rating box fills its
+    /// name field with it so most people never have to type one.
+    nonisolated static var storedDeviceName: String? {
         UserDefaults.standard.string(forKey: _Keys.deviceName)?.nilIfEmpty
+    }
+    
+    var deviceName: String? {
+        Self.storedDeviceName
     }
     
     // MARK: Registration

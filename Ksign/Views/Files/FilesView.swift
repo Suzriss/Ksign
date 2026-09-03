@@ -60,6 +60,7 @@ struct FilesView: View {
             if isRootView {
                 NavigationStack {
                     filesBrowserContent
+                        .nbAppearanceBackground()
                 }
                 .tint(Color.ceresifyAccent)
             } else {
