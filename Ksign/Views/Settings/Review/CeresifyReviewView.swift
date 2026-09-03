@@ -152,7 +152,7 @@ struct CeresifyReviewView: View {
 				} footer: {
 					// The server's own floor, said before a trip is spent on
 					// finding out — ten characters is a sentence, not a hurdle.
-					Text(.localized(
+					Text(verbatim: .localized(
 						"At least %lld characters.",
 						arguments: CeresifyReviewSender.commentRange.lowerBound
 					))
@@ -237,7 +237,7 @@ struct CeresifyReviewView: View {
 						.contentShape(Rectangle())
 				}
 				.buttonStyle(.plain)
-				.accessibilityLabel(Text(.localized("%lld stars", arguments: star)))
+				.accessibilityLabel(Text(verbatim: .localized("%lld stars", arguments: star)))
 			}
 
 			Spacer(minLength: 0)
