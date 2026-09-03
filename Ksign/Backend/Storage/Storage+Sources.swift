@@ -105,8 +105,36 @@ extension Storage {
 
 	func addBuiltInSources() {
 		for urlString in Self.builtInSourceURLs {
-			FR.handleSource(urlString, silent: true) { }
+			// Seeded off a single-app page, not off the whole catalog. Creating
+			// the row only needs the source's name, identifier and icon, and
+			// they ride on any page — but this used to pull all six megabytes
+			// to read three fields, and when that failed on a weak signal the
+			// row was never written, the migration had already marked itself
+			// done, and the store asked for nothing ever again.
+			FR.handleSource(
+				Self.seedURL(for: urlString),
+				storeAs: urlString,
+				silent: true
+			) { }
 		}
+	}
+	
+	/// The cheapest request that still describes a source: one app.
+	static func seedURL(for urlString: String) -> String {
+		guard
+			let url = URL(string: urlString),
+			CeresifyAPI.isOurs(url),
+			var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+		else {
+			return urlString
+		}
+		
+		var items = components.queryItems?.filter { $0.name != "page" && $0.name != "perPage" } ?? []
+		items.append(URLQueryItem(name: "page", value: "1"))
+		items.append(URLQueryItem(name: "perPage", value: "1"))
+		components.queryItems = items
+		
+		return components.url?.absoluteString ?? urlString
 	}
 
 	/// Drops every stored source. Used by the one-time migration that moves

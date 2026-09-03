@@ -279,11 +279,24 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     ///
     /// v2 re-runs it: the catalog moved off the path that leaked, and an
     /// install still holding the old one shows an empty store.
+    ///
+    /// Seeding is a network call, and it can fail — but the flag was set the
+    /// moment it was started, so a single bad moment on a weak signal left the
+    /// install with no source at all, a store that said "the store didn't
+    /// answer", and nothing that would ever ask again. An empty list is reason
+    /// enough on its own to seed once more.
     private func _migrateSourcesIfNeeded() {
         let defaults = UserDefaults.standard
-        guard !defaults.bool(forKey: Self._sourcesMigrationKey) else { return }
+        let hasMigrated = defaults.bool(forKey: Self._sourcesMigrationKey)
 
-        Storage.shared.removeAllSources()
+        guard !hasMigrated || Storage.shared.getSources().isEmpty else { return }
+
+        // Only the migration proper wipes what is there; a re-seed of an empty
+        // list has nothing to clear.
+        if !hasMigrated {
+            Storage.shared.removeAllSources()
+        }
+        
         Storage.shared.addBuiltInSources()
 
         defaults.set(true, forKey: Self._sourcesMigrationKey)

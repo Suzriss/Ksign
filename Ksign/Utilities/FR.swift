@@ -212,20 +212,31 @@ enum FR {
 	
 	/// - Parameter silent: suppresses the alerts, for the built-in sources seeded
 	///   at launch where there is no user action to report back to.
+	/// - Parameter storeAs: the URL to write down, when what is fetched is not
+	///   what should be stored. The shop's catalog is asked for one app rather
+	///   than for all ten thousand of them — everything a source row needs (its
+	///   name, its identifier, its icon) rides on any page — but the row has to
+	///   hold the plain URL, since that is what the store reads from.
 	static func handleSource(
 		_ urlString: String,
+		storeAs: String? = nil,
 		silent: Bool = false,
 		competion: @escaping () -> Void
 	) {
-		guard let url = URL(string: urlString) else { return }
+		guard
+			let url = URL(string: urlString),
+			let stored = URL(string: storeAs ?? urlString)
+		else {
+			return
+		}
 		
 		NBFetchService().fetch<ASRepository>(from: url) { (result: Result<ASRepository, Error>) in
 			switch result {
 			case .success(let data):
-				let id = data.id ?? url.absoluteString
+				let id = data.id ?? stored.absoluteString
 				
 				if !Storage.shared.sourceExists(id) {
-					Storage.shared.addSource(url, repository: data, id: id) { _ in
+					Storage.shared.addSource(stored, repository: data, id: id) { _ in
 						competion()
 					}
 				} else if !silent {

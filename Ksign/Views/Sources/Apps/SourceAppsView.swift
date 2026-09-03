@@ -62,8 +62,20 @@ struct SourceAppsView: View {
     @ObservedObject private var _pager = CatalogPager.shared
     
     /// The catalog source among the ones this page was handed, if any.
+    ///
+    /// The store tab falls back to the built-in address. Its whole list is the
+    /// shop's catalog, and the row in Core Data is only where the address is
+    /// normally kept — an install whose seeding failed has no row at all, and
+    /// that used to be a store that showed "the store didn't answer" and never
+    /// asked anyone anything. The catalog does not need the row to be read.
     private var _catalogURL: URL? {
-        object.compactMap(\.sourceURL).first(where: CeresifyAPI.isOurs)
+        if let stored = object.compactMap(\.sourceURL).first(where: CeresifyAPI.isOurs) {
+            return stored
+        }
+        
+        guard fromAppStore else { return nil }
+        
+        return Storage.builtInSourceURLs.first.flatMap(URL.init(string:))
     }
     
     private var _isPaged: Bool { _catalogURL != nil }
@@ -222,7 +234,7 @@ struct SourceAppsView: View {
                     onSelect: {self._selectedRoute = $0},
                     isPaged: _isPaged,
                     totalCount: _isPaged ? _pager.total : nil,
-                    isLoadingMore: _pager.isLoadingMore,
+                    isLoadingMore: _isPaged && _pager.isLoadingMore,
                     onReachEnd: { _pager.loadMore() }
                 )
                 .ignoresSafeArea(edges: .bottom)
