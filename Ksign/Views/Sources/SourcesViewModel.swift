@@ -160,12 +160,28 @@ final class SourcesViewModel: ObservableObject {
 		}
 	}
 	
+	/// The session the catalog comes down on.
+	///
+	/// The catalog is megabytes, and most of the people opening the store are
+	/// on a bar or two of signal: the shared session gave up after a minute
+	/// of silence and never tried again, which is the "nothing to show"
+	/// screen most subscribers were meeting. This one waits for a connection
+	/// to come back, allows a trickle five minutes to finish, and keeps no
+	/// cache of its own — the store keeps that.
+	private static let _session: URLSession = {
+		let configuration = URLSessionConfiguration.default
+		configuration.waitsForConnectivity = true
+		configuration.timeoutIntervalForRequest = 45
+		configuration.timeoutIntervalForResource = 300
+		configuration.urlCache = nil
+		return URLSession(configuration: configuration)
+	}()
+	
 	/// One trip for one source. Nil means "keep what you have": a failure, or
 	/// the server saying the stored copy is still the current one.
 	private static func _fetch(_ url: URL, revalidating: Bool) async -> ASRepository? {
 		var request = URLRequest(url: url)
 		request.cachePolicy = .reloadIgnoringLocalCacheData
-		request.timeoutInterval = 60
 		
 		for (field, value) in NBFetchService.headerProvider?(url) ?? [:] {
 			request.setValue(value, forHTTPHeaderField: field)
@@ -175,8 +191,20 @@ final class SourcesViewModel: ObservableObject {
 			request.setValue(tag, forHTTPHeaderField: "If-None-Match")
 		}
 		
+		var attempt: (Data, URLResponse)?
+		
+		// A dropped connection gets one more go after a breath, rather than
+		// the whole store being written off on the first hiccup.
+		for delay in [0, 2] {
+			if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
+			if Task.isCancelled { return nil }
+			
+			attempt = try? await _session.data(for: request)
+			if attempt != nil { break }
+		}
+		
 		guard
-			let (data, response) = try? await URLSession.shared.data(for: request),
+			let (data, response) = attempt,
 			let http = response as? HTTPURLResponse
 		else {
 			return nil

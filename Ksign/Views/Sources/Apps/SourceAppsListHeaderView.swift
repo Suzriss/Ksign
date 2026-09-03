@@ -28,9 +28,10 @@ struct SourceAppsListHeaderView: View {
     }
 
     /// Banners are drawn 2:1 (the CheckOver artwork is 1200x600), so the card
-    /// follows that rather than cropping into it.
+    /// is exactly that at every width — no cap on the height, which on an
+    /// iPad turned into a letterbox cut out of the middle of the artwork.
     private var _cardHeight: CGFloat {
-        min(max(_cardWidth / 2, 140), 260)
+        _cardWidth / 2
     }
 
     var body: some View {

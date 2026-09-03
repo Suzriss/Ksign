@@ -34,6 +34,11 @@ struct SignerView: View {
     /// that follows belongs to it and not to some other screen listening for
     /// the same word.
     @State private var _isAwaitingInstall = false
+    /// Set by the signer's word that the build is signed, and cleared once the
+    /// installer has been put up for it.
+    @State private var _didSign = false
+    /// Whether the signer is still on screen — including on its way out.
+    @State private var _isSignerUp = false
     
     /// Set the moment a link or a file is handed over, so the app that lands
     /// after it can be taken straight to the signing options.
@@ -177,20 +182,29 @@ struct SignerView: View {
             .fullScreenCover(item: $webViewURL) { url in
                 webViewSheet(url: url)
             }
-            .fullScreenCover(item: $_signingApp) { app in
+            .fullScreenCover(item: $_signingApp, onDismiss: _installIfSigned) { app in
                 // Signing and installing are one action, not two: the signer
                 // hands the finished build straight to the installer rather
                 // than closing and leaving it to be found in the list below.
                 SigningView(app: app.base, signAndInstall: true)
             }
             .onChange(of: _signingApp != nil) { isOpen in
-                if isOpen { _isAwaitingInstall = true }
+                if isOpen {
+                    _isAwaitingInstall = true
+                    _isSignerUp = true
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("feather.installApp"))) { _ in
-                guard _isAwaitingInstall, let signed = _signedApps.first else { return }
+                guard _isAwaitingInstall else { return }
                 
-                _isAwaitingInstall = false
-                _installingApp = AnyApp(base: signed)
+                // The signer is still on its way out when this arrives, and a
+                // sheet asked for over a dismissal in progress is dropped on
+                // the floor — which is how signing came to end on nothing at
+                // all. So the installer waits for `onDismiss`, and is only put
+                // up from here when the signer has already gone.
+                _didSign = true
+                
+                if !_isSignerUp { _installIfSigned() }
             }
             .sheet(item: $_installingApp) { app in
                 InstallPreviewView(app: app.base)
@@ -464,5 +478,20 @@ struct SignerAppRowView: View {
             .buttonStyle(.borderless)
         }
         .padding(.vertical, 4)
+    }
+}
+
+// MARK: - Extension: View (install after signing)
+extension SignerView {
+    /// Puts the installer up for the build the signer just finished, once
+    /// the signer itself is off the screen.
+    private func _installIfSigned() {
+        _isSignerUp = false
+        
+        guard _didSign, let signed = _signedApps.first else { return }
+        
+        _didSign = false
+        _isAwaitingInstall = false
+        _installingApp = AnyApp(base: signed)
     }
 }

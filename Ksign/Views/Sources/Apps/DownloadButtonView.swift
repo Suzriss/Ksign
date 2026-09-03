@@ -34,6 +34,11 @@ struct DownloadButtonView: View {
 	/// that follows is presented here and not by every other row listening for
 	/// the same word.
 	@State private var _isAwaitingInstall = false
+	/// Set by the signer's word that the build is signed, and cleared once the
+	/// installer has been put up for it.
+	@State private var _didSign = false
+	/// Whether the signer is still on screen — including on its way out.
+	@State private var _isSignerUp = false
 	
 	@State private var _isCloudSigning = false
 	@State private var _cloudError: String?
@@ -155,23 +160,32 @@ struct DownloadButtonView: View {
 			setupObserver()
 		}
 		.animation(.easeInOut(duration: 0.3), value: downloadManager.getDownload(by: app.currentUniqueId) != nil)
-		.fullScreenCover(item: $_signingApp) { app in
+		.fullScreenCover(item: $_signingApp, onDismiss: _installIfSigned) { app in
 			// Get → Sign → Install is one walk, so signing hands the build to
 			// the installer itself rather than turning the pill into `Install`
 			// and waiting to be tapped a third time.
 			SigningView(app: app.base, signAndInstall: true)
 		}
 		.onChange(of: _signingApp != nil) { isOpen in
-			if isOpen { _isAwaitingInstall = true }
+			if isOpen {
+				_isAwaitingInstall = true
+				_isSignerUp = true
+			}
 		}
 		// Every row in the store is listening for this, so only the one that
 		// actually opened the signer answers — and its own fetch request is
 		// already scoped to this app's build.
 		.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("feather.installApp"))) { _ in
-			guard _isAwaitingInstall, let signed = _signed.first else { return }
+			guard _isAwaitingInstall else { return }
 			
-			_isAwaitingInstall = false
-			_installingApp = AnyApp(base: signed)
+			// The signer is still on its way out when this arrives, and a
+			// sheet asked for over a dismissal in progress is dropped on
+			// the floor — which is how signing came to end on nothing at
+			// all. So the installer waits for `onDismiss`, and is only put
+			// up from here when the signer has already gone.
+			_didSign = true
+			
+			if !_isSignerUp { _installIfSigned() }
 		}
 		.sheet(isPresented: $_isEnrollmentPresenting) {
 			CeresifyEnrollmentView()
@@ -393,5 +407,20 @@ struct DownloadButtonView: View {
 		_isExtracting = download.unpackageProgress > 0
 		_bytesDownloaded = download.bytesDownloaded
 		_totalBytes = download.totalBytes
+	}
+}
+
+// MARK: - Extension: View (install after signing)
+extension DownloadButtonView {
+	/// Puts the installer up for the build the signer just finished, once
+	/// the signer itself is off the screen.
+	private func _installIfSigned() {
+		_isSignerUp = false
+		
+		guard _didSign, let signed = _signed.first else { return }
+		
+		_didSign = false
+		_isAwaitingInstall = false
+		_installingApp = AnyApp(base: signed)
 	}
 }
