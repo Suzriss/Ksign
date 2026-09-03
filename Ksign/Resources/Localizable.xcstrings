@@ -2577,6 +2577,22 @@
         }
       }
     },
+    "Checking your device…": {
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري التحقق من جهازك…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking your device…"
+          }
+        }
+      }
+    },
     "Choose an action": {
       "extractionState": "manual",
       "localizations": {

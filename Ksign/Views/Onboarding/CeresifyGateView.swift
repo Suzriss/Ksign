@@ -29,14 +29,31 @@ struct CeresifyGateView<Content: View>: View {
 	/// comes back every time the config is fetched again.
 	@State private var _hasShownOpening = false
 	@State private var _isEnrollmentPresenting = false
-	
+
+	/// A launch that opened on nothing and is waiting to be told what the
+	/// store looks like, as opposed to one showing the shop's own screen.
+	private let _isWaitingOnFirstAnswer: Bool
+
 	private let _content: Content
-	
+
 	init(@ViewBuilder content: () -> Content) {
 		self._content = content()
+
+		// A fresh install has no stored answer, so it opens on an empty store
+		// in colours it hasn't been given yet and waits — up to the request's
+		// own twelve seconds — for the server to say what any of it should
+		// look like. Nothing moved on screen for that whole stretch, which is
+		// why it read as a hang and why closing and reopening "fixed" it: the
+		// second launch had the answer on disk. That wait is the one that gets
+		// a screen, whether or not the shop asked for a splash.
+		let waiting = !CeresifyConfigManager.shared.hasStoredConfig
+		self._isWaitingOnFirstAnswer = waiting
+
 		// Decided from the stored config so the screen is either there from
 		// the first frame or never appears at all — no flash either way.
-		__isOpening = State(initialValue: CeresifyConfigManager.shared.config.splash.enabled)
+		__isOpening = State(
+			initialValue: waiting || CeresifyConfigManager.shared.config.splash.enabled
+		)
 	}
 	
 	var body: some View {
@@ -70,9 +87,17 @@ struct CeresifyGateView<Content: View>: View {
 			}
 			
 			if _isOpening {
-				CeresifyOpeningView(splash: _config.config.splash)
-					.transition(.opacity)
-					.zIndex(1)
+				CeresifyOpeningView(
+					splash: _config.config.splash,
+					// Only a launch that is actually waiting says so. The
+					// shop's own screen is branding, and captioning it with
+					// the app's errand would be the app talking over it.
+					status: _isWaitingOnFirstAnswer && !_config.config.splash.enabled
+					? String.localized("Checking your device…")
+					: nil
+				)
+				.transition(.opacity)
+				.zIndex(1)
 			}
 		}
 		.animation(.smooth(duration: 0.35), value: _isOpening)
@@ -92,8 +117,20 @@ struct CeresifyGateView<Content: View>: View {
 			// config, not for a certificate nobody is looking at.
 			Task { await CeresifyQuickEntry.refresh() }
 			
+			let openedAt = Date()
+
 			await _config.load()
-			
+
+			// `load()` returns straight away when another one is already in
+			// flight, so the screen waits on the answer itself rather than on
+			// the call — and gives up after the request's own timeout, since
+			// an unreachable server must not hold the door shut.
+			let ceiling = openedAt.addingTimeInterval(12)
+
+			while _config.isReachable == nil, Date() < ceiling {
+				try? await Task.sleep(for: .milliseconds(80))
+			}
+
 			// The stored config decided whether to open on this screen, so a
 			// screen the shop has only just switched on wasn't known about a
 			// moment ago. Showing it now means it appears on the launch it was
@@ -101,13 +138,24 @@ struct CeresifyGateView<Content: View>: View {
 			if !_isOpening, _config.config.splash.enabled, !_hasShownOpening {
 				_isOpening = true
 			}
-			
+
 			guard _isOpening else { return }
-			
+
 			_hasShownOpening = true
-			
-			let seconds = max(0.6, min(_config.config.splash.seconds, 10))
-			try? await Task.sleep(for: .seconds(seconds))
+
+			if _config.config.splash.enabled {
+				// The shop's screen is shown for as long as the shop asked
+				// for, on top of whatever the answer took.
+				let seconds = max(0.6, min(_config.config.splash.seconds, 10))
+				try? await Task.sleep(for: .seconds(seconds))
+			} else {
+				// A waiting screen with nothing behind it comes down the
+				// moment the wait is over — held only long enough that an
+				// answer arriving instantly doesn't read as a blink.
+				let shown = Date().timeIntervalSince(openedAt)
+				if shown < 0.9 { try? await Task.sleep(for: .seconds(0.9 - shown)) }
+			}
+
 			_isOpening = false
 		}
 		.onChange(of: _scenePhase) { phase in
@@ -173,32 +221,47 @@ struct CeresifyGateView<Content: View>: View {
 /// wording.
 struct CeresifyOpeningView: View {
 	let splash: CeresifyConfig.Splash
-	
+	/// What the app is busy with, on a launch that is waiting rather than
+	/// being shown the shop's own screen. Nil says nothing at all.
+	var status: String?
+
 	@State private var _hasAppeared = false
-	
+	/// The slow breath under the artwork. The screen used to hold a still
+	/// image over a still spinner, which on the launch that actually waits is
+	/// indistinguishable from an app that has stopped.
+	@State private var _isBreathing = false
+
 	var body: some View {
 		ZStack {
 			Color(uiColor: CeresifyPalette.background ?? .systemBackground)
 				.ignoresSafeArea()
-			
+
 			VStack(spacing: 16) {
 				_artwork
-				
+					.scaleEffect(_isBreathing ? 1.04 : 0.97)
+
 				if !splash.title.isEmpty {
 					Text(verbatim: splash.title)
 						.font(.title.bold())
 						.foregroundStyle(Color.ceresifyGold)
 				}
-				
+
 				if !splash.subtitle.isEmpty {
 					Text(verbatim: splash.subtitle)
 						.font(.subheadline)
 						.foregroundStyle(Color.ceresifySubtitle)
 						.multilineTextAlignment(.center)
 				}
-				
-				ProgressView()
+
+				_WaitingBarView()
 					.padding(.top, 8)
+
+				if let status, !status.isEmpty {
+					Text(verbatim: status)
+						.font(.footnote)
+						.foregroundStyle(Color.ceresifySubtitle)
+						.multilineTextAlignment(.center)
+				}
 			}
 			.padding(.horizontal, 34)
 			.opacity(_hasAppeared ? 1 : 0)
@@ -206,9 +269,12 @@ struct CeresifyOpeningView: View {
 		}
 		.onAppear {
 			withAnimation(.smooth(duration: 0.45)) { _hasAppeared = true }
+			withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+				_isBreathing = true
+			}
 		}
 	}
-	
+
 	/// The shop's own artwork if it set any — the opening screen's image, or
 	/// failing that the store's logo — and a plain mark otherwise.
 	private var _artworkURL: URL? {
@@ -235,5 +301,37 @@ struct CeresifyOpeningView: View {
 				.font(.system(size: 62))
 				.foregroundStyle(Color.ceresifyGold)
 		}
+	}
+}
+
+// MARK: - Waiting bar
+/// A gold segment shuttling along its track.
+///
+/// Indeterminate on purpose: the app is waiting on an answer, and there is no
+/// honest fraction of it to draw.
+private struct _WaitingBarView: View {
+	private let _width: CGFloat = 190
+	private let _segment: CGFloat = 62
+
+	@State private var _isRunning = false
+
+	var body: some View {
+		Capsule()
+			.fill(Color.ceresifyGold.opacity(0.16))
+			.frame(width: _width, height: 4)
+			.overlay(alignment: .leading) {
+				Capsule()
+					.fill(Color.ceresifyGold)
+					.frame(width: _segment, height: 4)
+					// Offset rather than laid out, so the travel is the same
+					// in both reading directions.
+					.offset(x: _isRunning ? _width - _segment : 0)
+			}
+			.clipShape(Capsule())
+			.onAppear {
+				withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
+					_isRunning = true
+				}
+			}
 	}
 }

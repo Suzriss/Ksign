@@ -558,7 +558,14 @@ final class CeresifyConfigManager: ObservableObject {
     @Published private(set) var isReachable: Bool?
     /// Bumped whenever a fetch lands, so views holding no other state redraw.
     @Published private(set) var revision = 0
-    
+    /// Whether this launch started already knowing what to draw.
+    ///
+    /// A fresh install doesn't: it opens on nothing, and every answer about
+    /// the store — its colours, whether it opens at all — is still in the
+    /// post. That is the one launch with a wait worth putting a screen in
+    /// front of, and it is over as soon as the first answer lands.
+    let hasStoredConfig: Bool
+
     private static let _cacheKey = "Ceresify.appConfig"
     /// The notices this device has already been shown, so one raised on a
     /// launch isn't raised again on the next.
@@ -568,14 +575,13 @@ final class CeresifyConfigManager: ObservableObject {
     private var _isLoading = false
     
     private init() {
-        if
-            let data = UserDefaults.standard.data(forKey: Self._cacheKey),
-            let stored = try? JSONDecoder().decode(_CeresifyConfigResponse.self, from: data)
-        {
-            config = stored.config ?? CeresifyConfig()
-            device = stored.device ?? CeresifyDeviceStatus()
-        }
-        
+        let stored = UserDefaults.standard.data(forKey: Self._cacheKey)
+            .flatMap { try? JSONDecoder().decode(_CeresifyConfigResponse.self, from: $0) }
+
+        hasStoredConfig = stored?.config != nil
+        config = stored?.config ?? CeresifyConfig()
+        device = stored?.device ?? CeresifyDeviceStatus()
+
         CeresifyPalette.apply(config.theme)
     }
     
