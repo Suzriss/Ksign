@@ -40,13 +40,17 @@ public struct NBAppearanceBackground: ViewModifier {
 	public init() {}
 
 	public func body(content: Content) -> some View {
-		if let _background {
-			content
-				.scrollContentBackground(.hidden)
-				.background(_background.ignoresSafeArea())
-		} else {
-			content
-		}
+		// One shape whether or not a colour is set, on purpose. An `if let`
+		// around the content puts it on a different branch the moment a colour
+		// arrives, and to SwiftUI a different branch is a different view: the
+		// whole page is thrown away and built again — its state, its tasks,
+		// the store's table. On a fresh install the first colour lands a
+		// moment after launch, so that rebuild happened in the middle of the
+		// opening screen and read as an app stuck on the new colour. Nil is
+		// handed down as the values that leave the system's own ground alone.
+		content
+			.scrollContentBackground(_background == nil ? .automatic : .hidden)
+			.background((_background ?? .clear).ignoresSafeArea())
 	}
 }
 

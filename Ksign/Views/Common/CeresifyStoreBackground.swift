@@ -23,13 +23,17 @@ struct CeresifyStoreBackgroundModifier: ViewModifier {
 	@ObservedObject private var _config = CeresifyConfigManager.shared
 	
 	func body(content: Content) -> some View {
-		if let background = Color.ceresifyBackground {
-			content
-				.scrollContentBackground(.hidden)
-				.background(background.ignoresSafeArea())
-		} else {
-			content
-		}
+		// Never an `if let` around the content: this wraps a whole tab, and a
+		// branch swap when the colour goes from nothing to something rebuilds
+		// the tab from scratch — the same tree throw-away `FeatherApp` stopped
+		// doing on a repaint, and the reason a fresh install sat on the shop's
+		// colour after the first config landed. Nil becomes the values that
+		// leave the system background exactly as it was.
+		let background = Color.ceresifyBackground
+		
+		content
+			.scrollContentBackground(background == nil ? .automatic : .hidden)
+			.background((background ?? .clear).ignoresSafeArea())
 	}
 }
 
