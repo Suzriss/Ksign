@@ -82,6 +82,11 @@ final class CatalogPager: ObservableObject {
         _task = nil
         repository = nil
         _page = 0
+        // A reload always follows this, but it is put on next turn of the loop:
+        // for that one frame the store would be holding nothing and waiting for
+        // nothing, which is drawn as "the store didn't answer".
+        isLoading = true
+        didFail = false
     }
     
     /// Reads the first page unless something has already been read.
@@ -144,11 +149,17 @@ final class CatalogPager: ObservableObject {
     private func _load(page: Int, force: Bool, generation: Int) async {
         guard let pageURL = _url(for: page) else {
             isLoading = false
+            didFail = repository == nil
             _task = nil
             return
         }
         
         let isFirst = page == 1
+        
+        /// Whether there is a copy on screen for the server to be asked about.
+        /// Only then is a conditional request worth making — a "still the same"
+        /// answer is only useful to someone holding the thing it describes.
+        var hasCopy = false
         
         if isFirst {
             isLoading = true
@@ -158,8 +169,12 @@ final class CatalogPager: ObservableObject {
             // the store opens on apps instead of on a spinner — and still has
             // something to show when the answer never comes.
             if !force, let stored = SourceCache.rawData(for: pageURL) {
-                _accept(stored, page: 1)
-                isLoading = repository == nil
+                // A stored page with no rows in it is not a copy worth asking
+                // the server about: it would be told the page hasn't changed
+                // and the store would be left on that empty page for good.
+                // Whatever put it there, one plain request undoes it.
+                hasCopy = _accept(stored, page: 1) && repository?.apps.isEmpty == false
+                isLoading = !hasCopy
             }
         } else {
             isLoadingMore = true
@@ -175,25 +190,28 @@ final class CatalogPager: ObservableObject {
             }
         }
         
-        // A weak signal drops the first request often enough that giving up on
-        // it is what the store's empty screen actually was. One more go, after
-        // a breath.
-        var attempt: (Data, URLResponse)?
-        
-        for delay in [0, 2] {
-            if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
-            if Task.isCancelled { return }
-            
-            attempt = try? await Self._session.data(for: _request(pageURL, revalidating: isFirst && !force))
-            if attempt != nil { break }
-        }
+        var attempt = await Self._fetch(_request(pageURL, revalidating: isFirst && hasCopy))
         
         guard !Task.isCancelled, generation == _generation else { return }
         
-        guard
-            let (data, response) = attempt,
-            let http = response as? HTTPURLResponse
-        else {
+        // "Still the same" said to a store holding nothing. The bytes the tag
+        // describes are gone — the caches directory was emptied under us, or
+        // they never landed — so the tag goes with them and the page is asked
+        // for outright. Without this the store answers 304 to itself forever:
+        // every launch, and every build after it, since a new build inherits
+        // the caches directory of the old one.
+        if
+            isFirst,
+            (attempt?.1.statusCode == 304 || attempt?.1.statusCode == 412),
+            repository == nil
+        {
+            SourceCache.forget(pageURL)
+            attempt = await Self._fetch(_request(pageURL, revalidating: false))
+            
+            guard !Task.isCancelled, generation == _generation else { return }
+        }
+        
+        guard let (data, http) = attempt else {
             didFail = repository == nil
             return
         }
@@ -201,6 +219,10 @@ final class CatalogPager: ObservableObject {
         // The stored copy of this page is still the current one.
         if http.statusCode == 304 {
             hasMore = _hasMoreFromStore(pageURL) ?? hasMore
+            // Every way out of this read says whether it left the store with
+            // something, so a store holding nothing is never left waiting on a
+            // read that has already finished.
+            didFail = repository == nil
             return
         }
         
@@ -209,34 +231,67 @@ final class CatalogPager: ObservableObject {
             return
         }
         
-        _accept(data, page: page)
+        let accepted = _accept(data, page: page)
+        
+        if !accepted {
+            didFail = repository == nil
+            return
+        }
         
         // Only a page that stands on its own gets stored: a search is typed
         // once and would fill the cache with answers nobody asks for twice.
+        // And only one that was read: storing bytes that mean nothing, next to
+        // the tag that says they are current, is the trap above being set.
         if isFirst, _query.search.isEmpty {
             SourceCache.store(data, etag: http.value(forHTTPHeaderField: "ETag"), for: pageURL)
         }
     }
     
-    /// Takes a page's bytes and folds them into what is on screen.
-    private func _accept(_ data: Data, page: Int) {
-        let meta = try? JSONDecoder().decode(_PageMeta.self, from: data)
-        // A page with no apps at all — an empty category — doesn't decode as a
-        // repository: the format insists a source has apps. That is a fine
-        // answer here, so it is read for its numbers and its shell is kept.
-        let repo = try? JSONDecoder().decode(ASRepository.self, from: data)
+    /// One trip, with one more go after a breath.
+    ///
+    /// A weak signal drops the first request often enough that giving up on it
+    /// is what the store's empty screen actually was.
+    private static func _fetch(_ request: URLRequest) async -> (Data, HTTPURLResponse)? {
+        for delay in [0, 2] {
+            if delay > 0 { try? await Task.sleep(for: .seconds(delay)) }
+            if Task.isCancelled { return nil }
+            
+            if
+                let (data, response) = try? await _session.data(for: request),
+                let http = response as? HTTPURLResponse
+            {
+                return (data, http)
+            }
+        }
+        
+        return nil
+    }
+    
+    /// Takes a page's bytes and folds them into what is on screen. False when
+    /// they were no page at all.
+    @discardableResult
+    private func _accept(_ data: Data, page: Int) -> Bool {
+        // A page with no apps at all — an empty category, a search nothing
+        // matched — is a fine answer, and `_decoder` is the one that reads it
+        // as a source with no rows instead of as a failure. It used to be
+        // neither: the page was dropped, the store was left holding nothing,
+        // and nothing is drawn as "the store didn't answer".
+        guard let repo = try? Self._decoder.decode(ASRepository.self, from: data) else {
+            return false
+        }
+        
+        let meta = try? Self._decoder.decode(_PageMeta.self, from: data)
         
         if page == 1 {
-            if let repo {
-                repository = repo
-                categories = SourceAppsCategoryStrip.declared(in: repo)
-                    ?? SourceAppsCategoryStrip.categories(from: [repo])
-            } else {
-                // Keep the banner and the strip, drop the rows: the way back
-                // out of an empty category is the strip itself.
-                repository?.apps = []
-            }
-        } else if let repo {
+            repository = repo
+            
+            let strip = SourceAppsCategoryStrip.declared(in: repo)
+                ?? SourceAppsCategoryStrip.categories(from: [repo])
+            
+            // An answer with no apps still has to draw the strip that got the
+            // user into it — the strip is the way back out.
+            if !strip.isEmpty { categories = strip }
+        } else {
             repository?.apps.append(contentsOf: repo.apps)
         }
         
@@ -244,11 +299,21 @@ final class CatalogPager: ObservableObject {
         total = meta?.totalApps ?? repository?.apps.count ?? 0
         hasMore = meta?.hasMore ?? false
         didFail = false
+        
+        return true
     }
+    
+    /// Reads a page the way only a page may be read: a source with no rows is
+    /// an answer here, where anywhere else it means the URL is not a source.
+    private static let _decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.userInfo[.asAllowsEmptyApps] = true
+        return decoder
+    }()
     
     private func _hasMoreFromStore(_ url: URL) -> Bool? {
         guard let data = SourceCache.rawData(for: url) else { return nil }
-        return (try? JSONDecoder().decode(_PageMeta.self, from: data))?.hasMore
+        return (try? Self._decoder.decode(_PageMeta.self, from: data))?.hasMore
     }
     
     private func _request(_ url: URL, revalidating: Bool) -> URLRequest {

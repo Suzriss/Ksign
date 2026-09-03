@@ -266,8 +266,22 @@ enum SourceCache {
 		try? Data(contentsOf: _file(for: url, suffix: ".json"))
 	}
 	
+	/// The tag to revalidate this URL with, and only when the copy it
+	/// describes is still here.
+	///
+	/// The bytes and the tag are two files, and iOS empties the caches
+	/// directory whenever it likes — one of them can go without the other, and
+	/// a device short on space loses the big one first. A tag on its own asks
+	/// the server "still the same?", is told "yes, 304", and leaves the store
+	/// with nothing to draw and nothing on the way: an empty store that stays
+	/// empty through relaunches and through updates, because nothing in a new
+	/// build clears the caches directory. So the tag is only handed out when
+	/// the copy it belongs to can actually be read.
 	static func etag(for url: URL) -> String? {
-		guard let tag = try? String(contentsOf: _file(for: url, suffix: ".etag"), encoding: .utf8) else {
+		guard
+			FileManager.default.fileExists(atPath: _file(for: url, suffix: ".json").path),
+			let tag = try? String(contentsOf: _file(for: url, suffix: ".etag"), encoding: .utf8)
+		else {
 			return nil
 		}
 		let trimmed = tag.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -275,14 +289,29 @@ enum SourceCache {
 	}
 	
 	static func store(_ data: Data, etag: String?, for url: URL) {
-		try? data.write(to: _file(for: url, suffix: ".json"), options: .atomic)
-		
 		let tagFile = _file(for: url, suffix: ".etag")
+		
+		// The tag describes the bytes, so it is only worth keeping if the bytes
+		// were kept. A full disk fails this write silently, and a tag left
+		// behind from a copy that was never written is what turns the next
+		// launch into a 304 with nothing behind it.
+		do {
+			try data.write(to: _file(for: url, suffix: ".json"), options: .atomic)
+		} catch {
+			try? FileManager.default.removeItem(at: tagFile)
+			return
+		}
 		
 		if let etag, !etag.isEmpty {
 			try? etag.write(to: tagFile, atomically: true, encoding: .utf8)
 		} else {
 			try? FileManager.default.removeItem(at: tagFile)
 		}
+	}
+	
+	/// Drops what is held for a URL, bytes and tag together.
+	static func forget(_ url: URL) {
+		try? FileManager.default.removeItem(at: _file(for: url, suffix: ".json"))
+		try? FileManager.default.removeItem(at: _file(for: url, suffix: ".etag"))
 	}
 }

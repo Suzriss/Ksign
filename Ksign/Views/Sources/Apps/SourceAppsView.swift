@@ -179,6 +179,16 @@ struct SourceAppsView: View {
             
             _applyQuery()
         }
+        // A store that was left holding nothing asks again the moment the app
+        // comes back up. The read that failed was one moment on one signal, and
+        // until now the only thing that could put it right was the user finding
+        // the button — off this screen, nothing ever asked again.
+        .onReceive(NotificationCenter.default.publisher(
+            for: UIApplication.willEnterForegroundNotification
+        )) { _ in
+            guard _isPaged, _pager.repository == nil, !_pager.isLoading else { return }
+            _pager.refresh()
+        }
         // The chip, the sort menu and the language are all part of the one
         // question put to the server, so any of them moving asks it again from
         // the first page. The search field has its own wait below.
@@ -246,13 +256,18 @@ struct SourceAppsView: View {
                         _empty
                     }
                 }
-            } else if _isPaged ? _pager.isLoading : (viewModel.isFetching || _sources == nil) {
+            } else if _isPaged ? (_pager.isLoading || !_pager.didFail) : (viewModel.isFetching || _sources == nil) {
+                // Holding nothing is not the same as having been told nothing.
+                // The store only says the catalog is unreachable when a read
+                // actually came back empty-handed — everything else here is a
+                // read that is still on its way, or one about to be started by
+                // `onAppear` a frame from now.
                 _waiting
             } else {
                 // The fetch is over and it brought nothing. Saying `Fetching…`
                 // here is a lie the user can do nothing about — the catalog is
-                // unreachable, or answered with an empty list — so say so and
-                // give them the one thing that can change it.
+                // unreachable — so say so and give them the one thing that can
+                // change it.
                 _nothing
             }
         }
@@ -281,7 +296,11 @@ struct SourceAppsView: View {
                 .font(.system(size: 34))
                 .foregroundStyle(Color.ceresifyGold.opacity(0.7))
             
-            Text(.localized("Nothing in this category yet"))
+            Text(.localized(
+                _selectedCategory != nil || !_searchText.isEmpty
+                    ? "Nothing in this category yet"
+                    : "Nothing to show"
+            ))
                 .font(.subheadline)
                 .foregroundStyle(Color.ceresifySubtitle)
                 .multilineTextAlignment(.center)

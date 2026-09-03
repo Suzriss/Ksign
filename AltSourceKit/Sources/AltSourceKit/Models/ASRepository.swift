@@ -32,6 +32,14 @@ extension KeyedDecodingContainer {
     }
 }
 
+// MARK: - Tolerating a source with no apps
+
+extension CodingUserInfoKey {
+    /// Set on a decoder to let `ASRepository` decode a source whose `apps` is
+    /// empty. Only the paged catalog sets it — see the guard in the decoder.
+    public static let asAllowsEmptyApps = CodingUserInfoKey(rawValue: "ASRepository.allowsEmptyApps")!
+}
+
 // MARK: - Repository
 
 public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
@@ -97,10 +105,17 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
             forKey: .userInfo
         )
 
-        let decodedApps = try container.decodeIfPresent([App].self, forKey: .apps)
+        let decodedApps = try container.decodeIfPresent([App].self, forKey: .apps) ?? []
+        
+        // No apps at all is how a URL that isn't a source at all is told apart
+        // from one that is, and every source someone adds by hand is judged on
+        // it. A page of a paged catalog is the exception: page one of an empty
+        // category, or of a search nothing matched, is a perfectly good answer
+        // and has to arrive as a source with no rows rather than as a failure.
+        // That reading is asked for by name, so nothing else is loosened.
         guard
-            let apps = decodedApps,
-            !apps.isEmpty
+            !decodedApps.isEmpty
+            || decoder.userInfo[.asAllowsEmptyApps] as? Bool == true
         else {
             throw NSError(
                 domain: "FeatherSources",
@@ -111,7 +126,7 @@ public struct ASRepository: Sendable, Decodable, Hashable, Identifiable {
             )
         }
         
-        self.apps = apps
+        self.apps = decodedApps
         self.featuredApps =
             try container.decodeIfPresent([App.ID].self, forKey: .featuredApps) ?? []
         self.news = try container.decodeIfPresent([News].self, forKey: .news) ?? []
