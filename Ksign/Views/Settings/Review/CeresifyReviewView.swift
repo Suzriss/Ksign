@@ -30,7 +30,7 @@ enum CeresifyReviewSender {
 		var errorDescription: String? {
 			switch self {
 			case .rejected(let message): return message
-			case .unreachable:           return .localized("Couldn't reach the server.")
+			case .unreachable:           return .localized("No internet connection.")
 			}
 		}
 	}
@@ -97,14 +97,23 @@ struct CeresifyReviewView: View {
 	@State private var _isSending = false
 	@State private var _error: String?
 	@State private var _didSend = false
-	/// Set once a send has actually failed for want of a connection.
+	/// Set once a send has actually reached nothing at all.
 	///
-	/// A box the shop set to be answered has no way out of it, which is the
-	/// point — but a device with no signal can't answer however willing it is,
-	/// and an app with no way past that screen is bricked. So the way out
-	/// appears only after a real attempt reached nothing, and nothing is
-	/// marked as sent: the box is owed again on the next launch.
+	/// A box the shop set to be answered has no way out of it, and that stands
+	/// — but somebody staring at a button that does nothing deserves to be
+	/// told why, so the bar above says there is no connection rather than
+	/// leaving them to guess. Nothing is marked as sent, so the moment the
+	/// network is back the same box takes the answer.
 	@State private var _isUnreachable = false
+	
+	/// Whether to say there is no connection.
+	///
+	/// Either a send has just failed on the network, or the config's own last
+	/// fetch failed — which is known before a word is typed, so the bar is up
+	/// front rather than waiting for a doomed attempt.
+	private var _isOffline: Bool {
+		_isUnreachable || _config.isReachable == false
+	}
 
 	private var _review: CeresifyConfig.Review {
 		_config.config.review
@@ -130,6 +139,16 @@ struct CeresifyReviewView: View {
 	var body: some View {
 		NBNavigationView(_title, displayMode: .inline) {
 			Form {
+				if _isOffline {
+					Section {
+						CeresifyOfflineBar(
+							message: .localized("No internet connection.")
+						)
+						.listRowInsets(EdgeInsets())
+						.listRowBackground(EmptyView())
+					}
+				}
+				
 				Section {
 					_stars
 				} header: {
@@ -177,7 +196,7 @@ struct CeresifyReviewView: View {
 				.padding(.bottom, 4)
 			}
 			.toolbar {
-				if isDismissable || _isUnreachable {
+				if isDismissable {
 					NBToolbarButton(role: .dismiss)
 				}
 
@@ -261,14 +280,16 @@ struct CeresifyReviewView: View {
 			// Marked here rather than on the alert being dismissed: the rating
 			// is with the server either way, and the box must not come back on
 			// the next launch because somebody swiped the alert away.
+			_isUnreachable = false
 			_config.markReviewSent()
 			UINotificationFeedbackGenerator().notificationOccurred(.success)
 			_didSend = true
+		} catch CeresifyReviewSender.Failure.unreachable {
+			// Said once, by the bar at the top — a red line underneath saying
+			// the same thing is the same news twice.
+			_isUnreachable = true
+			_error = nil
 		} catch {
-			if case CeresifyReviewSender.Failure.unreachable = error {
-				_isUnreachable = true
-			}
-			
 			_error = error.localizedDescription
 		}
 	}
