@@ -72,6 +72,21 @@ extension ServerInstaller {
 		&& readCommonName() != nil
 	}
 	
+	/// The leaf followed by every certificate above it, as one PEM file.
+	///
+	/// A TLS server has to hand over the chain, not just its own certificate:
+	/// `*.backloop.dev` is issued by an intermediate no device carries, so a
+	/// leaf on its own cannot be verified. iOS says nothing about it — the
+	/// manifest fetch behind `itms-services://` just never happens, and the
+	/// installer waits on `Ready` until it is dismissed.
+	static func certificateChain(leaf: String, ca: String) -> String {
+		[leaf, ca]
+			.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+			.filter { !$0.isEmpty }
+			.joined(separator: "\n")
+			+ "\n"
+	}
+	
 	static func tls() throws -> TLSConfiguration? {
 		guard
 			let crt = getUrl("server", ext: "crt"),

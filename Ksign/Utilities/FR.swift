@@ -191,7 +191,14 @@ enum FR {
 					
 					try FileManager.default.createDirectoryIfNeeded(at: serverDir)
 					try pack.key.write(to: pemURL, atomically: true, encoding: .utf8)
-					try pack.cert.write(to: crtURL, atomically: true, encoding: .utf8)
+					// Leaf *and* the CA above it. The pack hands them over
+					// separately, and writing only the leaf leaves the server
+					// presenting a certificate whose issuer the device has
+					// never heard of: the handshake fails, `itms-services://`
+					// gives up without a word, and the installer sits on
+					// `Ready` forever.
+					try ServerInstaller.certificateChain(leaf: pack.cert, ca: pack.ca)
+						.write(to: crtURL, atomically: true, encoding: .utf8)
 					// The pack names the wildcard the certificate is issued to;
 					// what gets written down has to be a host that resolves.
 					let host = ServerInstaller.commonNameHost(pack.info.domains.commonName)

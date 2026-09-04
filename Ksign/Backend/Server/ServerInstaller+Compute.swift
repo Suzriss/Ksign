@@ -101,6 +101,11 @@ extension ServerInstaller {
 		"""
 	}
 
+	/// The manifest `itms-services://` asks for.
+	///
+	/// Every value here is a plain `String`: a `nil` anywhere in this
+	/// dictionary is not a property-list type, so serialising it fails, the
+	/// device is handed an empty file, and nothing at all comes up.
 	var installManifest: [String: Any] {[
 		"items": [[
 			"assets": [
@@ -108,16 +113,24 @@ extension ServerInstaller {
 					"kind": "software-package",
 					"url": payloadEndpoint.absoluteString,
 				],
+				// Served from this device, by the two routes that were already
+				// there for it. The icon used to be fetched from a GitHub path
+				// that has since gone — a 404 in the middle of an install that
+				// has no business reaching the network at all.
 				[
 					"kind": "display-image",
-					"url": "https://raw.githubusercontent.com/Nyasami/Ksign/refs/heads/main/Ksign/Resources/Assets.xcassets/AppIcons/AppIcon.appiconset/Ksign-default.png",
+					"url": displayImageSmallEndpoint.absoluteString,
+				],
+				[
+					"kind": "full-size-image",
+					"url": displayImageLargeEndpoint.absoluteString,
 				],
 			],
 			"metadata": [
-				"bundle-identifier": app.identifier,
-				"bundle-version": app.version,
+				"bundle-identifier": app.identifier ?? Bundle.main.bundleIdentifier ?? "",
+				"bundle-version": app.version ?? "1.0",
 				"kind": "software",
-				"title": app.name,
+				"title": app.name ?? app.identifier ?? "",
 			],
 		],],
 	]}
