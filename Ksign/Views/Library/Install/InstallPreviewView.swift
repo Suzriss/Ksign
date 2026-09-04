@@ -137,7 +137,10 @@ struct InstallPreviewView: View {
 			// minute finding that out again — the other server method needs no
 			// certificate from us at all, so the install moves to it.
 			if trusted == false {
-				_serverMethod = 1
+				// Written straight to the defaults the server itself reads, so
+				// the next installer is built on it whatever this view does
+				// with its own copy on the way out.
+				ServerInstaller.setServerMethod(1)
 				
 				UIAlertController.showAlertWithOk(
 					title: .localized("Install"),

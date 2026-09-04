@@ -249,6 +249,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _cleanSignerContents()
         
         _copyServerCertificates()
+        _preferCertificateFreeInstalls()
         _addDefaultCertificates()
 
 #if SERVER
@@ -365,6 +366,29 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     private func _cleanSignerContents() {
         guard !UserDefaults.standard.bool(forKey: AppFeaturesView.keepSignerAppsKey) else { return }
         Storage.shared.clearSignerContents()
+    }
+    
+    /// Takes the install route that needs no certificate of ours, once.
+    ///
+    /// The other route serves the manifest from this device over https, and
+    /// iOS will not fetch a manifest over a connection it doesn't trust. It
+    /// cannot trust this one: backloop.dev publishes the private key to its
+    /// certificate on purpose, so the certificate is revoked within days of
+    /// being issued — the one shipping now was revoked for key compromise on
+    /// 8 August 2026, two days after it was issued. That is not a fault of any
+    /// one device, so there is nothing to be gained by every device finding it
+    /// out for itself and failing an install to learn it.
+    ///
+    /// Once only: anyone who goes to Settings and picks the other route back
+    /// keeps it, and if backloop.dev ever issues a certificate that lives,
+    /// that route is whole again.
+    private func _preferCertificateFreeInstalls() {
+        let key = "ceresify.installRoute.certificateFree"
+        
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        
+        UserDefaults.standard.set(true, forKey: key)
+        ServerInstaller.setServerMethod(1)
     }
     
     private func _copyServerCertificates() {
