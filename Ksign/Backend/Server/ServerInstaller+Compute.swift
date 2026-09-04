@@ -38,12 +38,37 @@ extension ServerInstaller {
 		return comps.url!
 	}
 	
+	/// The manifest, written somewhere iOS will actually fetch it from.
+	///
+	/// iOS fetches the manifest itself and only over https it trusts, and the
+	/// certificate this device serves cannot be that: backloop.dev publishes
+	/// its private key on purpose, so every certificate it issues gets revoked
+	/// within days of being issued. The manifest is therefore the one piece
+	/// held elsewhere — on Ceresify's own certificate, which is an ordinary
+	/// trusted one. The build never leaves the device; what goes up is a
+	/// sentence naming where it already is, and the server only writes that
+	/// sentence for an address on the device itself.
+	///
+	/// This used to be `api.palera.in`, which meant the name and identifier of
+	/// every app anyone installed went to a service that had no reason to see
+	/// them.
 	var externalServerLink: String {
-		let baseUrl = "https://api.palera.in/genPlist?bundleid=\(app.identifier!)&name=\(app.name!)&version=\(app.version!)&fetchurl=\(self.payloadEndpoint.absoluteString)"
-		let encodedBaseUrl = baseUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-		let finalEncodedUrl = encodedBaseUrl.addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
+		var comps = URLComponents(
+			url: CeresifyAPI.baseURL.appendingPathComponent("api/genplist"),
+			resolvingAgainstBaseURL: false
+		)!
 		
-		return finalEncodedUrl
+		comps.queryItems = [
+			URLQueryItem(name: "bundleid", value: app.identifier ?? ""),
+			URLQueryItem(name: "name", value: app.name ?? app.identifier ?? ""),
+			URLQueryItem(name: "version", value: app.version ?? "1.0"),
+			URLQueryItem(name: "fetchurl", value: payloadEndpoint.absoluteString),
+		]
+		
+		// Encoded whole: it goes in as the value of another URL's `url=`, and
+		// its own separators would cut that query short.
+		return comps.url?.absoluteString
+			.addingPercentEncoding(withAllowedCharacters: .alphanumerics) ?? ""
 	}
 
 	var iTunesLink: String {
@@ -103,8 +128,9 @@ extension ServerInstaller {
 	/// page this device serves and Safari follows it from there.
 	///
 	/// The manifest that page points at is this device's own whenever the
-	/// server is https, which iOS accepts; only the plain-http mode has to
-	/// borrow an outside host to hold a manifest for it.
+	/// server is https and the certificate is one iOS accepts; the plain-http
+	/// mode has the manifest held on Ceresify instead, which needs no
+	/// certificate from this device at all.
 	var html: String {
 		let link = ServerInstaller.getServerMethod() == 1
 		? iTunesLinkExternal
