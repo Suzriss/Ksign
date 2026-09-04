@@ -17,15 +17,13 @@ clean:
 deps:
 	rm -rf deps || true
 	mkdir -p deps
-	curl -L -o deps/server.leaf https://backloop.dev/backloop.dev-cert.crt || true
-	# The leaf *and* the CA above it. `backloop.dev-cert.crt` is the leaf on
-	# its own, and it is issued by an intermediate no device carries, so a
-	# server handing over only that is one nothing can verify: iOS drops the
-	# manifest fetch behind `itms-services://` without a word and the install
-	# never comes up.
-	curl -L -o deps/server.ca https://backloop.dev/backloop.dev-ca.crt || true
-	cat deps/server.leaf deps/server.ca > deps/server.crt 2>/dev/null || true
-	rm -f deps/server.leaf deps/server.ca
+	# The bundle, not `backloop.dev-cert.crt`: that one is the leaf on its own,
+	# and since August 2026 the certificate is issued under a CA no device
+	# carries — releases before then were issued by Let's Encrypt, which every
+	# device already trusts, which is why a lone leaf used to be enough. A
+	# server handing over only the leaf is one nothing can verify: iOS drops
+	# the manifest fetch behind `itms-services://` without a word.
+	curl -L -o deps/server.crt https://backloop.dev/backloop.dev-bundle.crt || true
 	curl -L -o deps/server.key1 https://backloop.dev/backloop.dev-key.part1.pem || true
 	curl -L -o deps/server.key2 https://backloop.dev/backloop.dev-key.part2.pem || true
 	cat deps/server.key1 deps/server.key2 > deps/server.pem 2>/dev/null || true

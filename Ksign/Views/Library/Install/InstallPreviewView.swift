@@ -125,10 +125,31 @@ struct InstallPreviewView: View {
 		_handoffTask = Task { @MainActor in
 			// One request at the installer's own server, over the same name,
 			// port and certificate iOS is about to use.
-			let (reachability, chain) = await _probe(probeUrl)
+			let (reachability, chain, trusted) = await _probe(probeUrl)
 			let material = ServerInstaller.tlsSummary
 			
 			guard !Task.isCancelled else { return }
+			
+			// A certificate this device won't accept is the end of this route,
+			// whatever else is right: iOS fetches the manifest itself and will
+			// not fetch it over a connection it doesn't trust, and it says
+			// nothing when it declines. There is no point spending half a
+			// minute finding that out again — the other server method needs no
+			// certificate from us at all, so the install moves to it.
+			if trusted == false {
+				_serverMethod = 1
+				
+				UIAlertController.showAlertWithOk(
+					title: .localized("Install"),
+					message: .localized(
+						"This device does not trust the certificate the local install server uses, so iOS will not fetch the manifest from it.\n\nKsign has switched to the other server method, which needs no certificate. Please install again.\n\n%@",
+						arguments: chain
+					),
+					action: { dismiss() }
+				)
+				
+				return
+			}
 			
 			let opened = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
 				UIApplication.shared.open(URL(string: manifestLink)!) { success in
@@ -178,7 +199,7 @@ struct InstallPreviewView: View {
 	/// One request at the installer's own server, reported as it came back —
 	/// along with what the server handed over and what iOS made of it, which
 	/// is the part `itms-services://` will never say a word about.
-	private func _probe(_ url: URL) async -> (result: String, chain: String) {
+	private func _probe(_ url: URL) async -> (result: String, chain: String, trusted: Bool?) {
 		var request = URLRequest(url: url)
 		request.timeoutInterval = 10
 		request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
@@ -190,10 +211,10 @@ struct InstallPreviewView: View {
 		
 		do {
 			let (_, response) = try await session.data(for: request)
-			return ("HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)", inspector.chain)
+			return ("HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)", inspector.chain, inspector.trusted)
 		} catch {
 			let error = error as NSError
-			return ("\(error.domain) \(error.code) — \(error.localizedDescription)", inspector.chain)
+			return ("\(error.domain) \(error.code) — \(error.localizedDescription)", inspector.chain, inspector.trusted)
 		}
 	}
 	
@@ -385,6 +406,9 @@ struct InstallPreviewView: View {
 /// that tell those cases apart.
 private final class InstallProbeInspector: NSObject, URLSessionDelegate {
 	private(set) var chain = "no handshake"
+	/// Whether the system accepted the server's certificate. `nil` when the
+	/// handshake never got far enough to be asked.
+	private(set) var trusted: Bool?
 	
 	func urlSession(
 		_ session: URLSession,
@@ -401,8 +425,10 @@ private final class InstallProbeInspector: NSObject, URLSessionDelegate {
 		
 		let sent = (SecTrustCopyCertificateChain(trust) as? [SecCertificate])?.count ?? 0
 		var error: CFError?
+		let accepted = SecTrustEvaluateWithError(trust, &error)
 		
-		chain = SecTrustEvaluateWithError(trust, &error)
+		self.trusted = accepted
+		chain = accepted
 		? "\(sent) sent, trusted"
 		: "\(sent) sent — \(error.map { CFErrorCopyDescription($0) as String } ?? "refused")"
 		
