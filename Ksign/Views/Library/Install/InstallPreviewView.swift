@@ -23,6 +23,8 @@ struct InstallPreviewView: View {
 	@AppStorage("Feather.serverMethod") private var _serverMethod: Int = 0
 	@State private var _isWebviewPresenting = false
     @State private var progressTask: Task<Void, Never>?
+    /// The hand-off to iOS, and the watch kept on it afterwards.
+    @State private var _handoffTask: Task<Void, Never>?
 	
 	var app: AppInfoPresentable
 	@StateObject var viewModel: InstallerStatusViewModel
@@ -51,7 +53,7 @@ struct InstallPreviewView: View {
 		.onReceive(viewModel.$status) { newStatus in
 			if case .ready = newStatus {
 				if _serverMethod == 0 {
-					UIApplication.shared.open(URL(string: installer.iTunesLink)!)
+					_handOffToSystem()
 				} else if _serverMethod == 1 {
 					_isWebviewPresenting = true
 				}
@@ -91,7 +93,75 @@ struct InstallPreviewView: View {
 		.onDisappear {
             progressTask?.cancel()
             progressTask = nil
+            _handoffTask?.cancel()
+            _handoffTask = nil
 			BackgroundAudioManager.shared.stop()
+		}
+	}
+	
+	/// Opens the `itms-services` link, then watches to see whether iOS ever
+	/// comes back for the manifest.
+	///
+	/// It usually does not say when it won't: the link opens nothing, no
+	/// prompt appears, and this screen sits on `Ready` until it is dismissed.
+	/// So the server is asked for a page of its own first — that one request
+	/// exercises the same name, port and certificate iOS is about to use — and
+	/// if nothing has been fetched a few seconds after the hand-off, what was
+	/// found out is put on screen rather than left to be guessed at.
+	private func _handOffToSystem() {
+		guard _handoffTask == nil else { return }
+		
+		let manifestLink = installer.iTunesLink
+		let manifestUrl = installer.plistEndpoint.absoluteString
+		let probeUrl = installer.pageEndpoint
+		
+		_handoffTask = Task { @MainActor in
+			let reachability = await _probe(probeUrl)
+			
+			guard !Task.isCancelled else { return }
+			
+			let opened = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+				UIApplication.shared.open(URL(string: manifestLink)!) { success in
+					continuation.resume(returning: success)
+				}
+			}
+			
+			try? await Task.sleep(nanoseconds: 15 * NSEC_PER_SEC)
+			
+			guard !Task.isCancelled, case .ready = viewModel.status else { return }
+			
+			// The same manifest, reached the long way round: a page served by
+			// this device that follows the link itself. It is the one route
+			// left when the direct hand-off is the part that isn't working.
+			let safari = UIAlertAction(title: .localized("Open in Safari"), style: .default) { _ in
+				_isWebviewPresenting = true
+			}
+			
+			UIAlertController.showAlert(
+				title: .localized("Install"),
+				message: .localized(
+					"iOS never asked for the install manifest, so nothing was offered to install.\n\nServer: %@\nHand-off: %@\nManifest: %@",
+					arguments: reachability,
+					opened ? "opened" : "refused",
+					manifestUrl
+				),
+				actions: [safari, UIAlertAction(title: .localized("Dismiss"), style: .cancel)]
+			)
+		}
+	}
+	
+	/// One request at the installer's own server, reported as it came back.
+	private func _probe(_ url: URL) async -> String {
+		var request = URLRequest(url: url)
+		request.timeoutInterval = 10
+		request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+		
+		do {
+			let (_, response) = try await URLSession.shared.data(for: request)
+			return "HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)"
+		} catch {
+			let error = error as NSError
+			return "\(error.domain) \(error.code) — \(error.localizedDescription)"
 		}
 	}
 	
