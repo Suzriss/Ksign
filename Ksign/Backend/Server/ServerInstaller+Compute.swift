@@ -93,10 +93,26 @@ extension ServerInstaller {
 		return image.pngData()!
 	}
 
+	/// The page Safari is sent to, whose only job is to follow the install
+	/// link itself.
+	///
+	/// Since iOS 18 a sideloaded app has no entitlement for
+	/// `itms-services://`: `UIApplication.open` returns having done nothing
+	/// whatsoever, which is why the installer used to sit on `Ready` for
+	/// good. Safari is still allowed to open it, so the link is handed to a
+	/// page this device serves and Safari follows it from there.
+	///
+	/// The manifest that page points at is this device's own whenever the
+	/// server is https, which iOS accepts; only the plain-http mode has to
+	/// borrow an outside host to hold a manifest for it.
 	var html: String {
-		"""
+		let link = ServerInstaller.getServerMethod() == 1
+		? iTunesLinkExternal
+		: iTunesLink
+		
+		return """
 		<html style="background-color: black;">
-		<script type="text/javascript">window.location="\(iTunesLinkExternal)"</script>
+		<script type="text/javascript">window.location="\(link)"</script>
 		</html>
 		"""
 	}

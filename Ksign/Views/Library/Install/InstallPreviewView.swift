@@ -68,12 +68,13 @@ struct InstallPreviewView: View {
                 }
             }
 			
-			if case .sendingPayload = newStatus, _serverMethod == 1 {
-				_isWebviewPresenting = false
-			}
-            
             switch newStatus {
+            // Safari has done its part the moment the payload is asked for;
+            // the rest of the install belongs to this screen.
+            case .sendingPayload, .installing:
+                _isWebviewPresenting = false
             case .completed:
+                _isWebviewPresenting = false
                 progressTask?.cancel()
                 progressTask = nil
                 BackgroundAudioManager.shared.stop()
@@ -99,15 +100,20 @@ struct InstallPreviewView: View {
 		}
 	}
 	
-	/// Opens the `itms-services` link, then watches to see whether iOS ever
-	/// comes back for the manifest.
+	/// Hands the install to iOS, and does not take its word for it.
 	///
-	/// It usually does not say when it won't: the link opens nothing, no
-	/// prompt appears, and this screen sits on `Ready` until it is dismissed.
-	/// So the server is asked for a page of its own first — that one request
-	/// exercises the same name, port and certificate iOS is about to use — and
-	/// if nothing has been fetched a few seconds after the hand-off, what was
-	/// found out is put on screen rather than left to be guessed at.
+	/// `UIApplication.open` on an `itms-services://` link is the direct route,
+	/// and since iOS 18 a sideloaded app has no entitlement for it: the call
+	/// reports success, nothing opens, no prompt appears, and this screen sits
+	/// on `Ready` for good — which is exactly what "the install never comes
+	/// up" is. Nothing is reported because nothing failed, so the only way to
+	/// know is to watch the server: if iOS had taken the link it would have
+	/// come for the manifest within a moment.
+	///
+	/// When it doesn't, the link goes to Safari instead — by way of a page
+	/// this device serves, since Safari is still allowed to open it. And if
+	/// even that comes to nothing, what was found out goes on screen rather
+	/// than being left to be guessed at.
 	private func _handOffToSystem() {
 		guard _handoffTask == nil else { return }
 		
@@ -116,6 +122,8 @@ struct InstallPreviewView: View {
 		let probeUrl = installer.pageEndpoint
 		
 		_handoffTask = Task { @MainActor in
+			// One request at the installer's own server, over the same name,
+			// port and certificate iOS is about to use.
 			let reachability = await _probe(probeUrl)
 			
 			guard !Task.isCancelled else { return }
@@ -126,28 +134,41 @@ struct InstallPreviewView: View {
 				}
 			}
 			
-			try? await Task.sleep(nanoseconds: 15 * NSEC_PER_SEC)
+			guard await _stillWaiting(for: 3) else { return }
 			
-			guard !Task.isCancelled, case .ready = viewModel.status else { return }
+			_isWebviewPresenting = true
 			
-			// The same manifest, reached the long way round: a page served by
-			// this device that follows the link itself. It is the one route
-			// left when the direct hand-off is the part that isn't working.
-			let safari = UIAlertAction(title: .localized("Open in Safari"), style: .default) { _ in
-				_isWebviewPresenting = true
-			}
+			guard await _stillWaiting(for: 25) else { return }
 			
-			UIAlertController.showAlert(
+			_isWebviewPresenting = false
+			
+			// An alert asked for over a dismissal still in progress is dropped,
+			// and this one is the whole point of getting this far.
+			try? await Task.sleep(nanoseconds: NSEC_PER_SEC)
+			
+			guard !Task.isCancelled else { return }
+			
+			UIAlertController.showAlertWithOk(
 				title: .localized("Install"),
 				message: .localized(
 					"iOS never asked for the install manifest, so nothing was offered to install.\n\nServer: %@\nHand-off: %@\nManifest: %@",
 					arguments: reachability,
 					opened ? "opened" : "refused",
 					manifestUrl
-				),
-				actions: [safari, UIAlertAction(title: .localized("Dismiss"), style: .cancel)]
+				)
 			)
 		}
+	}
+	
+	/// Waits out the given seconds and reports whether the manifest has still
+	/// not been asked for.
+	@MainActor
+	private func _stillWaiting(for seconds: UInt64) async -> Bool {
+		try? await Task.sleep(nanoseconds: seconds * NSEC_PER_SEC)
+		
+		guard !Task.isCancelled, case .ready = viewModel.status else { return false }
+		
+		return true
 	}
 	
 	/// One request at the installer's own server, reported as it came back.
