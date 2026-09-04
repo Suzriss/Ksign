@@ -87,6 +87,21 @@ extension ServerInstaller {
 			+ "\n"
 	}
 	
+	/// What the server is set up to hand over, in one line: where the
+	/// certificate file was found and how many certificates are in it.
+	///
+	/// A file holding one certificate is a server handing over a leaf with no
+	/// chain, which no device can verify.
+	static var tlsSummary: String {
+		guard let crt = getUrl("server", ext: "crt") else { return "no certificate" }
+		
+		let contents = (try? String(contentsOf: crt, encoding: .utf8)) ?? ""
+		let count = contents.components(separatedBy: "BEGIN CERTIFICATE").count - 1
+		let folder = crt.deletingLastPathComponent().lastPathComponent
+		
+		return "\(count) in \(folder)"
+	}
+	
 	static func tls() throws -> TLSConfiguration? {
 		guard
 			let crt = getUrl("server", ext: "crt"),

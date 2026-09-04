@@ -9,6 +9,7 @@ import SwiftUI
 import NimbleViews
 import IDeviceSwift
 import OSLog
+import Security
 
 // MARK: - View
 struct InstallPreviewView: View {
@@ -124,7 +125,8 @@ struct InstallPreviewView: View {
 		_handoffTask = Task { @MainActor in
 			// One request at the installer's own server, over the same name,
 			// port and certificate iOS is about to use.
-			let reachability = await _probe(probeUrl)
+			let (reachability, chain) = await _probe(probeUrl)
+			let material = ServerInstaller.tlsSummary
 			
 			guard !Task.isCancelled else { return }
 			
@@ -151,8 +153,10 @@ struct InstallPreviewView: View {
 			UIAlertController.showAlertWithOk(
 				title: .localized("Install"),
 				message: .localized(
-					"iOS never asked for the install manifest, so nothing was offered to install.\n\nServer: %@\nHand-off: %@\nManifest: %@",
+					"iOS never asked for the install manifest, so nothing was offered to install.\n\nServer: %@\nChain: %@\nFiles: %@\nHand-off: %@\nManifest: %@",
 					arguments: reachability,
+					chain,
+					material,
 					opened ? "opened" : "refused",
 					manifestUrl
 				)
@@ -171,18 +175,25 @@ struct InstallPreviewView: View {
 		return true
 	}
 	
-	/// One request at the installer's own server, reported as it came back.
-	private func _probe(_ url: URL) async -> String {
+	/// One request at the installer's own server, reported as it came back —
+	/// along with what the server handed over and what iOS made of it, which
+	/// is the part `itms-services://` will never say a word about.
+	private func _probe(_ url: URL) async -> (result: String, chain: String) {
 		var request = URLRequest(url: url)
 		request.timeoutInterval = 10
 		request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
 		
+		let inspector = InstallProbeInspector()
+		let session = URLSession(configuration: .ephemeral, delegate: inspector, delegateQueue: nil)
+		
+		defer { session.finishTasksAndInvalidate() }
+		
 		do {
-			let (_, response) = try await URLSession.shared.data(for: request)
-			return "HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)"
+			let (_, response) = try await session.data(for: request)
+			return ("HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)", inspector.chain)
 		} catch {
 			let error = error as NSError
-			return "\(error.domain) \(error.code) — \(error.localizedDescription)"
+			return ("\(error.domain) \(error.code) — \(error.localizedDescription)", inspector.chain)
 		}
 	}
 	
@@ -362,4 +373,39 @@ struct InstallPreviewView: View {
         private func _normalizeInstallProgress(_ rawProgress: Double) -> Double {
             min(1.0, max(0.0, (rawProgress - 0.6) / 0.3))
         }
+}
+
+// MARK: - Probe
+/// Reports what the installer's own server handed over during the handshake,
+/// and what iOS made of it.
+///
+/// `itms-services://` never says why it gave up, and a failed handshake from
+/// `URLSession` is one flat error code however it failed. The chain the server
+/// actually sent, and the reason the system refused it, are the two things
+/// that tell those cases apart.
+private final class InstallProbeInspector: NSObject, URLSessionDelegate {
+	private(set) var chain = "no handshake"
+	
+	func urlSession(
+		_ session: URLSession,
+		didReceive challenge: URLAuthenticationChallenge,
+		completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+	) {
+		guard
+			challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+			let trust = challenge.protectionSpace.serverTrust
+		else {
+			completionHandler(.performDefaultHandling, nil)
+			return
+		}
+		
+		let sent = (SecTrustCopyCertificateChain(trust) as? [SecCertificate])?.count ?? 0
+		var error: CFError?
+		
+		chain = SecTrustEvaluateWithError(trust, &error)
+		? "\(sent) sent, trusted"
+		: "\(sent) sent — \(error.map { CFErrorCopyDescription($0) as String } ?? "refused")"
+		
+		completionHandler(.performDefaultHandling, nil)
+	}
 }
