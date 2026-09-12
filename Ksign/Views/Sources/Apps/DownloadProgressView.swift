@@ -44,7 +44,11 @@ struct DownloadProgressView: View {
 				_DownloadBody(download: download)
 					.onAppear { _didStart = true }
 			} else if isCloudSigning {
-				_waiting(.localized("Preparing your download…"))
+				// The server does the signing here — there's no byte count to
+				// watch, just a wait of unknown length. A bare spinner made
+				// that wait read as stuck; this counts up on its own so a tap
+				// still gets the same "how far along is this" answer.
+				_CloudSigningBody()
 			} else if _didStart {
 				_finished
 			} else {
@@ -150,6 +154,53 @@ struct DownloadProgressView: View {
 			}
 			.buttonStyle(.plain)
 			.foregroundStyle(Color.ceresifyGold)
+		}
+	}
+}
+
+// MARK: - Cloud signing
+/// Stands in for `_DownloadBody` while the server is the one working: it has
+/// no bytes to report, so this counts up on its own instead — quickly at
+/// first, then slower — and stops short of 100 so it never claims to be done
+/// before the request it's standing in for actually is.
+private struct _CloudSigningBody: View {
+	@State private var _percent: Int = 0
+
+	private let _tick = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
+
+	var body: some View {
+		VStack(spacing: 14) {
+			ZStack {
+				Circle()
+					.stroke(Color(uiColor: .quaternarySystemFill), lineWidth: 10)
+
+				Circle()
+					.trim(from: 0, to: max(0.001, Double(_percent) / 100))
+					.stroke(
+						Color.ceresifyGold,
+						style: StrokeStyle(lineWidth: 10, lineCap: .round)
+					)
+					.rotationEffect(.degrees(-90))
+					.animation(.smooth, value: _percent)
+
+				Text(verbatim: "\(_percent)%")
+					.font(.title2.bold())
+					.monospacedDigit()
+					.contentTransition(.numericText())
+					.animation(.smooth, value: _percent)
+			}
+			.frame(width: 108, height: 108)
+
+			Text(.localized("Preparing your download…"))
+				.font(.caption)
+				.foregroundStyle(.secondary)
+		}
+		.onReceive(_tick) { _ in
+			guard _percent < 95 else { return }
+			// The step shrinks as it climbs, so the count reads as settling
+			// in on a number rather than ticking past it.
+			let step = max(1, (95 - _percent) / 10)
+			_percent = min(95, _percent + step)
 		}
 	}
 }
