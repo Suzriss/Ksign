@@ -158,14 +158,6 @@ struct SourceAppsView: View {
                     await viewModel.fetchSources(Array(_allSources), refresh: true)
                 }
             }
-            
-            NBToolbarMenu(
-                systemImage: "line.3.horizontal.decrease",
-                style: .icon,
-                placement: .topBarTrailing
-            ) {
-                _sortActions()
-            }
         }
         .onAppear {
             // Whatever the model already holds — the stored copy, or a
@@ -379,37 +371,6 @@ struct SourceAppsView: View {
         let source: ASRepository
         let app: ASRepository.App
         let id: String = UUID().uuidString
-    }
-}
-
-// MARK: - Extension: View (Sort)
-extension SourceAppsView {
-    @ViewBuilder
-    private func _sortActions() -> some View {
-        Section(.localized("Filter by")) {
-            ForEach(SortOption.allCases, id: \.displayName) { opt in
-                _sortButton(for: opt)
-            }
-        }
-    }
-    
-    private func _sortButton(for option: SortOption) -> some View {
-        Button {
-            if _sortOption == option {
-                _sortAscending.toggle()
-            } else {
-                _sortOption = option
-                _sortAscending = true
-            }
-        } label: {
-            HStack {
-                Text(option.displayName)
-                Spacer()
-                if _sortOption == option {
-                    Image(systemName: _sortAscending ? "chevron.up" : "chevron.down")
-                }
-            }
-        }
     }
 }
 
