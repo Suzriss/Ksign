@@ -50,6 +50,7 @@ struct BottomTabbarView: View {
 					.accessibilityHidden(tab != _selectedTab)
 			}
 		}
+		.animation(.easeInOut(duration: 0.2), value: _selectedTab)
 		// An inset rather than an overlay: the tab views keep a safe area that
 		// accounts for the bar, so lists scroll clear of it on their own.
 		.safeAreaInset(edge: .bottom, spacing: 0) {
@@ -85,7 +86,17 @@ struct BottomTabbarView: View {
 		// nothing from the appearance proxy `FeatherApp` sets.
 		.background {
 			Group {
-				if let background = Color.ceresifyBackground {
+				if #available(iOS 26, *) {
+					// Drawn by hand rather than handed to `UITabBar`, so it gets
+					// nothing from the system's own Liquid Glass redesign unless
+					// asked for here. Older iOS keeps exactly what it had.
+					Rectangle()
+						.fill(.clear)
+						.glassEffect(
+							Color.ceresifyBackground.map { Glass.regular.tint($0) } ?? .regular,
+							in: .rect()
+						)
+				} else if let background = Color.ceresifyBackground {
 					background
 				} else {
 					Rectangle().fill(.bar)
