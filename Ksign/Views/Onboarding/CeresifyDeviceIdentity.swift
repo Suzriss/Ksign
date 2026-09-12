@@ -51,13 +51,17 @@ enum CeresifyDeviceIdentity {
 	static func adoptProvisionedUdidIfNeeded() -> String? {
 		if let existing = CeresifyEnrollmentModel.storedUdid { return existing }
 		guard let udid = provisionedUdid() else { return nil }
-		
-		let defaults = UserDefaults.standard
-		defaults.set(udid, forKey: CeresifyEnrollmentModel.udidKey)
+
+		// The Keychain, not UserDefaults: `storedUdid` reads the Keychain
+		// now, precisely so a reinstall doesn't lose it — writing the answer
+		// anywhere else means this whole check runs for nothing, and the
+		// subscriber it was just proven to be for gets sent through the
+		// profile-install screen anyway.
+		CeresifyKeychain.set(udid, for: CeresifyEnrollmentModel.udidKey)
 		// There is no profile to install, so the registration screen has
 		// nothing left to ask for.
-		defaults.set(true, forKey: CeresifyEnrollmentModel.hasSeenEnrollmentKey)
-		
+		CeresifyKeychain.setBool(true, for: CeresifyEnrollmentModel.hasSeenEnrollmentKey)
+
 		return udid
 	}
 }
