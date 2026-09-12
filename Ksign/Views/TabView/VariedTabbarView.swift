@@ -9,10 +9,6 @@ import SwiftUI
 import UIKit
 
 struct VariedTabbarView: View {
-	/// Set the moment the device registers, so the profile is offered exactly
-	/// once and the store never asks for it again.
-	@AppStorage("Ceresify.hasSeenEnrollment") private var _hasSeenEnrollment: Bool = false
-	
 	@ObservedObject private var _config = CeresifyConfigManager.shared
 	
 	@FetchRequest(
@@ -88,7 +84,7 @@ struct VariedTabbarView: View {
 			_config.isReachable != nil,
 			_config.gate == .open,
 			!_isEnrollmentPresenting,
-			!_hasSeenEnrollment,
+			!CeresifyKeychain.getBool(CeresifyEnrollmentModel.hasSeenEnrollmentKey),
 			CeresifyEnrollmentModel.storedUdid == nil,
 			_certificates.isEmpty
 		else {

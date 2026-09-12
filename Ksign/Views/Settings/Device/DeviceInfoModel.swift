@@ -56,7 +56,7 @@ final class DeviceInfoModel: ObservableObject {
 			// Registered here but unknown to the server, or simply offline.
 			device = Device(
 				udid: udid,
-				name: UserDefaults.standard.string(forKey: "Ceresify.deviceName")?.nilIfBlank,
+				name: CeresifyEnrollmentModel.storedDeviceName,
 				isSubscribed: false,
 				expiry: nil
 			)

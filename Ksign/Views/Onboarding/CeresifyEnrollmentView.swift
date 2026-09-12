@@ -12,11 +12,7 @@ struct CeresifyEnrollmentView: View {
     @StateObject private var _model = CeresifyEnrollmentModel()
     
     @Environment(\.scenePhase) private var _scenePhase
-    
-    /// Set once the user has been through here, so a launch without a
-    /// certificate doesn't corner them every time.
-    @AppStorage("Ceresify.hasSeenEnrollment") private var _hasSeenEnrollment: Bool = false
-    
+
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -67,7 +63,7 @@ struct CeresifyEnrollmentView: View {
             // certificate came with it is the account's business, and the
             // background refresh picks that up on a later launch.
             if step == .installed || _model.storedUdid != nil {
-                _hasSeenEnrollment = true
+                CeresifyKeychain.setBool(true, for: CeresifyEnrollmentModel.hasSeenEnrollmentKey)
             }
         }
     }
@@ -218,7 +214,7 @@ struct CeresifyEnrollmentView: View {
     
     private func _finish() {
         _model.cancel()
-        _hasSeenEnrollment = true
+        CeresifyKeychain.setBool(true, for: CeresifyEnrollmentModel.hasSeenEnrollmentKey)
         dismiss()
     }
 }

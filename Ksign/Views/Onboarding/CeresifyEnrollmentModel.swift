@@ -40,6 +40,13 @@ final class CeresifyEnrollmentModel: ObservableObject {
     /// Kept so a later launch can go straight for the certificate instead of
     /// asking the user to install the profile a second time. Plain defaults
     /// rather than `@AppStorage`, which only tracks changes inside a view.
+    ///
+    /// `udid` and `deviceName` live in the Keychain, not UserDefaults — a
+    /// reinstall clears UserDefaults but not the Keychain, and this is
+    /// exactly the value that must survive one: a device the server already
+    /// knows must not read as unregistered just because the app was deleted
+    /// and put back. `enrollToken` stays in UserDefaults — losing it mid-poll
+    /// only means starting the wait over, nothing worth surviving a reinstall.
     private enum _Keys {
         static let udid = "Ceresify.udid"
         static let deviceName = "Ceresify.deviceName"
@@ -64,7 +71,7 @@ final class CeresifyEnrollmentModel: ObservableObject {
     /// Readable from anywhere: the cloud signer needs it as much as this
     /// screen does.
     nonisolated static var storedUdid: String? {
-        UserDefaults.standard.string(forKey: _Keys.udid)?.nilIfEmpty
+        CeresifyKeychain.get(_Keys.udid)?.nilIfEmpty
     }
     
     var storedUdid: String? {
@@ -74,7 +81,7 @@ final class CeresifyEnrollmentModel: ObservableObject {
     /// Readable from anywhere, the way the UDID is: the rating box fills its
     /// name field with it so most people never have to type one.
     nonisolated static var storedDeviceName: String? {
-        UserDefaults.standard.string(forKey: _Keys.deviceName)?.nilIfEmpty
+        CeresifyKeychain.get(_Keys.deviceName)?.nilIfEmpty
     }
     
     var deviceName: String? {
@@ -177,14 +184,14 @@ final class CeresifyEnrollmentModel: ObservableObject {
     
     private func _deviceDidRegister(udid: String, deviceName: String?) async {
         UserDefaults.standard.removeObject(forKey: _Keys.enrollToken)
-        UserDefaults.standard.set(udid, forKey: _Keys.udid)
-        UserDefaults.standard.set(deviceName ?? "", forKey: _Keys.deviceName)
+        CeresifyKeychain.set(udid, for: _Keys.udid)
+        CeresifyKeychain.set(deviceName, for: _Keys.deviceName)
         // The profile is installed, and that is the whole of what this screen
         // was for. Waiting for the certificate to land before writing this
         // meant an account with none yet — the ordinary state between paying
         // and the certificate being issued — got asked to install a second
         // profile on every launch, for something a profile can't fix.
-        UserDefaults.standard.set(true, forKey: Self.hasSeenEnrollmentKey)
+        CeresifyKeychain.setBool(true, for: Self.hasSeenEnrollmentKey)
         await _fetchCertificate(udid: udid)
     }
     
