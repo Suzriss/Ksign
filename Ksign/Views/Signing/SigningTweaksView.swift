@@ -13,7 +13,8 @@ struct SigningTweaksView: View {
 	@State private var _isAddingPresenting = false
 	@State private var _tweaksInDirectory: [URL] = []
 	@State private var _enabledTweaks: Set<URL> = []
-	
+	@StateObject private var _presetsViewModel = SigningTweakPresetsViewModel()
+
 	@Binding var options: Options
 	
 	// MARK: Body
@@ -49,6 +50,13 @@ struct SigningTweaksView: View {
 				NBSection(.localized("Available Tweaks")) {
 					ForEach(_tweaksInDirectory, id: \.absoluteString) { tweak in
 						_file(tweak: tweak, isFromOptions: false)
+					}
+				}
+			}
+			if !_presetsViewModel.presets.isEmpty {
+				NBSection(.localized("Ready-made")) {
+					ForEach(_presetsViewModel.presets) { preset in
+						_presetRow(preset)
 					}
 				}
 			}
@@ -96,6 +104,7 @@ struct SigningTweaksView: View {
 			)
 		}
 		.onAppear(perform: _loadTweaks)
+		.task { await _presetsViewModel.load() }
 	}
 	
 	private func _loadTweaks() {
@@ -201,6 +210,47 @@ extension SigningTweaksView {
 			} label: {
 				Label(.localized("Delete"), systemImage: "trash")
 			}
+		}
+	}
+
+	@ViewBuilder
+	private func _presetRow(_ preset: TweakPreset) -> some View {
+		HStack {
+			VStack(alignment: .leading, spacing: 2) {
+				Text(preset.name)
+					.lineLimit(2)
+				if let size = preset.size, size > 0 {
+					Text(ByteCountFormatter.string(fromByteCount: size, countStyle: .file))
+						.font(.caption)
+						.foregroundColor(.secondary)
+				}
+			}
+			.frame(maxWidth: .infinity, alignment: .leading)
+
+			if _presetsViewModel.downloadingId == preset.id {
+				ProgressView()
+			} else if options.injectionFiles.contains(where: { $0.lastPathComponent.hasPrefix((preset.fileName as NSString).deletingPathExtension) }) {
+				Image(systemName: "checkmark.circle.fill")
+					.foregroundColor(.green)
+			} else {
+				Button {
+					Task { await _addPreset(preset) }
+				} label: {
+					Image(systemName: "arrow.down.circle")
+				}
+			}
+		}
+	}
+
+	private func _addPreset(_ preset: TweakPreset) async {
+		do {
+			let files = try await _presetsViewModel.download(preset)
+			for file in files where !options.injectionFiles.contains(file) {
+				options.injectionFiles.append(file)
+			}
+			_loadTweaks()
+		} catch {
+			print("Error downloading preset tweak: \(error)")
 		}
 	}
 }
